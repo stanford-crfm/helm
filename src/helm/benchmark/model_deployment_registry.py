@@ -127,6 +127,11 @@ def get_model_deployment(name: str, warn_deprecated: bool = False) -> ModelDeplo
     deployment: Optional[ModelDeployment] = DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT.get(name)
 
     if not deployment:
+        import helm.benchmark.model_deployments.huggingface_model_deployments  # noqa: F401
+        import helm.benchmark.model_deployments.huggingface_inference_providers_model_deployments  # noqa: F401
+        import helm.benchmark.model_deployments.litellm_model_deployments  # noqa: F401
+        import helm.benchmark.model_deployments.together_model_deployments  # noqa: F401
+
         for prefix, model_deployment_generator in _REGISTERED_MODEL_DEPLOYMENT_GENERATORS.items():
             if name.startswith(prefix):
                 deployment = model_deployment_generator(name)
@@ -243,77 +248,3 @@ def model_deployment_generator(prefix: str) -> Callable[[F], F]:
         return func
 
     return wrap
-
-
-@model_deployment_generator("together")
-def get_together_model_deployment(name: str):
-    name_parts = name.split("/")
-    model_name = "/".join(name_parts[-2:])
-    return ModelDeployment(
-        name=name, model_name=model_name, client_spec=ClientSpec("helm.clients.together_client.TogetherClient")
-    )
-
-
-@model_deployment_generator("litellm")
-def get_litellm_model_deployment(name: str):
-    name_parts = name.split("/")
-    model_name = "/".join(name_parts[-2:])
-    return ModelDeployment(
-        name=name,
-        model_name=model_name,
-        client_spec=ClientSpec(
-            "helm.clients.litellm_client.LiteLLMCompletionClient", args={"litellm_model": "/".join(name_parts[1:])}
-        ),
-    )
-
-
-@model_deployment_generator("huggingface")
-def get_huggingface_model_deployment(name: str):
-    from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
-
-    name_parts = name.split("/")
-    model_name = "/".join(name_parts[-2:])
-    pretrained_model_name_or_path = "/".join(name_parts[1:])
-    with HuggingFaceTokenizer.create_tokenizer(pretrained_model_name_or_path) as tokenizer:
-        max_sequence_length = tokenizer.model_max_length
-        if max_sequence_length > 1_000_000_000:
-            hwarn(
-                f"Hugging Face model {pretrained_model_name_or_path} does not have a configured model_max_length; "
-                "input truncation may not work correctly; errors may result from exceeding the model's max length"
-            )
-    return ModelDeployment(
-        name=name,
-        model_name=model_name,
-        client_spec=ClientSpec(
-            "helm.clients.huggingface_client.HuggingFaceClient",
-            args={"pretrained_model_name_or_path": pretrained_model_name_or_path},
-        ),
-        tokenizer_name=name,
-        max_sequence_length=max_sequence_length,
-    )
-
-
-@model_deployment_generator("huggingface-inference-providers")
-def get_huggingface_inference_providers_model_deployment(name: str):
-    from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer
-
-    name_parts = name.split("/")
-    model_name = "/".join(name_parts[-2:])
-    pretrained_model_name_or_path = "/".join(name_parts[1:])
-    pretrained_model_name_or_path = pretrained_model_name_or_path.split(":")[0]
-    with HuggingFaceTokenizer.create_tokenizer(pretrained_model_name_or_path) as tokenizer:
-        max_sequence_length = tokenizer.model_max_length
-        if max_sequence_length > 1_000_000_000:
-            hwarn(
-                f"Hugging Face model {pretrained_model_name_or_path} does not have a configured model_max_length; "
-                "input truncation may not work correctly; errors may result from exceeding the model's max length"
-            )
-    return ModelDeployment(
-        name=name,
-        model_name=model_name,
-        client_spec=ClientSpec(
-            "helm.clients.huggingface_inference_providers_client.HuggingFaceInferenceProvidersClient"
-        ),
-        tokenizer_name=f"huggingface/{pretrained_model_name_or_path}",
-        max_sequence_length=max_sequence_length,
-    )
