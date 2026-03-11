@@ -1352,6 +1352,15 @@ model_deployments:
       args:
         vertexai_model: publishers/meta/models/llama-3.1-405b-instruct-maas
 
+  - name: google/llama-4-scout-17b-16e-instruct
+    model_name: meta/llama-4-scout-17b-16e-instruct
+    tokenizer_name: meta/llama-4-scout-17b-16e-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+      args:
+        vertexai_model: publishers/meta/models/llama-4-scout-17b-16e-instruct-maas
+
   ## Gemma
   - name: together/gemma-2b
     model_name: google/gemma-2b
@@ -3418,15 +3427,6 @@ model_deployments:
       class_name: "helm.clients.together_client.TogetherChatClient"
       args:
         together_model: meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo
-
-  - name: together/llama-4-scout-17b-16e-instruct
-    model_name: meta/llama-4-scout-17b-16e-instruct
-    tokenizer_name: meta/llama-4-scout-17b-16e-instruct
-    max_sequence_length: 327680
-    client_spec:
-      class_name: "helm.clients.together_client.TogetherChatClient"
-      args:
-        together_model: meta-llama/Llama-4-Scout-17B-16E-Instruct
 
   - name: together/llama-4-maverick-17b-128e-instruct-fp8
     model_name: meta/llama-4-maverick-17b-128e-instruct-fp8
