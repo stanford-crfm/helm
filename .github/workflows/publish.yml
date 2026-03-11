@@ -27,6 +27,8 @@ jobs:
     steps:
     - name: Check out repository
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0   # full history + tags so setuptools-scm can get version from tag
     - name: Set up Python
       uses: actions/setup-python@v5
       with:

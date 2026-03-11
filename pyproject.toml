@@ -1,10 +1,13 @@
 [build-system]
-requires = ["setuptools"]
+requires = ["setuptools>=61", "setuptools-scm>=8"]
 build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+fallback_version = "0.5.13"
 
 [project]
 name = "medhelm"
-version = "0.5.14"
+dynamic = ["version"]
 authors = [
     { name = "Pacific AI", email = "david@pacific.ai" }
 ]
