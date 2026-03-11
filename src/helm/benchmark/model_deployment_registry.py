@@ -127,6 +127,7 @@ def get_model_deployment(name: str, warn_deprecated: bool = False) -> ModelDeplo
     deployment: Optional[ModelDeployment] = DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT.get(name)
 
     if not deployment:
+        import helm.benchmark.model_deployments.anthropic_model_deployments  # noqa: F401
         import helm.benchmark.model_deployments.huggingface_model_deployments  # noqa: F401
         import helm.benchmark.model_deployments.huggingface_inference_providers_model_deployments  # noqa: F401
         import helm.benchmark.model_deployments.litellm_model_deployments  # noqa: F401
