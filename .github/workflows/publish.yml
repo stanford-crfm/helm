@@ -45,3 +45,6 @@ jobs:
       run: uv run --isolated --no-project --with dist/*.whl helm-server --help
     - name: Publish package to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        verbose: true
+        skip-existing: true
