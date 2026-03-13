@@ -370,10 +370,12 @@ class OpenAIClient(CachingClient):
                 raw_completion_logprobs = raw_completion["logprobs"]
                 if "content" in raw_completion_logprobs and raw_completion_logprobs["contents"]:
                     for raw_completion_token in raw_completion_logprobs["contents"]:
-                        tokens.append(Token(
-                            text=raw_completion_token["token"],
-                            logprob=raw_completion_token["logprob"],
-                        ))
+                        tokens.append(
+                            Token(
+                                text=raw_completion_token["token"],
+                                logprob=raw_completion_token["logprob"],
+                            )
+                        )
             logprob = sum([token.logprob for token in tokens])
 
             thinking = (
