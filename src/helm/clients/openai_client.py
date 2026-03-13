@@ -365,6 +365,17 @@ class OpenAIClient(CachingClient):
             # vLLM has a optional `reasoning_content` field in the message
             # that is not in the standard OpenAI API.
             # This field is also used by some model providers such as Grok.
+            tokens: List[Token] = []
+            if "logprobs" in raw_completion and raw_completion["logprobs"]:
+                raw_completion_logprobs = raw_completion["logprobs"]
+                if "content" in raw_completion_logprobs and raw_completion_logprobs["contents"]:
+                    for raw_completion_token in raw_completion_logprobs["contents"]:
+                        tokens.append(Token(
+                            text=raw_completion_token["token"],
+                            logprob=raw_completion_token["logprob"],
+                        ))
+            logprob = sum([token.logprob for token in tokens])
+
             thinking = (
                 Thinking(text=raw_completion["message"]["reasoning_content"])
                 if "reasoning_content" in raw_completion["message"]
@@ -372,8 +383,8 @@ class OpenAIClient(CachingClient):
             )
             completion = GeneratedOutput(
                 text=text,
-                logprob=0,  # OpenAI chat completion API does not return logprobs
-                tokens=[],  # OpenAI chat completion API does not return tokens
+                logprob=logprob,
+                tokens=tokens,
                 finish_reason={"reason": raw_completion["finish_reason"]},
                 thinking=thinking,
             )
