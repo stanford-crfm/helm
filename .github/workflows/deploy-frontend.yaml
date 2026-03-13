@@ -1,47 +1,13 @@
-name: Frontend
+name: Deploy Frontend
 
-on:
-  push:
-    branches:
-      - '*'
-    paths:
-      - 'helm-frontend/**'
-  pull_request:
-    branches:
-      - '*'
-    paths:
-      - 'helm-frontend/**'
+on: workflow_dispatch
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-    - name: Use Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-    - name: Install Yarn
-      run: npm install --global yarn
-    - name: Install dependencies
-      working-directory: ./helm-frontend
-      run: yarn install
-    - name: Run pre-commit
-      run: ./pre-commit-frontend.sh
-    - name: Build
-      working-directory: ./helm-frontend
-      run: yarn build
-    - name: Run tests
-      working-directory: ./helm-frontend
-      run: yarn test
-
   build:
     runs-on: ubuntu-latest
     # Deploy to only run on pushes to master
     # if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     if: github.event_name == 'push' && github.ref == 'refs/heads/react_frontend'
-    needs: test
     environment:
       name: github-pages
     env:

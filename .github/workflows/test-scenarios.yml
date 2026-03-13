@@ -1,4 +1,4 @@
-name: Scenario tests
+name: Test Scenarios
 on:
   push:
     branches: [ main ]
