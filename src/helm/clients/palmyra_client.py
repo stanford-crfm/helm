@@ -6,12 +6,7 @@ from typing import Any, Dict, List
 from helm.clients.openai_client import OpenAIClient
 from helm.common.cache import CacheConfig
 from helm.common.hierarchical_logger import hexception, hwarn
-from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, Token, ErrorFlags
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
-)
-from helm.tokenizers.tokenizer import Tokenizer
+from helm.common.request import wrap_request_time, Request, RequestResult, GeneratedOutput, ErrorFlags
 from helm.clients.client import CachingClient, truncate_sequence
 
 
@@ -29,11 +24,9 @@ def _is_content_moderation_failure(response: Dict) -> bool:
 
 
 class PalmyraClient(CachingClient):
-    def __init__(self, tokenizer: Tokenizer, tokenizer_name: str, cache_config: CacheConfig, api_key: str):
+    def __init__(self, cache_config: CacheConfig, api_key: str):
         super().__init__(cache_config=cache_config)
         self.api_key: str = api_key
-        self.tokenizer = tokenizer
-        self.tokenizer_name = tokenizer_name
 
     def _send_request(self, model_name: str, raw_request: Dict[str, Any]) -> Dict[str, Any]:
         response = requests.request(
@@ -119,17 +112,11 @@ class PalmyraClient(CachingClient):
             response_text: str = response["choices"][0]["text"]
 
             # The Writer API doesn't support echo. If `echo_prompt` is true, combine the prompt and completion.
-            text: str = request.prompt + response_text if request.echo_prompt else response_text
+            if request.echo_prompt:
+                response_text = request.prompt + response_text
+
             # The Writer API doesn't return us tokens or logprobs, so we tokenize ourselves.
-            tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-                # Writer uses the GPT-2 tokenizer
-                TokenizationRequest(text, tokenizer=self.tokenizer_name)
-            )
-
-            # Log probs are not currently not supported by the Writer, so set to 0 for now.
-            tokens: List[Token] = [Token(text=str(text), logprob=0) for text in tokenization_result.raw_tokens]
-
-            completion = GeneratedOutput(text=response_text, logprob=0, tokens=tokens)
+            completion = GeneratedOutput(text=response_text, logprob=0, tokens=[])
             sequence = truncate_sequence(completion, request, print_warning=True)
             completions.append(sequence)
 
@@ -148,14 +135,10 @@ class PalmyraChatClient(OpenAIClient):
 
     def __init__(
         self,
-        tokenizer: Tokenizer,
-        tokenizer_name: str,
         cache_config: CacheConfig,
         api_key: str,
     ):
         super().__init__(
-            tokenizer=tokenizer,
-            tokenizer_name=tokenizer_name,
             cache_config=cache_config,
             api_key=api_key,
             org_id=None,
