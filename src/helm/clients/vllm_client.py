@@ -34,7 +34,6 @@ class VLLMClient(OpenAILegacyCompletionsClient):
         )
         self.tokenizer = tokenizer
         self.tokenizer_name = tokenizer_name
-        self.vllm_model_name = vllm_model_name
 
     def _to_raw_completion_request(self, request: Request) -> Dict[str, Any]:
         raw_request = super()._to_raw_completion_request(request)
@@ -58,16 +57,12 @@ class VLLMChatClient(OpenAIClient):
 
     def __init__(
         self,
-        tokenizer: Tokenizer,
-        tokenizer_name: str,
         cache_config: CacheConfig,
         base_url: Optional[str] = None,
         vllm_model_name: Optional[str] = None,
         **kwargs,
     ):
         super().__init__(
-            tokenizer=tokenizer,
-            tokenizer_name=tokenizer_name,
             cache_config=cache_config,
             api_key="EMPTY",
             org_id=None,
@@ -75,6 +70,4 @@ class VLLMChatClient(OpenAIClient):
             openai_model_name=vllm_model_name,
             **kwargs,
         )
-        self.tokenizer = tokenizer
-        self.tokenizer_name = tokenizer_name
         self.vllm_model_name = vllm_model_name
