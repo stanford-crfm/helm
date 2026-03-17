@@ -2,7 +2,7 @@ from helm.benchmark.model_deployment_registry import ClientSpec, ModelDeployment
 
 
 @model_deployment_generator("mistralai")
-def get_together_model_deployment(name: str):
+def get_mistralai_model_deployment(name: str):
     name_parts = name.split("/")
     model_name = "/".join(name_parts[-2:])
     return ModelDeployment(
