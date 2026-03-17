@@ -131,6 +131,7 @@ def get_model_deployment(name: str, warn_deprecated: bool = False) -> ModelDeplo
         import helm.benchmark.model_deployments.huggingface_model_deployments  # noqa: F401
         import helm.benchmark.model_deployments.huggingface_inference_providers_model_deployments  # noqa: F401
         import helm.benchmark.model_deployments.litellm_model_deployments  # noqa: F401
+        import helm.benchmark.model_deployments.mistralai_model_deployments  # noqa: F401
         import helm.benchmark.model_deployments.openai_model_deployments  # noqa: F401
         import helm.benchmark.model_deployments.openrouter_model_deployments  # noqa: F401
         import helm.benchmark.model_deployments.together_model_deployments  # noqa: F401
