@@ -102,6 +102,11 @@ metrics:
     short_display_name: Score
     description: Model-judged score.
     lower_is_better: false
+  - name: model_judged_score
+    display_name: Model Judged Score
+    short_display_name: Score
+    description: Model-judged score.
+    lower_is_better: false
 
 ############################################################
 perturbations: []
@@ -146,6 +151,8 @@ run_groups:
     description: Arabic Scenarios
     category: Scenarios
     subgroups:
+      - arabic_legal_qa
+      - arabic_legal_rag
       - arabic_content_generation
       - arabic_finance_calculation
       - arabic_finance_mcq
@@ -211,6 +218,40 @@ run_groups:
       - general_information
     environment:
       main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "2025"
+      language: English
+
+  - name: arabic_legal_qa
+    display_name: Legal QA
+    description: Legal QA
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: model_judged_score
+      main_split: test
+    taxonomy:
+      task: "?"
+      what: "?"
+      who: "?"
+      when: "2025"
+      language: English
+
+  - name: arabic_legal_rag
+    display_name: Legal RAG
+    description: Legal RAG
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: model_judged_score
       main_split: test
     taxonomy:
       task: "?"

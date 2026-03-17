@@ -190,3 +190,63 @@ def get_arabic_finance_calculation_spec(lang: str = "ar") -> RunSpec:
         annotators=annotator_specs,
         groups=["arabic_finance_calculation"],
     )
+
+
+@run_spec_function("arabic_legal_qa")
+def get_arabic_legal_qa() -> RunSpec:
+    """EXPERIMENTAL: This run spec here may have future reverse incompatible changes."""
+
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.arabic_legal_scenario.ArabicLegalQAScenario")
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Answer the following question briefly in Modern Standard Arabic in the context of the UAE. Respond only with the answer.",
+        max_tokens=1000,
+        stop_sequences=[],
+    )
+
+    annotator_specs = [
+        AnnotatorSpec(class_name="helm.benchmark.annotation.arabic_legal_annotator.ArabicLegalAnnotator")
+    ]
+
+    metric_specs = get_basic_metric_specs([]) + [
+        MetricSpec(class_name="helm.benchmark.metrics.arabic_legal_metric.ArabicLegalMetric")
+    ]
+
+    return RunSpec(
+        name="arabic_legal_qa",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        annotators=annotator_specs,
+        groups=["arabic_legal_qa"],
+    )
+
+
+@run_spec_function("arabic_legal_rag")
+def get_arabic_legal_rag() -> RunSpec:
+    """EXPERIMENTAL: This run spec here may have future reverse incompatible changes."""
+
+    scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.arabic_legal_scenario.ArabicLegalRAGScenario")
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="Answer the following question briefly in Modern Standard Arabic in the context of the UAE. Respond only with the answer.",
+        max_tokens=1000,
+        stop_sequences=[],
+    )
+
+    annotator_specs = [
+        AnnotatorSpec(class_name="helm.benchmark.annotation.arabic_legal_annotator.ArabicLegalAnnotator")
+    ]
+
+    metric_specs = get_basic_metric_specs([]) + [
+        MetricSpec(class_name="helm.benchmark.metrics.arabic_legal_metric.ArabicLegalMetric")
+    ]
+
+    return RunSpec(
+        name="arabic_legal_rag",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        annotators=annotator_specs,
+        groups=["arabic_legal_rag"],
+    )
