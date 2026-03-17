@@ -1,4 +1,4 @@
-from typing import Dict, Optional, List
+from typing import Callable, Dict, Optional, List, TypeVar
 from dataclasses import dataclass
 
 import cattrs
@@ -76,10 +76,36 @@ def auto_generate_tokenizer_config(name: str) -> TokenizerConfig:
 
 
 def get_tokenizer_config(name: str) -> Optional[TokenizerConfig]:
-    tokenizer_config = TOKENIZER_NAME_TO_CONFIG.get(name)
-    if tokenizer_config:
-        return tokenizer_config
-    name_parts = name.split("/")
-    if len(name_parts) > 2:
-        return auto_generate_tokenizer_config(name)
-    return None
+    tokenizer_config: Optional[TokenizerConfig] = TOKENIZER_NAME_TO_CONFIG.get(name)
+    if not tokenizer_config:
+        import helm.benchmark.tokenizer_configs.huggingface_tokenizer_configs  # noqa: F401
+
+        for prefix, tokenizer_config_generator in _REGISTERED_TOKENIZER_CONFIG_GENERATORS.items():
+            if name.startswith(prefix):
+                tokenizer_config = tokenizer_config_generator(name)
+
+    return tokenizer_config
+
+
+TokenizerConfigGenerator = Callable[[str], TokenizerConfig]
+"""A function that takes in a model name and returns a TokenizerConfig"""
+
+
+_REGISTERED_TOKENIZER_CONFIG_GENERATORS: Dict[str, TokenizerConfigGenerator] = {}
+"""Dict of prefixes to TokenizerConfigGenerators."""
+
+
+F = TypeVar("F", bound=TokenizerConfigGenerator)
+
+
+def tokenizer_config_generator(prefix: str) -> Callable[[F], F]:
+    """Register the TokenizerConfigGenerator for the given model name prefix."""
+
+    def wrap(func: F) -> F:
+        key = prefix.strip("/") + "/"
+        if key in _REGISTERED_TOKENIZER_CONFIG_GENERATORS:
+            raise ValueError(f"A TokenizerConfigGenerator with prefix {key} already exists")
+        _REGISTERED_TOKENIZER_CONFIG_GENERATORS[key] = func
+        return func
+
+    return wrap
