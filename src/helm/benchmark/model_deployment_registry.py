@@ -135,6 +135,7 @@ def get_model_deployment(name: str, warn_deprecated: bool = False) -> ModelDeplo
         import helm.benchmark.model_deployments.openai_model_deployments  # noqa: F401
         import helm.benchmark.model_deployments.openrouter_model_deployments  # noqa: F401
         import helm.benchmark.model_deployments.together_model_deployments  # noqa: F401
+        import helm.benchmark.model_deployments.writer_model_deployments  # noqa: F401
 
         for prefix, model_deployment_generator in _REGISTERED_MODEL_DEPLOYMENT_GENERATORS.items():
             if name.startswith(prefix):
