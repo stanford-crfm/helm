@@ -103,6 +103,24 @@ body { margin: 0; font-family: system-ui, -apple-system, sans-serif; background:
 
 .site-main { min-height: calc(100vh - 120px); padding: 2rem 1.5rem; }
 .main-inner { max-width: 900px; margin: 0 auto; }
+.home-logos {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5rem 2rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+.home-logos a {
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+}
+.home-logos a:hover { color: var(--accent); }
+.home-logos img { display: block; height: 48px; width: auto; }
+
 .site-main h1 { font-size: 1.75rem; margin-top: 0; }
 .site-main h2 { font-size: 1.35rem; margin-top: 1.5rem; }
 .site-main h3 { font-size: 1.15rem; }

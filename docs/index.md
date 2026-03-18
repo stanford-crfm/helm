@@ -3,14 +3,22 @@ layout: default
 title: MedHELM
 ---
 
+<div class="home-logos">
+  <a href="https://crfm.stanford.edu/" rel="noopener" target="_blank" aria-label="Stanford CRFM"><img src="{{ '/assets/images/crfm-logo.png' | relative_url }}" alt="Stanford CRFM" height="48"/></a>
+  <a href="https://crfm.stanford.edu/helm/" rel="noopener" target="_blank" aria-label="HELM"><img src="{{ '/assets/images/helm-logo.png' | relative_url }}" alt="HELM" height="48"/></a>
+  <a href="https://hai.stanford.edu/" rel="noopener" target="_blank" aria-label="Stanford HAI"><img src="{{ '/assets/images/chai-logo.svg' | relative_url }}" alt="Stanford HAI" height="48"/></a>
+  <a href="https://pacific.ai/" rel="noopener" target="_blank" aria-label="Pacific AI"><img src="{{ '/assets/images/pacific-ai-logo.svg' | relative_url }}" alt="Pacific AI" height="48"/></a>
+</div>
+
 # MedHELM
 
-<img src="{{ '/assets/images/medhelm_logo.jpg' | relative_url }}" alt="MedHELM" width="320"/>
+<img src="{{ '/assets/images/medhelm_logo.jpg' | relative_url }}" alt="MedHELM" width="160"/>
 
-<a href="https://github.com/PacificAI/medhelm"><img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/PacificAI/medhelm"></a>
 <a href="https://github.com/PacificAI/medhelm/graphs/contributors"><img alt="GitHub contributors" src="https://img.shields.io/github/contributors/PacificAI/medhelm"></a>
-<a href="https://github.com/PacificAI/medhelm/blob/main/LICENSE"><img alt="License" src="https://img.shields.io/github/license/PacificAI/medhelm?color=blue" /></a>
+<a href="https://github.com/PacificAI/medhelm/blob/main/LICENSE"><img alt="License: Apache 2.0" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"></a>
 <a href="https://pypi.org/project/medhelm/"><img alt="PyPI" src="https://img.shields.io/pypi/v/medhelm?color=blue" /></a>
+
+**License:** This project is licensed under the [Apache License 2.0](https://github.com/PacificAI/medhelm/blob/main/LICENSE).
 
 **Holistic Evaluation of Language Models (HELM)** is an open source Python framework created by the [Center for Research on Foundation Models (CRFM) at Stanford](https://crfm.stanford.edu/) for holistic, reproducible and transparent evaluation of foundation models, including large language models (LLMs) and multimodal models. This framework includes the following features:
 
