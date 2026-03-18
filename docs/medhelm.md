@@ -77,18 +77,22 @@ gcloud storage rsync -r $GCS_BENCHMARK_OUTPUT_PATH $OUTPUT_PATH
 
 #### 3. Run a Tiny Evaluation
 
+**Quick test** (small model, 2 instances — runs in seconds):
+
 ```bash
-# Set variables
+RUN_ENTRIES="pubmed_qa:model=openai/gpt2,model_deployment=huggingface/gpt2"
+SUITE="my-medhelm-suite"
+MAX_EVAL_INSTANCES=2
+helm-run --run-entries $RUN_ENTRIES --suite $SUITE --max-eval-instances $MAX_EVAL_INSTANCES --output-path $OUTPUT_PATH
+```
+
+**Full example** (better quality, 10 instances):
+
+```bash
 RUN_ENTRIES="pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct"
 SUITE="my-medhelm-suite"
 MAX_EVAL_INSTANCES=10
-
-# Run evaluation
-helm-run \
-   --run-entries $RUN_ENTRIES \
-   --suite $SUITE \
-   --max-eval-instances $MAX_EVAL_INSTANCES \
-   --output-path $OUTPUT_PATH
+helm-run --run-entries $RUN_ENTRIES --suite $SUITE --max-eval-instances $MAX_EVAL_INSTANCES --output-path $OUTPUT_PATH
 ```
 
 #### 4. Build and Open the Local Leaderboard
@@ -195,26 +199,28 @@ pip install -U "medhelm[summarization]"
 
 ## Run Your First Evaluation
 
-The example below evaluates **Qwen2.5‑7B‑Instruct** on the **PubMedQA** scenario using 10 instances.
-
+**Quick test:** Use **GPT‑2** with 2 instances to verify install and run the full pipeline in seconds. **Full example:** Use **Qwen2.5‑7B‑Instruct** with 10 instances for better quality.
 
 #### 1. Run the Benchmark 
 
-The following command runs **PubMedQA** on **Qwen2.5‑7B‑Instruct** for 10 instances and stores the results under `./benchmark_output/runs/my-medhelm-suite`. 
+**Quick test** (runs in seconds):
 
 ```bash
-# Set variables
+RUN_ENTRIES="pubmed_qa:model=openai/gpt2,model_deployment=huggingface/gpt2"
+SUITE="my-medhelm-suite"
+MAX_EVAL_INSTANCES=2
+OUTPUT_PATH="./benchmark_output"
+helm-run --run-entries $RUN_ENTRIES --suite $SUITE --max-eval-instances $MAX_EVAL_INSTANCES --output-path $OUTPUT_PATH
+```
+
+**Full example** (10 instances, better quality):
+
+```bash
 RUN_ENTRIES="pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct"
 SUITE="my-medhelm-suite"
 MAX_EVAL_INSTANCES=10
 OUTPUT_PATH="./benchmark_output"
-
-# Run evaluation
-helm-run \
-   --run-entries $RUN_ENTRIES \
-   --suite $SUITE \
-   --max-eval-instances $MAX_EVAL_INSTANCES \
-   --output-path $OUTPUT_PATH
+helm-run --run-entries $RUN_ENTRIES --suite $SUITE --max-eval-instances $MAX_EVAL_INSTANCES --output-path $OUTPUT_PATH
 ```
 
 For more information about `helm-run`, refer to the [Using helm-run](tutorial/#using-helm-run) page.

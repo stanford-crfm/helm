@@ -31,7 +31,15 @@ pip install medhelm
 uv pip install medhelm
 ```
 
-Run a benchmark:
+**Quick test** (small model, 2 instances — runs in seconds):
+
+```sh
+uv run medhelm-run --run-entries "pubmed_qa:model=openai/gpt2,model_deployment=huggingface/gpt2" --suite my_med_test --max-eval-instances 2
+uv run helm-summarize --suite my_med_test
+uv run helm-server --suite my_med_test
+```
+
+**Full example** (better quality, 10 instances):
 
 ```sh
 uv run medhelm-run --run-entries "pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" --suite my_med_test --max-eval-instances 10
@@ -99,7 +107,7 @@ helm-server --suite my-suite
 | **Summarization** (Clinical NLP tier) | `pip install "medhelm[summarization]"` | DischargeMe, ACI-Bench, Patient-Edu (2–3 min install; bert-score, rouge-score, nltk) |
 | **Gated** (licensing tier) | `pip install "medhelm[gated]"` | MedQA, MedMCQA (Drive; gdown) |
 
-Run: `uv run medhelm-run --run-entries "<scenario>:model=<model>" --suite <name> --max-eval-instances <n>` then `helm-summarize` and `helm-server`. See [medhelm.org](https://medhelm.org) for full docs.
+**Fast test:** `pubmed_qa` with `model=openai/gpt2,model_deployment=huggingface/gpt2` and `--max-eval-instances 2`. **Full run:** use `qwen/qwen2.5-7b-instruct` and more instances. Run `helm-summarize` and `helm-server` after. See [medhelm.org](https://medhelm.org) for full docs.
 
 <!--quick-start-end-->
 
@@ -111,31 +119,13 @@ MedHELM aims to be a **new public repo** with **fewer dependencies**, **easier i
 - **Non-gated alternatives:** We provide **7 non-gated datasets** (e.g. PubMedQA, MedCalc-Bench, MedicationQA, MedHallu, and others in the Standard and Summarization tiers) as free alternatives for the same kinds of tasks as gated benchmarks.
 - **Hospital & private data:** We want to make it **easier for hospital systems to contribute or add their own private datasets**. If your institution is interested in running or contributing benchmarks, we’d like to hear from you.
 
-## Leaderboards
+## Leaderboard
 
-We maintain official leaderboards with results from evaluating recent models on notable benchmarks using this framework. Our current flagship leaderboards are:
+We maintain a **medical** leaderboard for comparing models on MedHELM benchmarks:
 
-- [HELM Capabilities](https://crfm.stanford.edu/helm/capabilities/latest/)
-- [HELM Safety](https://crfm.stanford.edu/helm/safety/latest/)
-- [Holistic Evaluation of Vision-Language Models (VHELM)](https://crfm.stanford.edu/helm/vhelm/latest/)
+- **[MedHELM Leaderboard](https://crfm.stanford.edu/helm/medhelm/latest/#/leaderboard)** — PubMedQA, MedQA, MedMCQA, and other medical benchmarks.
 
-We also maintain leaderboards for a diverse range of domains (e.g. medicine, finance) and aspects (e.g. multi-linguality, world knowledge, regulation compliance). Refer to the [HELM website](https://crfm.stanford.edu/helm/) for a full list of leaderboards.
-
-## Papers
-
-The HELM framework was used in the following papers for evaluating models.
-
-- **Holistic Evaluation of Language Models** - [paper](https://openreview.net/forum?id=iO4LZibEqW), [leaderboard](https://crfm.stanford.edu/helm/classic/latest/)
-- **Holistic Evaluation of Vision-Language Models (VHELM)** - [paper](https://arxiv.org/abs/2410.07112), [leaderboard](https://crfm.stanford.edu/helm/vhelm/latest/), [documentation](https://crfm-helm.readthedocs.io/en/latest/vhelm/)
-- **Holistic Evaluation of Text-To-Image Models (HEIM)** - [paper](https://arxiv.org/abs/2311.04287), [leaderboard](https://crfm.stanford.edu/helm/heim/latest/), [documentation](https://crfm-helm.readthedocs.io/en/latest/heim/)
-- **Image2Struct: Benchmarking Structure Extraction for Vision-Language Models** - [paper](https://arxiv.org/abs/2410.22456)
-- **Enterprise Benchmarks for Large Language Model Evaluation** - [paper](https://arxiv.org/abs/2410.12857), [documentation](https://crfm-helm.readthedocs.io/en/latest/enterprise_benchmark/)
-- **The Mighty ToRR: A Benchmark for Table Reasoning and Robustness** - [paper](https://arxiv.org/abs/2502.19412), [leaderboard](https://crfm.stanford.edu/helm/torr/latest/)
-- **Reliable and Efficient Amortized Model-based Evaluation** - [paper](https://arxiv.org/abs/2503.13335), [documentation](https://crfm-helm.readthedocs.io/en/latest/reeval/)
-- **MedHELM** - paper in progress, [leaderboard](https://crfm.stanford.edu/helm/medhelm/latest/), [documentation](https://crfm-helm.readthedocs.io/en/latest/reeval/)
-- **Holistic Evaluation of Audio-Language Models** - [paper](https://arxiv.org/abs/2508.21376), [leaderboard](https://crfm.stanford.edu/helm/audio/latest/)
-
-The HELM framework can be used to reproduce the published model evaluation results from these papers. To get started, refer to the documentation links above for the corresponding paper, or the [Reproducing Leaderboards](https://medhelm.org/reproducing_leaderboards/) documentation on medhelm.org.
+To reproduce or extend results locally, see [medhelm.org](https://medhelm.org) (Reproducing Leaderboards, MedHELM docs).
 
 ## Citation
 

@@ -14,15 +14,9 @@ Documentation on [medhelm.org](https://medhelm.org) covers the full workflow. Su
 | **Summarization** (Clinical NLP tier) | `pip install "medhelm[summarization]"` | DischargeMe, ACI-Bench, Patient-Edu (install may take 2–3 min; adds bert-score, rouge-score, nltk) |
 | **Gated** (licensing tier) | `pip install "medhelm[gated]"` | MedQA, MedMCQA (Google Drive; adds gdown) |
 
-Run a benchmark:
+**Quick test** (runs in seconds): `uv run medhelm-run --run-entries "pubmed_qa:model=openai/gpt2,model_deployment=huggingface/gpt2" --suite my_med_test --max-eval-instances 2` then `helm-summarize` and `helm-server`.
 
-```bash
-uv run medhelm-run --run-entries "<scenario>:model=<model>" --suite <name> --max-eval-instances <n>
-uv run helm-summarize --suite <name>
-uv run helm-server --suite <name>
-```
-
-Example (standard): `uv run medhelm-run --run-entries "pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" --suite my_med_test --max-eval-instances 10`
+**Full example:** `uv run medhelm-run --run-entries "pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" --suite my_med_test --max-eval-instances 10` then `helm-summarize` and `helm-server`.
 
 ## Local build (Jekyll)
 

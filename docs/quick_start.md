@@ -15,7 +15,18 @@ Scenarios: **PubMedQA**, **MedCalc-Bench**, **MedicationQA**, **MedHallu**.
 uv pip install medhelm
 ```
 
-Run a benchmark:
+**Quick test** (small model, 2 instances — runs in seconds):
+
+```sh
+uv run medhelm-run \
+  --run-entries "pubmed_qa:model=openai/gpt2,model_deployment=huggingface/gpt2" \
+  --suite my_med_test \
+  --max-eval-instances 2
+uv run helm-summarize --suite my_med_test
+uv run helm-server --suite my_med_test
+```
+
+**Full example** (better quality, 10 instances):
 
 ```sh
 uv run medhelm-run \
