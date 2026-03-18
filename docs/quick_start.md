@@ -19,7 +19,7 @@ Run a benchmark:
 
 ```sh
 uv run medhelm-run \
-  --run-entries "pubmed_qa:model=huggingface/qwen2.5-7b" \
+  --run-entries "pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" \
   --suite my_med_test \
   --max-eval-instances 10
 uv run helm-summarize --suite my_med_test
@@ -42,7 +42,7 @@ Example:
 
 ```sh
 uv run medhelm-run \
-  --run-entries "discharge_summaries:model=huggingface/qwen2.5-7b" \
+  --run-entries "discharge_summaries:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" \
   --suite med_summaries \
   --max-eval-instances 5
 uv run helm-summarize --suite med_summaries
@@ -63,7 +63,7 @@ Example:
 
 ```sh
 uv run medhelm-run \
-  --run-entries "med_qa:model=huggingface/qwen2.5-7b" \
+  --run-entries "med_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" \
   --suite board_exams \
   --max-eval-instances 10
 uv run helm-summarize --suite board_exams

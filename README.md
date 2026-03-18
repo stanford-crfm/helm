@@ -35,7 +35,7 @@ uv pip install medhelm
 Run a benchmark:
 
 ```sh
-uv run medhelm-run --run-entries "pubmed_qa:model=huggingface/qwen2.5-7b" --suite my_med_test --max-eval-instances 10
+uv run medhelm-run --run-entries "pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" --suite my_med_test --max-eval-instances 10
 uv run helm-summarize --suite my_med_test
 uv run helm-server --suite my_med_test
 ```
@@ -56,7 +56,7 @@ pip install "medhelm[summarization]"
 Example:
 
 ```sh
-uv run medhelm-run --run-entries "discharge_summaries:model=huggingface/qwen2.5-7b" --suite med_summaries --max-eval-instances 5
+uv run medhelm-run --run-entries "discharge_summaries:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" --suite med_summaries --max-eval-instances 5
 uv run helm-summarize --suite med_summaries
 uv run helm-server --suite med_summaries
 ```
@@ -75,7 +75,7 @@ pip install "medhelm[gated]"
 Example:
 
 ```sh
-uv run medhelm-run --run-entries "med_qa:model=huggingface/qwen2.5-7b" --suite board_exams --max-eval-instances 10
+uv run medhelm-run --run-entries "med_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" --suite board_exams --max-eval-instances 10
 uv run helm-summarize --suite board_exams
 uv run helm-server --suite board_exams
 ```

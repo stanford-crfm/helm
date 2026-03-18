@@ -22,7 +22,7 @@ uv run helm-summarize --suite <name>
 uv run helm-server --suite <name>
 ```
 
-Example (standard): `uv run medhelm-run --run-entries "pubmed_qa:model=huggingface/qwen2.5-7b" --suite my_med_test --max-eval-instances 10`
+Example (standard): `uv run medhelm-run --run-entries "pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" --suite my_med_test --max-eval-instances 10`
 
 ## Local build (Jekyll)
 
