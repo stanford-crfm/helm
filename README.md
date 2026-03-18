@@ -45,17 +45,17 @@ Then open http://localhost:8000/ in your browser.
 
 Adds heavy libraries (bert-score, rouge-score, nltk). **Install can take 2–3 minutes.**
 
-Scenarios: **DischargeMe** (hospital course summaries), **ACI-Bench** (clinical transcripts), **Patient-Edu** (simplifying medical jargon).
+Scenarios: **DischargeMe** (hospital course summaries; requires PhysioNet `data_path`), **ACI-Bench** (clinical transcripts), **Patient-Edu** (simplifying medical jargon).
 
 ```sh
 pip install "medhelm[summarization]"
 # or: uv pip install "medhelm[summarization]"
 ```
 
-Example:
+Example (ACI-Bench; runs without extra data):
 
 ```sh
-uv run medhelm-run --run-entries "discharge_summaries:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" --suite med_summaries --max-eval-instances 5
+uv run medhelm-run --run-entries "aci_bench:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" --suite med_summaries --max-eval-instances 5
 uv run helm-summarize --suite med_summaries
 uv run helm-server --suite med_summaries
 ```
