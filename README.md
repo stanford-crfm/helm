@@ -1,7 +1,7 @@
 # MedHELM
 
 [![GitHub Repo stars](https://img.shields.io/github/stars/PacificAI/medhelm)](https://github.com/PacificAI/medhelm)
-[![License](https://img.shields.io/github/license/PacificAI/medhelm?color=blue)](https://github.com/PacificAI/medhelm/blob/main/LICENSE)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://github.com/PacificAI/medhelm/blob/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/medhelm?color=blue)](https://pypi.org/project/medhelm/)
 
 <img src="https://github.com/PacificAI/medhelm/raw/main/docs/assets/images/medhelm_logo.jpg" alt="MedHELM" width="320"/>
