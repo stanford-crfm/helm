@@ -77,8 +77,8 @@ class ArabicLegalQAScenario(ArabicLegalScenario):
 
 
 class ArabicLegalRAGScenario(ArabicLegalScenario):
-    name = "arabic_legal_qa"
-    description = "Arabic Legal QA"
+    name = "arabic_legal_rag"
+    description = "Arabic Legal RAG"
     tags = ["legal"]
 
     def __init__(self):
