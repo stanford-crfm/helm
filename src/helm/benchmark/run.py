@@ -24,6 +24,7 @@ from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.executor import ExecutionSpec
 from helm.benchmark.runner import Runner, RunSpec, set_benchmark_output_path
 from helm.benchmark.run_spec_factory import construct_run_specs
+from helm.benchmark.model_deployment_registry import get_model_deployment
 
 
 def run_entries_to_run_specs(
@@ -323,8 +324,9 @@ def helm_run(args):
         all_models = set(model_metadata_registry.get_all_models())
         for model_to_run in args.models_to_run:
             if model_to_run not in all_models:
-                name_parts = model_to_run.split("/")
-                if len(name_parts) <= 2:
+                try:
+                    get_model_deployment(model_to_run)
+                except ValueError:
                     raise Exception(f"Unknown model '{model_to_run}' passed to --models-to-run")
     else:
         model_expander_wildcard_pattern = re.compile(
