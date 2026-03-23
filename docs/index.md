@@ -20,7 +20,16 @@ title: MedHELM
 
 **License:** This project is licensed under the [Apache License 2.0](https://github.com/PacificAI/medhelm/blob/main/LICENSE).
 
-**MedHELM** is an open source Python framework for holistic, reproducible evaluation of language models on **medical** benchmarks. It builds on the [HELM](https://crfm.stanford.edu/helm/) framework from the [Center for Research on Foundation Models (CRFM) at Stanford](https://crfm.stanford.edu/) and focuses on:
+## MedHELM
+
+**MedHELM** is a multi-institutional effort to develop standardized, clinically grounded benchmarks for evaluating large language models in healthcare. While it builds on the HELM evaluation framework, MedHELM is independently developed through a broad collaboration spanning **Stanford Medicine**, **HAI**, **Microsoft**, and partners across the healthcare and research ecosystem.
+
+The initiative focuses on real-world clinical tasks, emphasizing:
+  - Transparency
+  - Reproducibility
+  - Practical relevance for healthcare deployment
+
+It builds on the [HELM](https://crfm.stanford.edu/helm/) framework from the [Center for Research on Foundation Models (CRFM) at Stanford](https://crfm.stanford.edu/) and focuses on:
 
 - Medical datasets and benchmarks (e.g. PubMedQA, MedQA, MedMCQA, ACI-Bench, DischargeMe)
 - Models from various providers via a unified interface (e.g. Hugging Face, OpenAI, Anthropic)
