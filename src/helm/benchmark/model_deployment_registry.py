@@ -236,9 +236,13 @@ def get_default_model_deployment_for_model(
             hlog("If you want to use a different model deployment, please specify it explicitly.")
         return chosen_deployment.name
 
-    # Some models are added but have no deployments yet.
-    # In this case, we return None.
-    return None
+    # See if we can auto-generate a model deployment for this model.
+    # Use the model deployment as the default model deployment if so.
+    # Otherwise, return None.
+    try:
+        return get_model_deployment(model_name).name
+    except ValueError:
+        return None
 
 
 ModelDeploymentGenerator = Callable[[str], ModelDeployment]
