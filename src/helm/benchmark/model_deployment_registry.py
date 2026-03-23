@@ -1,17 +1,19 @@
+import threading
 from typing import Callable, Dict, Optional, List, TypeVar
 from dataclasses import dataclass
 
 import cattrs
 import yaml
 
-from helm.common.hierarchical_logger import hlog, hwarn
-from helm.common.object_spec import ObjectSpec
 from helm.benchmark.model_metadata_registry import (
     ModelMetadata,
     get_model_metadata,
     get_unknown_model_metadata,
     register_model_metadata,
 )
+from helm.common.hierarchical_logger import hlog, hwarn
+from helm.common.object_spec import ObjectSpec
+from helm.common.plugins import import_all_modules_in_package
 
 
 class ClientSpec(ObjectSpec):
@@ -123,21 +125,28 @@ def register_model_deployments_from_path(path: str) -> None:
         register_model_deployment(model_deployment)
 
 
+_DISCOVER_MODEL_DEPLOYMENT_GENERATORS_LOCK = threading.Lock()
+_DISCOVER_MODEL_DEPLOYMENT_GENERATORS_DONE = False
+
+
+def discover_model_deployment_generators() -> None:
+    """Discover and register all model deployment generators in helm.benchmark.model_deployments"""
+    global _DISCOVER_MODEL_DEPLOYMENT_GENERATORS_DONE
+    with _DISCOVER_MODEL_DEPLOYMENT_GENERATORS_LOCK:
+        if _DISCOVER_MODEL_DEPLOYMENT_GENERATORS_DONE:
+            return
+        _DISCOVER_MODEL_DEPLOYMENT_GENERATORS_DONE = True
+
+        import helm.benchmark.model_deployments  # noqa
+
+        import_all_modules_in_package(helm.benchmark.model_deployments)
+
+
 def get_model_deployment(name: str, warn_deprecated: bool = False) -> ModelDeployment:
     deployment: Optional[ModelDeployment] = DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT.get(name)
 
     if not deployment:
-        import helm.benchmark.model_deployments.anthropic_model_deployments  # noqa: F401
-        import helm.benchmark.model_deployments.huggingface_model_deployments  # noqa: F401
-        import helm.benchmark.model_deployments.huggingface_inference_providers_model_deployments  # noqa: F401
-        import helm.benchmark.model_deployments.litellm_model_deployments  # noqa: F401
-        import helm.benchmark.model_deployments.mistralai_model_deployments  # noqa: F401
-        import helm.benchmark.model_deployments.openai_model_deployments  # noqa: F401
-        import helm.benchmark.model_deployments.openrouter_model_deployments  # noqa: F401
-        import helm.benchmark.model_deployments.together_model_deployments  # noqa: F401
-        import helm.benchmark.model_deployments.writer_model_deployments  # noqa: F401
-        import helm.benchmark.model_deployments.xai_model_deployments  # noqa: F401
-
+        discover_model_deployment_generators()
         for prefix, model_deployment_generator in _REGISTERED_MODEL_DEPLOYMENT_GENERATORS.items():
             if name.startswith(prefix):
                 deployment = model_deployment_generator(name)

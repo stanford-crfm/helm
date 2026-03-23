@@ -1,3 +1,4 @@
+import threading
 from typing import Callable, Dict, Optional, List, TypeVar
 from dataclasses import dataclass
 
@@ -6,6 +7,7 @@ import yaml
 
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import ObjectSpec
+from helm.common.plugins import import_all_modules_in_package
 
 
 class TokenizerSpec(ObjectSpec):
@@ -52,11 +54,27 @@ def register_tokenizer_configs_from_path(path: str) -> None:
         register_tokenizer_config(tokenizer_config)
 
 
+_DISCOVER_TOKENIZER_CONFIG_GENERATORS_LOCK = threading.Lock()
+_DISCOVER_TOKENIZER_CONFIG_GENERATORS_DONE = False
+
+
+def discover_tokenizer_config_generators() -> None:
+    """Discover and register all tokenizer config generators in helm.benchmark.tokenizer_configs"""
+    global _DISCOVER_TOKENIZER_CONFIG_GENERATORS_DONE
+    with _DISCOVER_TOKENIZER_CONFIG_GENERATORS_LOCK:
+        if _DISCOVER_TOKENIZER_CONFIG_GENERATORS_DONE:
+            return
+        _DISCOVER_TOKENIZER_CONFIG_GENERATORS_DONE = True
+
+        import helm.benchmark.tokenizer_configs  # noqa
+
+        import_all_modules_in_package(helm.benchmark.tokenizer_configs)
+
+
 def get_tokenizer_config(name: str) -> Optional[TokenizerConfig]:
     tokenizer_config: Optional[TokenizerConfig] = TOKENIZER_NAME_TO_CONFIG.get(name)
     if not tokenizer_config:
-        import helm.benchmark.tokenizer_configs.huggingface_tokenizer_configs  # noqa: F401
-
+        discover_tokenizer_config_generators()
         for prefix, tokenizer_config_generator in _REGISTERED_TOKENIZER_CONFIG_GENERATORS.items():
             if name.startswith(prefix):
                 tokenizer_config = tokenizer_config_generator(name)
