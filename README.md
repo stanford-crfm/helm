@@ -5,13 +5,22 @@
 
 <img src="https://github.com/PacificAI/medhelm/raw/main/docs/assets/images/medhelm_logo.jpg" alt="MedHELM" width="320"/>
 
-**Holistic Evaluation of Language Models (HELM)** is an open source Python framework created by the [Center for Research on Foundation Models (CRFM) at Stanford](https://crfm.stanford.edu/) for holistic, reproducible and transparent evaluation of foundation models, including large language models (LLMs) and multimodal models. This framework includes the following features:
+## MedHELM
 
-- Datasets and benchmarks in a standardized format (e.g. MMLU-Pro, GPQA, IFEval, WildBench)
-- Models from various providers accessible through a unified interface (e.g. OpenAI models, Anthropic Claude, Google Gemini)
-- Metrics for measuring various aspects beyond accuracy (e.g. efficiency, bias, toxicity)
-- Web UI for inspecting individual prompts and responses
-- Web leaderboard for comparing results across models and benchmarks
+**MedHELM** is a multi-institutional effort to develop standardized, clinically grounded benchmarks for evaluating large language models in healthcare. While it builds on the HELM evaluation framework, MedHELM is independently developed through a broad collaboration spanning **Stanford Medicine**, **HAI**, **Microsoft**, and partners across the healthcare and research ecosystem.
+
+The initiative focuses on real-world clinical tasks, emphasizing:
+  - Transparency
+  - Reproducibility
+  - Practical relevance for healthcare deployment
+
+This framework includes the following features:
+
+  - Datasets and benchmarks in a standardized format (e.g. MMLU-Pro, GPQA, IFEval, WildBench)
+  - Models from various providers accessible through a unified interface (e.g. OpenAI models, Anthropic Claude, Google Gemini)
+  - Metrics for measuring various aspects beyond accuracy (e.g. efficiency, bias, toxicity)
+  - Web UI for inspecting individual prompts and responses
+  - Web leaderboard for comparing results across models and benchmarks
 
 ## Documentation
 
