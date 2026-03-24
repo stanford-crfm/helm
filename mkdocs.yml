@@ -48,13 +48,13 @@ nav:
     - adding_new_tokenizers.md
     - downloading_raw_results.md
     - reproducing_leaderboards.md
-    - get_helm_rank.md
     - benchmark.md
     - huggingface_models.md
   - Papers:
     - heim.md
     - vhelm.md
     - enterprise_benchmark.md
+    - efficent_benchmarking.md
     - reeval.md
     - medhelm.md
   - Reference:
