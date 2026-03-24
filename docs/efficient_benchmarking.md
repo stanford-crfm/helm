@@ -6,12 +6,12 @@ This tutorial will show you how to locally add your model into the HELM Classic 
 
 ## Download HELM leaderboard results
 
-First, in order to compare your model to the latest and greatest models found in the [HELM Classic leaderboard](https://crfm.stanford.edu/helm/classic/latest/?group=core_scenarios), use the following command to obtain a zip file of all previous HELM Classic results:
+First, in order to compare your model to the models found in the [HELM Classic leaderboard](https://crfm.stanford.edu/helm/classic/latest/?group=core_scenarios), use the following commands to download and unzip a zip file of previous HELM Classic results:
 
 ```bash
 export LEADERBOARD_VERSION=v0.3.0
-curl -O https://storage.googleapis.com/crfm-helm-public/benchmark_output/archives/$LEADERBOARD_VERSION/run_stats.zip &&\
-mkdir -p benchmark_output/runs/$LEADERBOARD_VERSION && unzip run_stats.zip -d benchmark_output/runs/$LEADERBOARD_VERSION
+curl -O https://storage.googleapis.com/crfm-helm-public/efficient_helm/classic_${LEADERBOARD_VERSION}_run_stats.zip &&\
+mkdir -p benchmark_output/runs/$LEADERBOARD_VERSION && unzip classic_${LEADERBOARD_VERSION}_run_stats.zip -d benchmark_output/runs/$LEADERBOARD_VERSION
 ```
 
 Now that the files are in your results directory, all HELM models will be shown in your UI along with your model.
