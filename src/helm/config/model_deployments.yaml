@@ -2547,6 +2547,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.mistral_client.MistralAIClient"
 
+  - name: mistralai/mistral-small-2603
+    model_name: mistralai/mistral-small-2603
+    tokenizer_name: mistralai/Mistral-Small-4-119B-2603
+    max_sequence_length: 256000
+    client_spec:
+      class_name: "helm.clients.mistral_client.MistralAIClient"
+
   - name: mistralai/mistral-medium-2312
     model_name: mistralai/mistral-medium-2312
     tokenizer_name: mistralai/Mistral-7B-v0.1
