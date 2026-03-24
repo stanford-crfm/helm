@@ -59,8 +59,8 @@ class ArabicContentGenerationRelativeAnnotator(Annotator):
         )
 
         annotator_request = Request(
-            model="openai/gpt-5.1-2025-11-13",
-            model_deployment="openai/gpt-5.1-2025-11-13",
+            model="openai/gpt-5.4-2026-03-05",
+            model_deployment="openai/gpt-5.4-2026-03-05",
             prompt=annotator_prompt,
             temperature=0.0,
             max_tokens=2000,

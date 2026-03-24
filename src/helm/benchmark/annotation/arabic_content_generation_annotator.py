@@ -77,8 +77,8 @@ class ArabicContentGenerationAnnotator(Annotator):
             )
 
             annotator_request = Request(
-                model="openai/gpt-4.1-nano-2025-04-14",
-                model_deployment="openai/gpt-4.1-nano-2025-04-14",
+                model="openai/gpt-5.4-2026-03-05",
+                model_deployment="openai/gpt-5.4-2026-03-05",
                 prompt=annotator_prompt,
                 temperature=0.0,
                 max_tokens=2000,
