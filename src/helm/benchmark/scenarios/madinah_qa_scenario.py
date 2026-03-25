@@ -49,7 +49,16 @@ class MadinahQAScenario(Scenario):
         for split_name, dataset in dataset_splits.items():
             assert isinstance(dataset, datasets.Dataset)
             for row_index, row in enumerate(dataset):
-                input = Input(text=row["Question"])
+                # Include the Context field (reading passage) when available.
+                # The General subset has a Context passage for 602/612 questions;
+                # the Grammar subset has no Context (all null).
+                # This matches the original ArabicMMLU evaluation code and LightEval.
+                context = row.get("Context")
+                question = row["Question"]
+                if context and isinstance(context, str) and context.strip():
+                    input = Input(text=f"{context}\n\n{question}")
+                else:
+                    input = Input(text=question)
                 references: List[Reference] = []
                 correct_option_index = ord(row["Answer Key"]) - ord("A") + 1
                 for option_index in range(1, 6):
