@@ -422,6 +422,14 @@ dev = [
     "en_core_web_sm@https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl",
 ]
 
+docs = [
+  "mkdocs==1.6.0",
+  "mkdocstrings==0.30.1",
+  "mkdocstrings-python==1.3.0",
+  "mkdocs-macros-plugin==1.5.0",
+  "mkdocs-include-markdown-plugin==4.0.0",
+]
+
 types = [
     "types-cachetools",
     "types-pyOpenSSL",
