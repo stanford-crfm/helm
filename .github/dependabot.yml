@@ -3,7 +3,7 @@ updates:
   - package-ecosystem: "uv"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
@@ -14,7 +14,7 @@ updates:
   - package-ecosystem: "npm"
     directory: "/helm-frontend/"
     schedule:
-      interval: "weekly"
+      interval: "monthly"
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
