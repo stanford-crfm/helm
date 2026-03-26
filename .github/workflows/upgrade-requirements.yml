@@ -2,7 +2,7 @@
 # for all Python dependencies (including transitive dependencies)
 # every Monday or whenever the workflow is manually triggered.
 
-name: Upgrade requirements
+name: Upgrade dependencies
 
 on:
   # schedule:
@@ -10,8 +10,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  upgrade-requirements:
-    name: Upgrade requirements
+  upgrade-dependencies:
+    name: Upgrade dependencies
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -31,8 +31,6 @@ jobs:
         run: uv lock --upgrade
       - name: Install dependencies
         run: uv sync --extra ci
-      - name: Write requirements.txt
-        run: uv pip freeze --exclude-editable > requirements.txt
         # Need to manually run tests here because the pull request opened later will not
         # run the test workflow.
         #
@@ -52,8 +50,8 @@ jobs:
       - name: Create pull request
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: Upgrade requirements
-          title: "Upgrade requirements"
-          branch: actions/upgrade-requirements
+          commit-message: Upgrade dependencies
+          title: "Upgrade dependencies"
+          branch: actions/upgrade-dependencies
           delete-branch: true
           body: Auto-generated from GitHub Actions.

@@ -2,7 +2,7 @@
 # for all Python dependencies (including transitive dependencies)
 # whenever pyproject.toml is modified or the workflow is manually triggered.
 
-name: Update requirements
+name: Update dependencies
 
 on:
   push:
@@ -11,12 +11,12 @@ on:
     paths:
       - "pyproject.toml"
       - "constraints.txt"
-      - '.github/workflows/update-requirements.yml'
+      - '.github/workflows/update-dependencies.yml'
   workflow_dispatch:
 
 jobs:
-  update-requirements:
-    name: Update requirements
+  update-dependencies:
+    name: Update dependencies
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -36,8 +36,6 @@ jobs:
         run: uv lock
       - name: Install dependencies
         run: uv sync --extra ci
-      - name: Write requirements.txt
-        run: uv pip freeze --exclude-editable > requirements.txt
         # Need to manually run tests here because the pull request opened later will not
         # run the test workflow.
         #
@@ -57,8 +55,8 @@ jobs:
       - name: Create pull request
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: Update requirements
-          title: "Update requirements"
-          branch: actions/update-requirements
+          commit-message: Update dependencies
+          title: "Update dependencies"
+          branch: actions/update-dependencies
           delete-branch: true
           body: Auto-generated from GitHub Actions.
