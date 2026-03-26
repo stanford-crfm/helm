@@ -24,6 +24,10 @@ class WindowServiceSpec(ObjectSpec):
     pass
 
 
+class ModelDeploymentNotFoundError(ValueError):
+    pass
+
+
 @dataclass(frozen=True)
 class ModelDeployment:
     """
@@ -152,7 +156,7 @@ def get_model_deployment(name: str, warn_deprecated: bool = False) -> ModelDeplo
                 deployment = model_deployment_generator(name)
 
     if not deployment:
-        raise ValueError(f"Model deployment {name} not found")
+        raise ModelDeploymentNotFoundError(f"Model deployment {name} not found")
 
     if deployment.deprecated and warn_deprecated:
         hwarn(f"Model deployment {name} is deprecated")
