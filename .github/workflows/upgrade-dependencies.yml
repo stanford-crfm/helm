@@ -1,22 +1,17 @@
-# This GitHub Actions workflow automatically resolves and updates the pinned versions
+# This GitHub Actions workflow automatically upgrades the pinned versions
 # for all Python dependencies (including transitive dependencies)
-# whenever pyproject.toml is modified or the workflow is manually triggered.
+# every Monday or whenever the workflow is manually triggered.
 
-name: Update requirements
+name: Upgrade dependencies
 
 on:
-  push:
-    branches:
-      - "main"
-    paths:
-      - "pyproject.toml"
-      - "constraints.txt"
-      - '.github/workflows/update-requirements.yml'
+  # schedule:
+  #   - cron: "30 15 * * 1"
   workflow_dispatch:
 
 jobs:
-  update-requirements:
-    name: Update requirements
+  upgrade-dependencies:
+    name: Upgrade dependencies
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -32,12 +27,10 @@ jobs:
         uses: astral-sh/setup-uv@v6
         with:
           version: "0.9.4"
-      - name: Lock dependencies
-        run: uv lock
+      - name: Upgrade dependencies
+        run: uv lock --upgrade
       - name: Install dependencies
         run: uv sync --extra ci
-      - name: Write requirements.txt
-        run: uv pip freeze --exclude-editable > requirements.txt
         # Need to manually run tests here because the pull request opened later will not
         # run the test workflow.
         #
@@ -57,8 +50,8 @@ jobs:
       - name: Create pull request
         uses: peter-evans/create-pull-request@v6
         with:
-          commit-message: Update requirements
-          title: "Update requirements"
-          branch: actions/update-requirements
+          commit-message: Upgrade dependencies
+          title: "Upgrade dependencies"
+          branch: actions/upgrade-dependencies
           delete-branch: true
           body: Auto-generated from GitHub Actions.
