@@ -82,7 +82,7 @@ The HELM framework was used in the following papers for evaluating models.
 - **Enterprise Benchmarks for Large Language Model Evaluation** - [paper](https://arxiv.org/abs/2410.12857), [documentation](https://crfm-helm.readthedocs.io/en/latest/enterprise_benchmark/)
 - **The Mighty ToRR: A Benchmark for Table Reasoning and Robustness** - [paper](https://arxiv.org/abs/2502.19412), [leaderboard](https://crfm.stanford.edu/helm/torr/latest/)
 - **Reliable and Efficient Amortized Model-based Evaluation** - [paper](https://arxiv.org/abs/2503.13335), [documentation](https://crfm-helm.readthedocs.io/en/latest/reeval/)
-- **MedHELM** - [paper](https://www.nature.com/articles/s41591-025-04151-2), [leaderboard](https://crfm.stanford.edu/helm/medhelm/latest/)
+- **Holistic evaluation of large language models for medical tasks with MedHELM** - [paper](https://www.nature.com/articles/s41591-025-04151-2), [leaderboard](https://crfm.stanford.edu/helm/medhelm/latest/)
 - **Holistic Evaluation of Audio-Language Models** - [paper](https://arxiv.org/abs/2508.21376), [leaderboard](https://crfm.stanford.edu/helm/audio/latest/)
 
 The HELM framework can be used to reproduce the published model evaluation results from these papers. To get started, refer to the documentation links above for the corresponding paper, or the [main Reproducing Leaderboards documentation](https://crfm-helm.readthedocs.io/en/latest/reproducing_leaderboards/).
