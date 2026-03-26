@@ -21,6 +21,7 @@
     - Writer (#4119)
     - xAI (#4120)
     - Cohere (#4130)
+    - Google (#4131)
     - Hugging Face Hub (from v0.5.12)
     - HuggingFace Inference Providers (from v0.5.13)
     - Together (from v0.5.12)
@@ -36,6 +37,7 @@
 ### Framework
 
 - Remove the human-evaluation optional dependency (#4101)
+- Install dependencies for documentation on Read the Docs with uv (#4140)
 
 ### Contributors
 
