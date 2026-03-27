@@ -20,7 +20,7 @@ title: MedHELM
 
 **License:** This project is licensed under the [Apache License 2.0](https://github.com/PacificAI/medhelm/blob/main/LICENSE).
 
-## 
+# MedHELM
 
 **MedHELM** is a multi-institutional effort to develop standardized, clinically grounded benchmarks for evaluating large language models in healthcare. It was made possible by a unique collaboration between the Center for Research on Foundation Models, Technology and Digital Solutions at Stanford Healthcare, and Microsoft Healthcare and Life Sciences in partnership with faculty in the Departments of **Medicine, Computer Science, Anesthesiology, Dermatology, Pediatrics and Biomedical Data Science** as well as trainees from the MCiM program at the Clinical Excellence Research Center. The effort was coordinated by the Center for Biomedical Informatics Research.
 
