@@ -2,6 +2,8 @@
 
 ## [Upcoming]
 
+## [v0.5.14] - 2026-03-26
+
 ### Breaking Changes
 
 - Previously, responses from models on the OpenAI, Anthropic Claude, OpenRouter, NVIDIA NIM, vLLM, and xAI Grok APIs were tokenized locally locally. These responses will no longer be tokenized. (#4108, #4113)
@@ -1367,7 +1369,8 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.13...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.14...HEAD
+[v0.5.14]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.14
 [v0.5.13]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.13
 [v0.5.12]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.12
 [v0.5.11]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.11
