@@ -540,7 +540,7 @@ References
 
 ```
 @inproceedings{wilds2021,
-    title = {{WILDS}: A Benchmark of in-the-Wild Distribution Shifts},
+    title = {\{WILDS\}: A Benchmark of in-the-Wild Distribution Shifts},
     author = {Pang Wei Koh and Shiori Sagawa and Henrik Marklund and Sang Michael Xie and Marvin Zhang and
     Akshay Balsubramani and Weihua Hu and Michihiro Yasunaga and Richard Lanas Phillips and Irena Gao and
     Tony Lee and Etienne David and Ian Stavness and Wei Guo and Berton A. Earnshaw and Imran S. Haque and
@@ -4066,7 +4066,7 @@ Situation: A: B: Answer:
 
 Target completion
 
-@article{ponti2020xcopa, title={{XCOPA: A} Multilingual Dataset for Causal Commonsense Reasoning}, author={Edoardo M. Ponti, Goran Glava {s}, Olga Majewska, Qianchu Liu, Ivan Vuli'{c} and Anna Korhonen}, journal={arXiv preprint}, year={2020}, url={ [https://ducdauge.github.io/files/xcopa.pdf](https://ducdauge.github.io/files/xcopa.pdf)} }
+@article{ponti2020xcopa, title={\{XCOPA: A\} Multilingual Dataset for Causal Commonsense Reasoning}, author={Edoardo M. Ponti, Goran Glava {s}, Olga Majewska, Qianchu Liu, Ivan Vuli'{c} and Anna Korhonen}, journal={arXiv preprint}, year={2020}, url={ [https://ducdauge.github.io/files/xcopa.pdf](https://ducdauge.github.io/files/xcopa.pdf)} }
 
 @inproceedings{roemmele2011choice, title={Choice of plausible alternatives: An evaluation of commonsense causal reasoning}, author={Roemmele, Melissa and Bejan, Cosmin Adrian and Gordon, Andrew S}, booktitle={2011 AAAI Spring Symposium Series}, year={2011}, url={ [https://people.ict.usc.edu/~gordon/publications/AAAI-SPRING11A.PDF](https://people.ict.usc.edu/~gordon/publications/AAAI-SPRING11A.PDF)}, }
 
