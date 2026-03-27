@@ -7,7 +7,6 @@ HELM supports a variety of metrics for evaluating model outputs (e.g. accuracy, 
 
 For the full API reference, build the documentation with MkDocs from the repository root (`pip install -e . && mkdocs serve`) or see the [source code]({{ site.repo_url }}/tree/main/src/helm/benchmark/metrics).
 
-The sections below reproduce the [CRFM HELM Metrics reference](https://crfm-helm.readthedocs.io/en/latest/metrics/).
 
 ## air_bench_metrics
 

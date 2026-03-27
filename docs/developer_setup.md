@@ -11,7 +11,7 @@ Check your system verison of Python by running:
 python --version
 ```
 
-If your version of Python is older than 3.10, you _must_ use either **Conda** or **pyenv** to install a version of Python >=3.10 when setting up your virtual environment.
+If your version of Python is older than 3.10, use **pyenv** to install a version of Python >=3.10 when setting up your virtual environment.
 
 ## Set up the Python virtual environment
 
@@ -28,18 +28,6 @@ python3 -m virtualenv -p python3 venv
 # Activate the virtual environment.
 # Run this every time you open your shell.
 source venv/bin/activate
-```
-
-Using [**Conda**](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html):
-
-```bash
-# Create a virtual environment.
-# Only run this the first time.
-conda create -n medhelm python=3.10 pip
-
-# Activate the virtual environment.
-# Run this every time you open your shell.
-conda activate medhelm
 ```
 
 Using [**pyenv**](https://github.com/pyenv/pyenv) and [**pyenv-virtualenv**](https://github.com/pyenv/pyenv-virtualenv):

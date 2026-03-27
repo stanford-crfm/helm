@@ -6,7 +6,8 @@
   <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
 </head>
-<body class="docs-page">
+{% assign cur = page.url | replace: '.html', '' | split: '/' | last %}
+<body class="docs-page docs-page-{{ cur }}">
   {% include header.html %}
   <div class="docs-wrapper">
     {% include docs_sidebar.html %}
