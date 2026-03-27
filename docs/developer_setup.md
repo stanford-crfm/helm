@@ -139,6 +139,6 @@ The HELM repository does not allow direct modifications of the main branch. Inst
 1. If you did NOT install the precommit, run the linter and type checker with `./pre-commit.sh`
 1. `git commit -a` to commit all you changes. If you want to ignore precommit warnings,  you can add `--no-verify`.
 1. `git push origin <your-handle>/<change-identifier>` to upload to github.
-1. Loading any HELM github page should now prompt you about creating a new pull request. If not, you can also find your branch on [the branches page](https://github.com/stanford-crfm/helm/branches) to create one.
+1. Loading any HELM github page should now prompt you about creating a new pull request. If not, you can also find your branch on [the branches page](https://github.com/PacificAI/medhelm/branches) to create one.
 1. Update the title and description as necessary, then create the pull request.
 1. Once the reviewer is satisfied, they can approve and either of you can then `Squash and Merge` the branch into main.

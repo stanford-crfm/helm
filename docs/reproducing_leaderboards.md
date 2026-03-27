@@ -7,8 +7,8 @@ You can use the HELM package to rerun evaluation runs and recreate a specific pu
 
 The general procedure is to first find the appropriate `run_entries_*.conf` and `schema_*.yaml` files from the HELM GitHub repository for the leaderboard version and then place them in your current working directory. The locations of these files are as follows:
 
-- `run_entries_*.conf`: the `src/helm/benchmark/presentation/` directory [here](https://github.com/stanford-crfm/helm/tree/main/src/helm/benchmark/presentation)
-- `schema_*.conf`: the `src/helm/benchmark/static/` directory [here](https://github.com/stanford-crfm/helm/tree/main/src/helm/benchmark/static)
+- `run_entries_*.conf`: the `src/helm/benchmark/presentation/` directory [here](https://github.com/PacificAI/medhelm/tree/main/src/helm/benchmark/presentation)
+- `schema_*.conf`: the `src/helm/benchmark/static/` directory [here](https://github.com/PacificAI/medhelm/tree/main/src/helm/benchmark/static)
 
 Then run the following shell script:
 

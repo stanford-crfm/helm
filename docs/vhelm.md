@@ -22,7 +22,7 @@ To install the additional dependencies to run VHELM, run:
 pip install medhelm
 ```
 
-**Note:** The VHELM (vision-language) extension is from the upstream [HELM project](https://github.com/stanford-crfm/helm). For VHELM-specific extras (e.g. `[vlm]`), see the upstream repository.
+**Note:** The VHELM (vision-language) extension is part of this [MedHELM codebase](https://github.com/PacificAI/medhelm) (extending Stanford HELM). For VHELM-specific extras (e.g. `[vlm]`), see the install instructions above.
 
 ## Quick Start
 
@@ -33,7 +33,7 @@ The following is an example of evaluating `openai/gpt-4o-mini-2024-07-18` on 10 
 export OPENAI_API_KEY=your_api_key
 
 # Download schema_vhelm.yaml
-wget https://raw.githubusercontent.com/stanford-crfm/helm/refs/heads/main/src/helm/benchmark/static/schema_vhelm.yaml
+wget https://raw.githubusercontent.com/PacificAI/medhelm/refs/heads/main/src/helm/benchmark/static/schema_vhelm.yaml
 
 # Run benchmark
 helm-run --run-entries mmmu:subject=Accounting,question_type=multiple-choice,model=openai/gpt-4o-mini-2024-07-18 --suite my-vhelm-suite --max-eval-instances 10

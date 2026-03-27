@@ -32,7 +32,7 @@ class CLEVABiasMetric(BiasMetric):
     """Compute metrics to evaluate social bias in Chinese.
 
     The implementation is inherited from
-    https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/metrics/bias_metrics.py
+    https://github.com/PacificAI/medhelm/blob/main/src/helm/benchmark/metrics/bias_metrics.py
     """
 
     name: str = "chinese_bias"

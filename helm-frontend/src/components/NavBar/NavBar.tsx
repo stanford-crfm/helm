@@ -35,7 +35,7 @@ export default function NavBar() {
               </Link>
             </li>
             <li>
-              <Link to="https://github.com/stanford-crfm/helm">GitHub</Link>
+              <Link to="https://github.com/PacificAI/medhelm">GitHub</Link>
             </li>
           </ul>
         </div>
@@ -64,7 +64,7 @@ export default function NavBar() {
             <Link to="runs">Predictions</Link>
           </li>
           <li>
-            <Link to="https://github.com/stanford-crfm/helm">GitHub</Link>
+            <Link to="https://github.com/PacificAI/medhelm">GitHub</Link>
           </li>
           <li className="hidden lg:flex">
             <ReleaseDropdown />

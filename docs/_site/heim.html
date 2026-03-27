@@ -96,7 +96,7 @@
 
 <h2 id="holistic-evaluation-of-text-to-image-models">Holistic Evaluation of Text-To-Image Models</h2>
 
-<p><img src="https://github.com/stanford-crfm/helm/raw/heim/src/helm/benchmark/static/heim/images/heim-logo.png" alt="" width="800" /></p>
+<p><img src="https://github.com/PacificAI/medhelm/raw/heim/src/helm/benchmark/static/heim/images/heim-logo.png" alt="" width="800" /></p>
 
 <p>Significant effort has recently been made in developing text-to-image generation models, which take textual prompts as 
 input and generate images. As these models are widely used in real-world applications, there is an urgent need to 
@@ -144,14 +144,14 @@ demonstrating strengths in different aspects.</p>
 
 <p>Some models (e.g., DALLE-mini/mega) and metrics (<code class="language-plaintext highlighter-rouge">DetectionMetric</code>) require extra dependencies that are 
 not available on PyPI. To install these dependencies, download and run the 
-<a href="https://github.com/stanford-crfm/helm/blob/main/install-heim-extras.sh">extra install script</a>:</p>
+<a href="https://github.com/PacificAI/medhelm/blob/main/install-heim-extras.sh">extra install script</a>:</p>
 
 <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>bash install-heim-extras.sh
 </code></pre></div></div>
 
 <h2 id="getting-started">Getting Started</h2>
 
-<p>The following is an example of evaluating <a href="https://huggingface.co/CompVis/stable-diffusion-v1-4">Stable Diffusion v1.4</a> on the <a href="https://github.com/stanford-crfm/heim/blob/main/src/helm/benchmark/scenarios/image_generation/mscoco_scenario.py">MS-COCO scenario</a> using 10 instances.</p>
+<p>The following is an example of evaluating <a href="https://huggingface.co/CompVis/stable-diffusion-v1-4">Stable Diffusion v1.4</a> on the <a href="https://github.com/PacificAI/medhelm/blob/main/src/helm/benchmark/scenarios/image_generation/mscoco_scenario.py">MS-COCO scenario</a> using 10 instances.</p>
 
 <div class="language-sh highlighter-rouge"><div class="highlight"><pre class="highlight"><code>helm-run <span class="nt">--run-entries</span> mscoco:model<span class="o">=</span>huggingface/stable-diffusion-v1-4 <span class="nt">--suite</span> my-heim-suite <span class="nt">--max-eval-instances</span> 10
 </code></pre></div></div>

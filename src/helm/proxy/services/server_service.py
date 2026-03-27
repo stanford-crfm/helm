@@ -81,7 +81,7 @@ class ServerService(Service):
         """Actually make a request to an API."""
         # TODO: try to invoke the API even if we're not authenticated, and if
         #       it turns out the results are cached, then we can just hand back the results.
-        #       https://github.com/stanford-crfm/benchmarking/issues/56
+        #       https://github.com/PacificAI/medhelm/issues/56
 
         self.accounts.authenticate(auth)
         model_group: str = self._get_model_group_for_model_deployment(request.model_deployment)

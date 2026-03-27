@@ -1174,7 +1174,7 @@ class CLEVADialogueGenerationScenario(CLEVAScenario):
 class CLEVASubjectKnowledgeScenario(CLEVAScenario):
     """
     The subject knowledge task of CLEVA benchmark.
-    We follow https://github.com/stanford-crfm/helm/tree/main/scripts/fact_completion to construct the Chinese dataset.
+    We follow https://github.com/PacificAI/medhelm/tree/main/scripts/fact_completion to construct the Chinese dataset.
     Considering the Chinese characteristics, we rewrite and extend the relations.
 
     An example is:
@@ -1530,7 +1530,7 @@ class CLEVACopyrightScenario(CLEVAScenario):
     The copyright task of CLEVA benchmark.
 
     Our dataset is motivated by
-    https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/scenarios/copyright_scenario.py
+    https://github.com/PacificAI/medhelm/blob/main/src/helm/benchmark/scenarios/copyright_scenario.py
     """
 
     description = "Copyright task in CLEVA benchmark"
@@ -1786,8 +1786,8 @@ class CLEVAReasoningPrimitiveScenario(CLEVAScenario):
     """
     The reasoning primitive task of CLEVA benchmark.
     We modify the following codes to construct the Chinese version.
-        https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/scenarios/dyck_language_scenario.py
-        https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/scenarios/synthetic_reasoning_scenario.py
+        https://github.com/PacificAI/medhelm/blob/main/src/helm/benchmark/scenarios/dyck_language_scenario.py
+        https://github.com/PacificAI/medhelm/blob/main/src/helm/benchmark/scenarios/synthetic_reasoning_scenario.py
 
 
     An example of dyck_language is:

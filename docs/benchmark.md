@@ -30,7 +30,7 @@ and check the output in `benchmark_output/runs/$SUITE`.
 `sum` indicates the estimated total number of tokens used for the specific `RunSpec`.
 
 For the OpenAI models, we use a
-[GPT-2 Tokenizer](https://github.com/stanford-crfm/benchmarking/blob/master/src/helm/proxy/tokenizer/openai_token_counter.py#L12)
+[GPT-2 Tokenizer](https://github.com/PacificAI/medhelm/blob/master/src/helm/proxy/tokenizer/openai_token_counter.py#L12)
 to estimate the token usage. The tokenizer will be downloaded and cached when running a dry run.
 
 ## Perspective API

@@ -89,7 +89,7 @@ def convert_tokens_to_text(tokens: List[Token]) -> List[Dict]:
 
 def compute_perplexity_metrics(stats: Dict[MetricName, Stat]) -> List[Stat]:
     # TODO: find out the root cause and undo num_X > 0 check
-    #       https://github.com/stanford-crfm/benchmarking/issues/350
+    #       https://github.com/PacificAI/medhelm/issues/350
     derived_stats: List[Stat] = []
 
     logprob_stat = get_unique_stat_by_name(stats.values(), "logprob")

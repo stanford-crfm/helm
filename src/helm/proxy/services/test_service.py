@@ -206,7 +206,7 @@ prod_model_deployments = ["openai/davinci", "ai21/j1-jumbo"]
 
 
 # TODO: put a flag on this so that it's easy to use pytest to still run these slow tests
-#       https://github.com/stanford-crfm/benchmarking/issues/55
+#       https://github.com/PacificAI/medhelm/issues/55
 @pytest.mark.skip(reason="Requires production")
 def test_prod_continue():
     # Test that we're continuing

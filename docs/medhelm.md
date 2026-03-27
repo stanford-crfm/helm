@@ -103,7 +103,7 @@ RELEASE="my-medhelm-release"
 LIVE_LEADERBOARD_SUITE="v2.0.0"
 
 wget -O $SCHEMA \
-   https://raw.githubusercontent.com/stanford-crfm/helm/v0.5.7/src/helm/benchmark/static/schema_medhelm.yaml
+   https://raw.githubusercontent.com/PacificAI/medhelm/v0.5.7/src/helm/benchmark/static/schema_medhelm.yaml
 
 # Create the leaderboard
 helm-summarize \
@@ -234,7 +234,7 @@ SCHEMA="schema_medhelm.yaml"
 RELEASE="my-medhelm-release"
 
 wget -O $SCHEMA \
-   https://raw.githubusercontent.com/stanford-crfm/helm/v0.5.7/src/helm/benchmark/static/schema_medhelm.yaml
+   https://raw.githubusercontent.com/PacificAI/medhelm/v0.5.7/src/helm/benchmark/static/schema_medhelm.yaml
 helm-summarize \
   --suites $SUITE \
   --schema $SCHEMA \

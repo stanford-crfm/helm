@@ -34,7 +34,7 @@ export default function SimpleHero() {
             <div>Leaderboards ↓</div>
           </button>
           <button className="px-6 btn btn-grey rounded-md md:ml-4">
-            <a href="https://github.com/stanford-crfm/helm">Github</a>
+            <a href="https://github.com/PacificAI/medhelm">Github</a>
           </button>
         </div>
       </div>

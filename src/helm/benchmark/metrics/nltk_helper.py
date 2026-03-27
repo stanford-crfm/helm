@@ -11,7 +11,7 @@ def install_nltk_resources():
     # "punkt" is not longer supported for newer versions of nltk due to a security issue
     # and has been replaced by "punkt_tab". For more information, see:
     #
-    # - https://github.com/stanford-crfm/helm/issues/2926
+    # - https://github.com/PacificAI/medhelm/issues/2926
     # - https://github.com/nltk/nltk/issues/3293
     # - https://github.com/nltk/nltk/issues/3266
     # - https://nvd.nist.gov/vuln/detail/CVE-2024-39705

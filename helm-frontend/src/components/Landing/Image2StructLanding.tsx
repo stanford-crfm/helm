@@ -18,7 +18,7 @@ export default function Image2StructLanding() {
         </a>
         <a
           className="px-10 btn rounded-md"
-          href="https://github.com/stanford-crfm/helm"
+          href="https://github.com/PacificAI/medhelm"
         >
           Github
         </a>

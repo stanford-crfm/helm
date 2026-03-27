@@ -183,7 +183,7 @@ export default function ArabicLanding() {
             using the{" "}
             <a
               className="underline text-blue-600 hover:text-blue-800 visited:text-purple-600"
-              href="https://github.com/stanford-crfm/helm/"
+              href="https://github.com/PacificAI/medhelm/"
             >
               HELM open source framework
             </a>

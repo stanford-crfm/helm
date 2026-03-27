@@ -527,7 +527,7 @@ class ChinesePersonNamePerturbation(Perturbation):
         https://github.com/GEM-benchmark/NL-Augmenter/tree/main/nlaugmenter/transformations/chinese_person_named_entities_gender
 
         Code adopted from
-        https://github.com/stanford-crfm/helm/blob/main/src/helm/benchmark/augmentations/person_name_perturbation.py
+        https://github.com/PacificAI/medhelm/blob/main/src/helm/benchmark/augmentations/person_name_perturbation.py
 
         Args:
             prob: Probability of substituting a word in the source class with

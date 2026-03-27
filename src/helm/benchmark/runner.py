@@ -80,7 +80,7 @@ def remove_stats_nans(stats: List[Stat]) -> List[Stat]:
 
     Python's stdlib json.dumps() will produce invalid JSON when serializing a NaN. See:
 
-    - https://github.com/stanford-crfm/helm/issues/1765
+    - https://github.com/PacificAI/medhelm/issues/1765
     - https://bugs.python.org/issue40633
     - https://docs.python.org/3/library/json.html#infinite-and-nan-number-values"""
     result: List[Stat] = []
@@ -97,7 +97,7 @@ def remove_per_instance_stats_nans(per_instance_stats_list: List[PerInstanceStat
 
     Python's stdlib json.dumps() will produce invalid JSON when serializing a NaN. See:
 
-    - https://github.com/stanford-crfm/helm/issues/1765
+    - https://github.com/PacificAI/medhelm/issues/1765
     - https://bugs.python.org/issue40633
     - https://docs.python.org/3/library/json.html#infinite-and-nan-number-values"""
     result: List[PerInstanceStats] = []

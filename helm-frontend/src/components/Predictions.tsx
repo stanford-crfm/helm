@@ -14,7 +14,7 @@ type Props = {
 };
 
 /**
- * @SEE https://github.com/stanford-crfm/helm/blob/cffe38eb2c814d054c778064859b6e1551e5e106/src/helm/benchmark/static/benchmarking.js#L583-L679
+ * @SEE https://github.com/PacificAI/medhelm/blob/cffe38eb2c814d054c778064859b6e1551e5e106/src/helm/benchmark/static/benchmarking.js#L583-L679
  */
 export default function Predictions({
   predictions,

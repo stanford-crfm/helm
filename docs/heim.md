@@ -7,7 +7,7 @@ title: HEIM (Text-to-image Model Evaluation)
 
 ## Holistic Evaluation of Text-To-Image Models
 
-<img src="https://github.com/stanford-crfm/helm/raw/heim/src/helm/benchmark/static/heim/images/heim-logo.png" alt=""  width="800"/>
+<img src="https://github.com/PacificAI/medhelm/raw/heim/src/helm/benchmark/static/heim/images/heim-logo.png" alt=""  width="800"/>
 
 Significant effort has recently been made in developing text-to-image generation models, which take textual prompts as 
 input and generate images. As these models are widely used in real-world applications, there is an urgent need to 
@@ -50,11 +50,11 @@ To install the additional dependencies to run HEIM, run:
 pip install "medhelm"
 ```
 
-**Note:** The HEIM (text-to-image) extension and its full leaderboard are from the upstream [HELM project](https://github.com/stanford-crfm/helm). For HEIM-specific extras (e.g. `[heim]`), see the upstream repository.
+**Note:** The HEIM (text-to-image) extension and its full leaderboard are part of this [MedHELM codebase](https://github.com/PacificAI/medhelm) (extending Stanford HELM). For HEIM-specific extras (e.g. `[heim]`), use the install steps below.
 
 Some models (e.g., DALLE-mini/mega) and metrics (`DetectionMetric`) require extra dependencies that are 
 not available on PyPI. To install these dependencies, download and run the 
-[extra install script](https://github.com/stanford-crfm/helm/blob/main/install-heim-extras.sh):
+[extra install script](https://github.com/PacificAI/medhelm/blob/main/install-heim-extras.sh):
 
 ```sh
 bash install-heim-extras.sh
@@ -62,7 +62,7 @@ bash install-heim-extras.sh
 
 ## Getting Started
 
-The following is an example of evaluating [Stable Diffusion v1.4](https://huggingface.co/CompVis/stable-diffusion-v1-4) on the [MS-COCO scenario](https://github.com/stanford-crfm/heim/blob/main/src/helm/benchmark/scenarios/image_generation/mscoco_scenario.py) using 10 instances.
+The following is an example of evaluating [Stable Diffusion v1.4](https://huggingface.co/CompVis/stable-diffusion-v1-4) on the [MS-COCO scenario](https://github.com/PacificAI/medhelm/blob/main/src/helm/benchmark/scenarios/image_generation/mscoco_scenario.py) using 10 instances.
 
 ```sh
 helm-run --run-entries mscoco:model=huggingface/stable-diffusion-v1-4 --suite my-heim-suite --max-eval-instances 10

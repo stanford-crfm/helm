@@ -120,7 +120,7 @@
 <span class="nb">export </span><span class="nv">OPENAI_API_KEY</span><span class="o">=</span>your_api_key
 
 <span class="c"># Download schema_vhelm.yaml</span>
-wget https://raw.githubusercontent.com/stanford-crfm/helm/refs/heads/main/src/helm/benchmark/static/schema_vhelm.yaml
+wget https://raw.githubusercontent.com/PacificAI/medhelm/refs/heads/main/src/helm/benchmark/static/schema_vhelm.yaml
 
 <span class="c"># Run benchmark</span>
 helm-run <span class="nt">--run-entries</span> mmmu:subject<span class="o">=</span>Accounting,question_type<span class="o">=</span>multiple-choice,model<span class="o">=</span>openai/gpt-4o-mini-2024-07-18 <span class="nt">--suite</span> my-vhelm-suite <span class="nt">--max-eval-instances</span> 10
