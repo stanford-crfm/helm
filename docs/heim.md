@@ -7,7 +7,7 @@ title: HEIM (Text-to-image Model Evaluation)
 
 ## Holistic Evaluation of Text-To-Image Models
 
-<img src="https://github.com/PacificAI/medhelm/raw/heim/src/helm/benchmark/static/heim/images/heim-logo.png" alt=""  width="800"/>
+<img src="../assets/images/heim-logo.png" alt="HEIM logo" width="800"/>
 
 Significant effort has recently been made in developing text-to-image generation models, which take textual prompts as 
 input and generate images. As these models are widely used in real-world applications, there is an urgent need to 
@@ -42,7 +42,7 @@ demonstrating strengths in different aspects.
 
 ## Installation
 
-First, follow the [installation instructions](installation/) to install the base MedHELM Python package.
+First, follow the [installation instructions](installation.md) to install the base MedHELM Python package.
 
 To install the additional dependencies to run HEIM, run:
 
@@ -70,7 +70,7 @@ helm-run --run-entries mscoco:model=huggingface/stable-diffusion-v1-4 --suite my
 
 ## Reproducing the Leaderboard
 
-To reproduce the [entire HEIM leaderboard](https://crfm.stanford.edu/helm/heim/latest/), refer to the instructions for HEIM on the [Reproducing Leaderboards](reproducing_leaderboards/) documentation.
+To reproduce the [entire HEIM leaderboard](https://crfm.stanford.edu/helm/heim/latest/), refer to the instructions for HEIM on the [Reproducing Leaderboards](reproducing_leaderboards.md) documentation.
 
 ### Note:
 
