@@ -71,7 +71,7 @@ Then go to <http://localhost:8000/> in your browser.
 - **Summarization tier** (DischargeMe, ACI-Bench, Patient-Edu): `uv pip install "medhelm[summarization]"` — example: `aci_bench:model=...,model_deployment=...` (install may take 2–3 min).
 - **Gated tier** (MedQA, MedMCQA, Drive): `uv pip install "medhelm[gated]"`.
 
-See [Quick Start](quick_start.html) and [Installation](installation.html) for full details.
+See [Quick Start](/quick_start) and [Installation](/installation) for full details.
 
 ## Goals & roadmap
 

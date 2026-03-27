@@ -8,7 +8,7 @@ The documentation that you are reading now is an invaluable resource for newcome
 
 We use [Jekyll](https://jekyllrb.com/) to build the site and [GitHub Pages](https://pages.github.com/) to host it at [medhelm.org](https://medhelm.org).
 
-To edit the documentation, first clone the repository locally, then install HELM from the repository by following the [Developer Setup](developer_setup/) instructions. To build and preview the site locally, from the repository root run:
+To edit the documentation, first clone the repository locally, then install HELM from the repository by following the [Developer Setup](/developer_setup) instructions. To build and preview the site locally, from the repository root run:
 
 ```sh
 cd docs

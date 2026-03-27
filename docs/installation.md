@@ -77,11 +77,11 @@ uv pip install "medhelm[gated]"
 | **Summarization** | `pip install "medhelm[summarization]"` | DischargeMe, ACI-Bench, Patient-Edu (2–3 min install) |
 | **Gated** | `pip install "medhelm[gated]"` | MedQA, MedMCQA (Google Drive) |
 
-See [Quick Start](quick_start.html) for running benchmarks with `uv run medhelm-run`.
+See [Quick Start](/quick_start) for running benchmarks with `uv run medhelm-run`.
 
 ## Install Multimodal Support
 
 Additional steps are required for multimodal evaluations:
 
-- **HEIM (Text-to-image Model Evaluation)** - to install the additional dependencies to run HEIM (text-to-image evaluation), refer to the [HEIM documentation](heim.html).
-- **VHELM (Vision-Language Models)** - To install the additional dependencies to run VHELM (Vision-Language Models), refer to the [VHELM documentation](vhelm.html).
+- **HEIM (Text-to-image Model Evaluation)** - to install the additional dependencies to run HEIM (text-to-image evaluation), refer to the [HEIM documentation](/heim).
+- **VHELM (Vision-Language Models)** - To install the additional dependencies to run VHELM (Vision-Language Models), refer to the [VHELM documentation](/vhelm).

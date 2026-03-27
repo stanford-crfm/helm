@@ -17,7 +17,7 @@ There are two ways of passing the run entry to `helm-run`. We can use the `--run
 helm-run --run-entries med_qa:model=openai/gpt2 --suite my-suite --max-eval-instances 10
 ```
 
-Alternatively, we can put the run entry into a `run_entries.conf` file, and the pass that file to `helm-run` using the `--conf-file` flag. The `run_entries.conf` file is a **run entry configuration file** that conforms to the format documented [here](run_entries_configuration_files/). For example:
+Alternatively, we can put the run entry into a `run_entries.conf` file, and the pass that file to `helm-run` using the `--conf-file` flag. The `run_entries.conf` file is a **run entry configuration file** that conforms to the format documented [here](/run_entries_configuration_files). For example:
 
 ```
 helm-run --conf-file run_entries.conf --suite my-suite --max-eval-instances 10
@@ -73,4 +73,4 @@ The `model` run expander is the most commonly used run expander. As discussed ea
 
 The `model` run expander also supports **wildcard values**. For instance, the `med_qa:model=text` run entry will run the `med_qa` scenario on _every_ text model that `helm-run` can find in its configuration files. The wildcard is intended to be used in conjuction with the `--models-to-run`, which controls which models will actually be evaluated. For example, `helm-run --run-entries med_qa:model=text --models-to-run openai/gpt2 openai/gpt-3.5-turbo-613` will run `med_qa` on _only_ `openai/gpt2` and `openai/gpt-3.5-turbo-613`.
 
-Wildcard values for the `model` run expander are common used in **run entries configuration files** which will are discussed [here](run_entries_configuration_files/).
+Wildcard values for the `model` run expander are common used in **run entries configuration files** which will are discussed [here](/run_entries_configuration_files).

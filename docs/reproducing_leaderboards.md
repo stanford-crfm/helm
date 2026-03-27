@@ -214,7 +214,7 @@ export PRIORITY=2
 ### MedHELM
 
 > Benchmarks in MedHELM fall under three types of data access: **public**, **gated**, and **private**.  
-> See the [Benchmark Access Levels](medhelm/#benchmark-access-levels) section in the MedHELM page to learn more about each access type and example sources.
+> See the [Benchmark Access Levels](/medhelm#benchmark-access-levels) section in the MedHELM page to learn more about each access type and example sources.
 
 #### Public Benchmarks
 
