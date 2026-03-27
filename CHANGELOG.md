@@ -2,6 +2,50 @@
 
 ## [Upcoming]
 
+### Breaking Changes
+
+- Previously, responses from models on the OpenAI, Anthropic Claude, OpenRouter, NVIDIA NIM, vLLM, and xAI Grok APIs were tokenized locally locally. These responses will no longer be tokenized. (#4108, #4113)
+- The MadinahQA scenario will now include the context field in the inputs for the reading comprehension task (#4127)
+
+### Models
+
+- Add Mistral Large 3, Mistral Medium 3.1, Mistral Small 3.2, and Ministral 3 (#4098)
+- Add GPT-5.4, GPT-5.4 mini, and GPT-5.4 nano (#4099)
+- Switch llama-4-scout-17b-16e-instruct to use Vertex AI instead of Together (#4104)
+- Add the ability to use models from certain providers without manually configuring `model_deployments.yaml` (#4100, #4103, #4117):
+  - The following providers are supported:
+    - OpenAI (#4107)
+    - Anthropic (#4109)
+    - OpenRouter (#4114)
+    - Mistral (#4118)
+    - Writer (#4119)
+    - xAI (#4120)
+    - Cohere (#4130)
+    - Google (#4131)
+    - Hugging Face Hub (from v0.5.12)
+    - HuggingFace Inference Providers (from v0.5.13)
+    - Together (from v0.5.12)
+    - LiteLLM (from v0.5.12)
+  - Note: Together models will now use the chat API rather than the text completions API by default (#4106)
+- Remove tokenization from `AnthropicMessagesClient` (#4108)
+- Remove tokenization from `OpenAIClient` (#4113)
+
+### Scenarios
+
+- Fix MadinahQA scenario to include Context field for reading comprehension (#4127)
+
+### Framework
+
+- Remove the human-evaluation optional dependency (#4101)
+- Install dependencies for documentation on Read the Docs with uv (#4140)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @aaabulkhair
+- @yifanmai
+
 ## [v0.5.13] - 2026-02-25
 
 ### Breaking Changes
