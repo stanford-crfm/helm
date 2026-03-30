@@ -24,11 +24,14 @@ pip install "crfm-helm[vlm]"
 The following is an example of evaluating `openai/gpt-4o-mini-2024-07-18` on 10 instance from the Accounting subset of MMMU.
 
 ```sh
+# Set OpenAI API key
+export OPENAI_API_KEY=your_api_key
+
 # Download schema_vhelm.yaml
 wget https://raw.githubusercontent.com/stanford-crfm/helm/refs/heads/main/src/helm/benchmark/static/schema_vhelm.yaml
 
 # Run benchmark
-helm-run --run-entries mmmu:subject=Accounting,model=openai/gpt-4o-mini-2024-07-18 --suite my-vhelm-suite --max-eval-instances 10
+helm-run --run-entries mmmu:subject=Accounting,question_type=multiple-choice,model=openai/gpt-4o-mini-2024-07-18 --suite my-vhelm-suite --max-eval-instances 10
 
 # Summarize benchmark results
 helm-summarize --suite my-vhelm-suite --schema-path schema_vhelm.yaml

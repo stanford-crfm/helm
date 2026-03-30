@@ -39,6 +39,66 @@ model_deployments:
         model: arn:aws:bedrock:us-west-2:679683451337:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0
         deployment: awssig4claude37/aswsig4claude37
 
+  - name: stanfordhealthcare/claude-sonnet-4-20250514
+    model_name: anthropic/claude-sonnet-4-20250514
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_claude_client.StanfordHealthCareClaudeClient"
+      args:
+        model: us.anthropic.claude-sonnet-4-20250514-v1:0
+        deployment: aws-claude4-sonnet/aws-claude4-sonnet
+    
+  - name: stanfordhealthcare/claude-sonnet-4-5-20250929
+    model_name: anthropic/claude-sonnet-4-5-20250929
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_claude_client.StanfordHealthCareClaudeClient"
+      args:
+        model: arn:aws:bedrock:us-west-2:679683451337:inference-profile/us.anthropic.claude-sonnet-4-5-20250929-v1:0
+        deployment: awssig4claude45sonnet/awssig4claude45sonnet
+
+  - name: stanfordhealthcare/claude-haiku-4-5-20251001
+    model_name: anthropic/claude-haiku-4-5-20251001
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_claude_client.StanfordHealthCareClaudeClient"
+      args:
+        model: arn:aws:bedrock:us-west-2:679683451337:inference-profile/us.anthropic.claude-haiku-4-5-20251001-v1:0
+        deployment: awssig4claude45haiku/awssig4claude45haiku
+
+  - name: stanfordhealthcare/claude-opus-4-5-20251124
+    model_name: anthropic/claude-opus-4-5-20251124
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_claude_client.StanfordHealthCareClaudeClient"
+      args:
+        model: arn:aws:bedrock:us-west-2:679683451337:inference-profile/us.anthropic.claude-opus-4-5-20251124-v1:0
+        deployment: awssig4claude45opus/awssig4claude45opus
+
+  - name: stanfordhealthcare/nova-2-pro-v1:0
+    model_name: amazon/nova-2-pro-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 1000000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_claude_client.StanfordHealthCareClaudeClient"
+      args:
+        model: arn:aws:bedrock:us-west-2:679683451337:inference-profile/us.amazon.nova-2-pro-v1:0
+        deployment: awssig4nova2pro/awssig4nova2pro
+
+  - name: stanfordhealthcare/nova-2-lite-v1:0
+    model_name: amazon/nova-2-lite-v1:0
+    tokenizer_name: huggingface/gpt2
+    max_sequence_length: 1000000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_claude_client.StanfordHealthCareClaudeClient"
+      args:
+        model: arn:aws:bedrock:us-west-2:679683451337:inference-profile/us.amazon.nova-2-lite-v1:0
+        deployment: awssig4nova2lite/awssig4nova2lite
+
   - name: stanfordhealthcare/gemini-1.5-pro-001
     model_name: google/gemini-1.5-pro-001
     tokenizer_name: google/gemma-2b
@@ -56,6 +116,16 @@ model_deployments:
       class_name: "helm.clients.stanfordhealthcare_google_client.StanfordHealthCareGoogleClient"
       args:
         deployment: gcp-gem20flash-fa/apim-gcp-gem20flash-fa
+
+  - name: stanfordhealthcare/gemini-2.5-pro-preview-05-06
+    model_name: google/gemini-2.5-pro-preview-05-06
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1048576   # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
+    # TODO: Max output tokens: 65536
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_google_client.StanfordHealthCareGoogleClient"
+      args:
+        deployment: gemini-25-pro/gemini-25-pro
 
   - name: stanfordhealthcare/gpt-4o-mini-2024-07-18
     model_name: openai/gpt-4o-mini-2024-07-18
@@ -118,6 +188,40 @@ model_deployments:
         openai_model_name: o3-mini
         api_version: 2024-12-01-preview
         base_url: "{endpoint}/openai-eastus2"
+  
+  - name: stanfordhealthcare/gpt-5-2025-08-07
+    model_name: openai/gpt-5-2025-08-07
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 400000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
+      args:
+        openai_model_name: gpt-5
+        api_version: 2024-12-01-preview
+        base_url: "{endpoint}/openai-eastus2"
+
+  - name: stanfordhealthcare/gpt-5-mini-2025-08-07
+    model_name: openai/gpt-5-mini-2025-08-07
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 400000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
+      args:
+        openai_model_name: gpt-5-mini
+        api_version: 2024-12-01-preview
+        base_url: "{endpoint}/openai-eastus2"
+
+  - name: stanfordhealthcare/o4-mini-2025-04-16
+    model_name: openai/o4-mini-2025-04-16
+    tokenizer_name: openai/cl100k_base
+    # Source: https://platform.openai.com/docs/models/o4-mini
+    max_sequence_length: 200000
+    # TODO: max_output_tokens: 100000
+    client_spec:
+      class_name: "helm.clients.stanfordhealthcare_azure_openai_client.StanfordHealthCareAzureOpenAIClient"
+      args:
+        openai_model_name: o4-mini
+        api_version: 2024-12-01-preview
 
   - name: stanfordhealthcare/o1-2024-12-17
     model_name: openai/o1-2024-12-17
@@ -229,15 +333,6 @@ model_deployments:
       class_name: "helm.clients.stanfordhealthcare_google_client.StanfordHealthCareGoogleClient"
       args:
         deployment: gcpgemini/apim-gcp-oauth-fa
-
-  - name: stanfordhealthcare/gemini-2.0-flash-001
-    model_name: google/gemini-2.0-flash-001
-    tokenizer_name: google/gemma-2b
-    max_sequence_length: 1000000
-    client_spec:
-      class_name: "helm.clients.stanfordhealthcare_google_client.StanfordHealthCareGoogleClient"
-      args:
-        deployment: gcp-gem20flash-fa/apim-gcp-gem20flash-fa
 
   - name: stanfordhealthcare/gpt-4o-mini-2024-07-18
     model_name: openai/gpt-4o-mini-2024-07-18
@@ -744,6 +839,20 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.anthropic_client.AnthropicMessagesClient"
 
+  - name: anthropic/claude-sonnet-4-6
+    model_name: anthropic/claude-sonnet-4-6
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.anthropic_client.AnthropicMessagesClient"
+
+  - name: anthropic/claude-opus-4-6
+    model_name: anthropic/claude-opus-4-6
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.anthropic_client.AnthropicMessagesClient"
+
   - name: anthropic/stanford-online-all-v4-s3
     deprecated: true # Closed model, not accessible via API
     model_name: anthropic/stanford-online-all-v4-s3
@@ -787,6 +896,16 @@ model_deployments:
     max_request_length: 110000
     client_spec:
       class_name: "helm.clients.cohere_client.CohereChatClient"
+
+  - name: huggingface/command-a-03-2025
+    model_name: cohere/command-a-03-2025
+    tokenizer_name: cohere/command-a-03-2025
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: CohereLabs/c4ai-command-a-03-2025
+        device_map: auto
 
   # Craiyon
 
@@ -863,6 +982,16 @@ model_deployments:
       class_name: "helm.clients.together_client.TogetherChatClient"
       args:
         disable_logprobs: True
+
+  - name: together/deepseek-v3.1
+    model_name: deepseek-ai/deepseek-v3.1
+    tokenizer_name: deepseek-ai/deepseek-v3.1
+    max_sequence_length: 131072
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        # The model name is case sensitive on Together AI for this model
+        together_model: deepseek-ai/DeepSeek-V3.1
 
   - name: together/deepseek-r1-0528
     model_name: deepseek-ai/deepseek-r1-0528
@@ -1103,18 +1232,29 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
 
-  - name: google/gemini-2.5-flash-lite-preview-06-17
-    model_name: google/gemini-2.5-flash-lite-preview-06-17
+  - name: google/gemini-2.5-flash-lite-thinking-disabled
+    model_name: google/gemini-2.5-flash-lite-thinking-disabled
     tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
     max_sequence_length: 1048576  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-flash
     # TODO: Max output tokens: 65536
     client_spec:
-      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+      class_name: "helm.clients.google_genai_client.GoogleGenAIClient"
       args:
-        # Only the global location is supported. See:
-        # - https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-flash-lite
-        # - https://cloud.google.com/vertex-ai/generative-ai/docs/learn/locations#global-endpoint
-        location: global
+        genai_model: gemini-2.5-flash-lite
+        thinking_config:
+          thinking_budget: 0
+
+  - name: google/gemini-2.5-flash-thinking-disabled
+    model_name: google/gemini-2.5-flash-thinking-disabled
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1048576  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-flash
+    # TODO: Max output tokens: 65536
+    client_spec:
+      class_name: "helm.clients.google_genai_client.GoogleGenAIClient"
+      args:
+        genai_model: gemini-2.5-flash
+        thinking_config:
+          thinking_budget: 0
 
   - name: google/gemini-2.5-flash-lite
     model_name: google/gemini-2.5-flash-lite
@@ -1122,23 +1262,7 @@ model_deployments:
     max_sequence_length: 1048576  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-flash
     # TODO: Max output tokens: 65536
     client_spec:
-      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
-
-  - name: google/gemini-2.5-flash-preview-04-17
-    model_name: google/gemini-2.5-flash-preview-04-17
-    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
-    max_sequence_length: 1048576  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-flash
-    # TODO: Max output tokens: 65536
-    client_spec:
-      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
-
-  - name: google/gemini-2.5-flash-preview-05-20
-    model_name: google/gemini-2.5-flash-preview-05-20
-    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
-    max_sequence_length: 1048576  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-flash
-    # TODO: Max output tokens: 65536
-    client_spec:
-      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+      class_name: "helm.clients.google_genai_client.GoogleGenAIClient"
 
   - name: google/gemini-2.5-flash
     model_name: google/gemini-2.5-flash
@@ -1146,31 +1270,10 @@ model_deployments:
     max_sequence_length: 1048576  # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-flash
     # TODO: Max output tokens: 65536
     client_spec:
-      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
-
-  - name: google/gemini-2.5-pro-exp-03-25
-    model_name: google/gemini-2.5-pro-exp-03-25
-    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
-    max_sequence_length: 1048576   # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
-    # TODO: Max output tokens: 65536
-    client_spec:
-      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
-
-  - name: google/gemini-2.5-pro-preview-03-25
-    model_name: google/gemini-2.5-pro-preview-03-25
-    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
-    max_sequence_length: 1048576   # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
-    # TODO: Max output tokens: 65536
-    client_spec:
-      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
-
-  - name: google/gemini-2.5-pro-preview-05-06
-    model_name: google/gemini-2.5-pro-preview-05-06
-    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
-    max_sequence_length: 1048576   # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
-    # TODO: Max output tokens: 65536
-    client_spec:
-      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+      class_name: "helm.clients.google_genai_client.GoogleGenAIClient"
+      args:
+        thinking_config:
+          include_thoughts: true
 
   - name: google/gemini-2.5-pro
     model_name: google/gemini-2.5-pro
@@ -1178,7 +1281,10 @@ model_deployments:
     max_sequence_length: 1048576   # Source: https://cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/2-5-pro
     # TODO: Max output tokens: 65536
     client_spec:
-      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+      class_name: "helm.clients.google_genai_client.GoogleGenAIClient"
+      args:
+        thinking_config:
+          include_thoughts: true
 
   - name: google/gemini-3-pro-preview
     model_name: google/gemini-3-pro-preview
@@ -1187,6 +1293,20 @@ model_deployments:
     # TODO: Max output tokens: 65536
     client_spec:
       class_name: "helm.clients.google_genai_client.GoogleGenAIClient"
+      args:
+        thinking_config:
+          include_thoughts: true
+
+  - name: google/gemini-3.1-pro-preview
+    model_name: google/gemini-3.1-pro-preview
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1048576  # Source: https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/3-1-pro
+    # TODO: Max output tokens: 65536
+    client_spec:
+      class_name: "helm.clients.google_genai_client.GoogleGenAIClient"
+      args:
+        thinking_config:
+          include_thoughts: true
 
   - name: google/gemini-robotics-er-1.5-preview
     model_name: google/gemini-robotics-er-1.5-preview
@@ -1231,6 +1351,16 @@ model_deployments:
       class_name: "helm.clients.vertexai_client.VertexAIChatClient"
       args:
         vertexai_model: publishers/meta/models/llama-3.1-405b-instruct-maas
+
+  - name: google/llama-4-scout-17b-16e-instruct
+    model_name: meta/llama-4-scout-17b-16e-instruct
+    tokenizer_name: meta/llama-4-scout-17b-16e-instruct
+    max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+      args:
+        vertexai_model: publishers/meta/models/llama-4-scout-17b-16e-instruct-maas
+        genai_use_vertexai: False
 
   ## Gemma
   - name: together/gemma-2b
@@ -1878,6 +2008,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
 
+  - name: together/kimi-k2-instruct-0905
+    model_name: moonshotai/kimi-k2-instruct-0905
+    tokenizer_name: moonshotai/kimi-k2-instruct
+    max_sequence_length: 262144
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
   - name: together/kimi-k2-thinking
     model_name: moonshotai/kimi-k2-thinking
     tokenizer_name: moonshotai/kimi-k2-thinking
@@ -2410,6 +2547,13 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.mistral_client.MistralAIClient"
 
+  - name: mistralai/mistral-small-2603
+    model_name: mistralai/mistral-small-2603
+    tokenizer_name: mistralai/Mistral-Small-4-119B-2603
+    max_sequence_length: 256000
+    client_spec:
+      class_name: "helm.clients.mistral_client.MistralAIClient"
+
   - name: mistralai/mistral-medium-2312
     model_name: mistralai/mistral-medium-2312
     tokenizer_name: mistralai/Mistral-7B-v0.1
@@ -2442,6 +2586,36 @@ model_deployments:
     model_name: mistralai/mistral-large-2411
     tokenizer_name: mistralai/Mistral-Large-Instruct-2411
     max_sequence_length: 128000
+    client_spec:
+      class_name: "helm.clients.mistral_client.MistralAIClient"
+
+  - name: mistralai/mistral-large-2512
+    model_name: mistralai/mistral-large-2512
+    client_spec:
+      class_name: "helm.clients.mistral_client.MistralAIClient"
+
+  - name: mistralai/mistral-medium-2508
+    model_name: mistralai/mistral-medium-2508
+    client_spec:
+      class_name: "helm.clients.mistral_client.MistralAIClient"
+
+  - name: mistralai/mistral-small-2506
+    model_name: mistralai/mistral-small-2506
+    client_spec:
+      class_name: "helm.clients.mistral_client.MistralAIClient"
+
+  - name: mistralai/ministral-14b-2512
+    model_name: mistralai/ministral-14b-2512
+    client_spec:
+      class_name: "helm.clients.mistral_client.MistralAIClient"
+
+  - name: mistralai/ministral-8b-2512
+    model_name: mistralai/ministral-8b-2512
+    client_spec:
+      class_name: "helm.clients.mistral_client.MistralAIClient"
+
+  - name: mistralai/ministral-3b-2512
+    model_name: mistralai/ministral-3b-2512
     client_spec:
       class_name: "helm.clients.mistral_client.MistralAIClient"
 
@@ -2704,6 +2878,27 @@ model_deployments:
 
   - name: openai/gpt-5-nano-2025-08-07
     model_name: openai/gpt-5-nano-2025-08-07
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 400000
+    client_spec:
+      class_name: "helm.clients.openai_responses_client.OpenAIResponseClient"
+
+  - name: openai/gpt-5.4-pro-2026-03-05
+    model_name: openai/gpt-5.4-pro-2026-03-05
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 1050000
+    client_spec:
+      class_name: "helm.clients.openai_responses_client.OpenAIResponseClient"
+
+  - name: openai/gpt-5.4-2026-03-05
+    model_name: openai/gpt-5.4-2026-03-05
+    tokenizer_name: openai/o200k_base
+    max_sequence_length: 1050000
+    client_spec:
+      class_name: "helm.clients.openai_responses_client.OpenAIResponseClient"
+
+  - name: openai/gpt-5.2-2025-12-11
+    model_name: openai/gpt-5.2-2025-12-11
     tokenizer_name: openai/o200k_base
     max_sequence_length: 400000
     client_spec:
@@ -3240,15 +3435,6 @@ model_deployments:
       class_name: "helm.clients.together_client.TogetherChatClient"
       args:
         together_model: meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo
-
-  - name: together/llama-4-scout-17b-16e-instruct
-    model_name: meta/llama-4-scout-17b-16e-instruct
-    tokenizer_name: meta/llama-4-scout-17b-16e-instruct
-    max_sequence_length: 327680
-    client_spec:
-      class_name: "helm.clients.together_client.TogetherChatClient"
-      args:
-        together_model: meta-llama/Llama-4-Scout-17B-16E-Instruct
 
   - name: together/llama-4-maverick-17b-128e-instruct-fp8
     model_name: meta/llama-4-maverick-17b-128e-instruct-fp8
@@ -3843,6 +4029,42 @@ model_deployments:
     window_service_spec:
       class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
 
+  - name: xai/grok-4-fast-reasoning
+    model_name: xai/grok-4-fast-reasoning
+    tokenizer_name: xai/grok-4-fast-reasoning
+    max_sequence_length: 2000000
+    client_spec:
+      class_name: "helm.clients.grok_client.GrokChatClient"
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
+
+  - name: xai/grok-4-fast-non-reasoning
+    model_name: xai/grok-4-fast-non-reasoning
+    tokenizer_name: xai/grok-4-fast-non-reasoning
+    max_sequence_length: 2000000
+    client_spec:
+      class_name: "helm.clients.grok_client.GrokChatClient"
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
+
+  - name: xai/grok-4-1-fast-reasoning
+    model_name: xai/grok-4-1-fast-reasoning
+    tokenizer_name: xai/grok-4-1-fast-reasoning
+    max_sequence_length: 2000000
+    client_spec:
+      class_name: "helm.clients.grok_client.GrokChatClient"
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
+
+  - name: xai/grok-4-1-fast-non-reasoning
+    model_name: xai/grok-4-1-fast-non-reasoning
+    tokenizer_name: xai/grok-4-1-fast-non-reasoning
+    max_sequence_length: 2000000
+    client_spec:
+      class_name: "helm.clients.grok_client.GrokChatClient"
+    window_service_spec:
+      class_name: "helm.benchmark.window_services.no_decoding_window_service.NoDecodingWindowService"
+
   # Qwen
 
   - name: together/qwen-7b
@@ -3955,6 +4177,13 @@ model_deployments:
       args:
         parse_thinking: true
 
+  - name: together/qwen3-next-80b-a3b-instruct
+    model_name: qwen/qwen3-next-80b-a3b-instruct
+    tokenizer_name: qwen/qwen3-next-80b-a3b-instruct
+    max_sequence_length: 262144
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
   - name: together/qwen3-next-80b-a3b-thinking
     model_name: qwen/qwen3-next-80b-a3b-thinking
     tokenizer_name: qwen/qwen3-next-80b-a3b-thinking
@@ -3972,6 +4201,16 @@ model_deployments:
       class_name: "helm.clients.together_client.TogetherChatClient"
       args:
         together_model: Qwen/Qwen3-235B-A22B-Instruct-2507-tput
+
+  - name: together/qwen3-235b-a22b-thinking-2507
+    model_name: qwen/qwen3-235b-a22b-thinking-2507
+    tokenizer_name: qwen/qwen3-235b-a22b-thinking-2507
+    max_sequence_length: 262144
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        # The model name is case sensitive on Together AI for this model
+        together_model: Qwen/Qwen3-235B-A22B-Thinking-2507
 
   - name: huggingface/qwen2.5-7b-instruct-4bit
     model_name: qwen/qwen2.5-7b-instruct

@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 from datasets import load_dataset
 
 from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
@@ -28,7 +28,7 @@ class MedCalcBenchScenario(Scenario):
     This dataset contains a training dataset of 10,053 instances and a testing
     dataset of 1,047 instances.
 
-    Dataset: https://huggingface.co/datasets/ncbi/MedCalc-Bench-v1.0
+    Dataset: https://huggingface.co/datasets/ncbi/MedCalc-Bench
     Paper: https://arxiv.org/abs/2406.12036
 
     Sample Prompt:
@@ -112,9 +112,10 @@ class MedCalcBenchScenario(Scenario):
             instances.append(instance)
         return instances
 
-    def get_instances(self, output_path: str) -> List[Instance]:
+    def get_instances(self, output_path: str, version: Optional[str] = None) -> List[Instance]:
         # Load the MedCalc-Bench dataset from Hugging Face
-        dataset = load_dataset("ncbi/MedCalc-Bench-v1.0")
+        dataset_path = f"ncbi/MedCalc-Bench{('-' + version) if version else ''}"
+        dataset = load_dataset(dataset_path)
 
         # Process all the instances - limit to zero shot setting
         instances: List[Instance] = []

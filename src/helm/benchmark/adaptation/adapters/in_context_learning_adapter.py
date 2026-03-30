@@ -55,7 +55,6 @@ class InContextLearningAdapter(Adapter, ABC):
 
         # Accumulate all the request states due to adaptation
         all_request_states: List[RequestState] = []
-        prompt: Prompt
 
         for train_trial_index in range(self.adapter_spec.num_train_trials):
             with htrack_block(f"Adapting with train_trial_index={train_trial_index}"):

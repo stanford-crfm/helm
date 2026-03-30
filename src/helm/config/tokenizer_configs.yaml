@@ -157,6 +157,14 @@ tokenizer_configs:
     end_of_text_token: "<EOS_TOKEN>"
     prefix_token: "<BOS_TOKEN>"
 
+  - name: cohere/command-a-03-2025
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+      args:
+        pretrained_model_name_or_path: CohereLabs/c4ai-command-a-03-2025
+    end_of_text_token: "<|END_OF_TURN_TOKEN|>"
+    prefix_token: "<BOS_TOKEN>"
+
   # Databricks
   - name: databricks/dbrx-instruct
     tokenizer_spec:
@@ -172,6 +180,12 @@ tokenizer_configs:
     prefix_token: "<｜begin▁of▁sentence｜>"
 
   - name: deepseek-ai/deepseek-v3
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<｜end▁of▁sentence｜>"
+    prefix_token: "<｜begin▁of▁sentence｜>"
+
+  - name: deepseek-ai/deepseek-v3.1
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "<｜end▁of▁sentence｜>"
@@ -273,6 +287,30 @@ tokenizer_configs:
     prefix_token: ""
 
   - name: xai/grok-4-0709
+    tokenizer_spec:
+      class_name: "helm.tokenizers.grok_tokenizer.GrokAPITokenizer"
+    end_of_text_token: ""
+    prefix_token: ""
+
+  - name: xai/grok-4-fast-reasoning
+    tokenizer_spec:
+      class_name: "helm.tokenizers.grok_tokenizer.GrokAPITokenizer"
+    end_of_text_token: ""
+    prefix_token: ""
+
+  - name: xai/grok-4-fast-non-reasoning
+    tokenizer_spec:
+      class_name: "helm.tokenizers.grok_tokenizer.GrokAPITokenizer"
+    end_of_text_token: ""
+    prefix_token: ""
+
+  - name: xai/grok-4-1-fast-reasoning
+    tokenizer_spec:
+      class_name: "helm.tokenizers.grok_tokenizer.GrokAPITokenizer"
+    end_of_text_token: ""
+    prefix_token: ""
+
+  - name: xai/grok-4-1-fast-non-reasoning
     tokenizer_spec:
       class_name: "helm.tokenizers.grok_tokenizer.GrokAPITokenizer"
     end_of_text_token: ""
@@ -595,6 +633,12 @@ tokenizer_configs:
     end_of_text_token: "</s>"
     prefix_token: "<s>"
 
+  - name: mistralai/Mistral-Small-4-119B-2603
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "</s>"
+    prefix_token: "<s>"
+
   # Moonshot AI
   - name: moonshotai/kimi-k2-instruct
     tokenizer_spec:
@@ -731,6 +775,18 @@ tokenizer_configs:
     prefix_token: "<|im_start|>"
 
   - name: qwen/qwen3-235b-a22b-instruct-2507-fp8
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|im_end|>"
+    prefix_token: ""
+
+  - name: qwen/qwen3-235b-a22b-thinking-2507
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|im_end|>"
+    prefix_token: ""
+
+  - name: qwen/qwen3-next-80b-a3b-instruct
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "<|im_end|>"

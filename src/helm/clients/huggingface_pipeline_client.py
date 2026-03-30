@@ -5,7 +5,7 @@ import transformers
 
 from helm.clients.client import CachingClient
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import htrack_block, hwarn
+from helm.common.hierarchical_logger import hlog, htrack_block
 from helm.common.request import GeneratedOutput, Request, RequestResult, wrap_request_time
 from helm.proxy.retry import NonRetriableException
 
@@ -64,7 +64,8 @@ class HuggingFacePipelineClient(CachingClient):
             # e.g. Qwen2, Qwen 2.5.
             # For these models, the `apply_chat_template` arg should be explicitly set to false.
             self._apply_chat_template = bool(self._pipeline.tokenizer.chat_template)
-            hwarn(
+
+            hlog(
                 f"Automatically set `apply_chat_template` to {self._apply_chat_template} based on "
                 "whether the tokenizer has a chat template. "
                 "If this is incorrect, please explicitly set `apply_chat_template`."
@@ -104,6 +105,7 @@ class HuggingFacePipelineClient(CachingClient):
             "top_k": request.top_k_per_token if do_sample else None,
             "do_sample": do_sample,
             "return_dict_in_generate": True,
+            "pad_token_id": self._pipeline.tokenizer.eos_token_id,
         }
         if request.stop_sequences:
             stop_sequence_ids = self._pipeline.tokenizer(

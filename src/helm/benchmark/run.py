@@ -4,14 +4,15 @@ import os
 import re
 from typing import List, Optional
 
+import ubelt
 
 from helm.benchmark import model_metadata_registry
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
 from helm.common.cache_backend_config import MongoCacheBackendConfig, SqliteCacheBackendConfig
 from helm.common.general import ensure_directory_exists
-from helm.common.hierarchical_logger import hlog, htrack, htrack_block, setup_default_logging, hwarn
+from helm.common.hierarchical_logger import hlog, htrack, htrack_block, setup_default_logging, hwarn, hdebug
 from helm.common.authentication import Authentication
-from helm.common.object_spec import parse_object_spec, get_class_by_name
+from helm.common.object_spec import ObjectSpec, parse_object_spec, get_class_by_name
 from helm.proxy.services.remote_service import create_authentication, add_service_args
 from helm.proxy.services.service import CACHE_DIR
 
@@ -21,8 +22,9 @@ from helm.benchmark.config_registry import (
 )
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.executor import ExecutionSpec
-from helm.benchmark.runner import Runner, RunSpec, LATEST_SYMLINK, set_benchmark_output_path
+from helm.benchmark.runner import Runner, RunSpec, set_benchmark_output_path
 from helm.benchmark.run_spec_factory import construct_run_specs
+from helm.benchmark.model_deployment_registry import ModelDeploymentNotFoundError, get_model_deployment
 
 
 def run_entries_to_run_specs(
@@ -33,16 +35,39 @@ def run_entries_to_run_specs(
     groups_to_run: Optional[List[str]] = None,
     priority: Optional[int] = None,
 ) -> List[RunSpec]:
-    """Runs RunSpecs given a list of RunSpec descriptions."""
+    """Returns RunSpecs given a list of RunSpec descriptions."""
     run_specs: List[RunSpec] = []
     for entry in run_entries:
         # Filter by priority
         if priority is not None and entry.priority is not None and entry.priority > priority:
             continue
 
-        for run_spec in construct_run_specs(parse_object_spec(entry.description)):
+        parsed_entry = parse_object_spec(entry.description)
+        parsed_entries_with_models: List[ObjectSpec]
+
+        # Rewrite the model arg in the run entry description based on models_to_run,
+        # but only do this if the models arg was unspecified or if the model arg is a group
+        # in the run entry description.
+        if models_to_run and "/" not in parsed_entry.args.get("model", ""):
+            parsed_entries_with_models = [
+                replace(parsed_entry, args={**parsed_entry.args, **{"model": model_to_run}})
+                for model_to_run in models_to_run
+            ]
+        else:
+            parsed_entries_with_models = [parsed_entry]
+
+        run_specs_for_entry = [
+            run_spec
+            for parsed_entry_with_model in parsed_entries_with_models
+            for run_spec in construct_run_specs(parsed_entry_with_model)
+        ]
+        for run_spec in run_specs_for_entry:
             # Filter by models
-            if models_to_run and run_spec.adapter_spec.model not in models_to_run:
+            if (
+                models_to_run
+                and run_spec.adapter_spec.model not in models_to_run
+                and run_spec.adapter_spec.model_deployment not in models_to_run
+            ):
                 continue
 
             # Filter by groups
@@ -69,6 +94,60 @@ def run_entries_to_run_specs(
             run_specs.append(run_spec)
 
     return run_specs
+
+
+def import_user_plugins(paths_or_names) -> List:
+    """
+    Import user-provided plugin modules that register HELM components.
+
+    Args:
+        paths_or_names (List[str]): Importable module names or paths to modules
+            containing custom registration code.
+
+    Returns:
+        List: the imported modules
+    """
+
+    import importlib
+
+    modules = []
+    for modpath_or_name in paths_or_names:
+        if "/" in modpath_or_name or "\\" in modpath_or_name or os.path.exists(modpath_or_name):
+            # The input is a path to a module
+            hdebug(f"Import plugin {modpath_or_name!r} from its path")
+            module = ubelt.import_module_from_path(modpath_or_name)
+        else:
+            # The input is the name of a module
+            hdebug(f"Import plugin {modpath_or_name!r} as a module")
+            module = importlib.import_module(modpath_or_name)
+        modules.append(module)
+    return modules
+
+
+def load_entry_point_plugins(group: str = "helm") -> List:
+    """Load plugins registered via Python entry points.
+
+    Plugins can be registered by adding a ``[project.entry-points.helm]``
+    table to ``pyproject.toml`` where each entry maps a name to an importable
+    module or object. Each entry is imported eagerly to trigger registration
+    side effects.
+
+    Returns:
+        List: the loaded entry point objects
+    """
+
+    from importlib.metadata import entry_points
+
+    modules = []
+    eps = entry_points()
+    selected = eps.select(group=group)
+    for ep in selected:
+        try:
+            hdebug(f"Loading plugin entry point {ep.name!r} -> {ep.value!r}")
+            modules.append(ep.load())
+        except Exception:
+            hwarn(f"Failed to load plugin entry point: {ep.name}", exc_info=True)
+    return modules
 
 
 def run_benchmarking(
@@ -194,7 +273,6 @@ def add_run_args(parser: argparse.ArgumentParser):
 
 
 def validate_args(args):
-    assert args.suite != LATEST_SYMLINK, f"Suite name can't be '{LATEST_SYMLINK}'"
     if args.cache_instances_only:
         assert args.cache_instances, "If --cache-instances-only is set, --cache-instances must also be set."
 
@@ -205,6 +283,11 @@ def helm_run(args):
     validate_args(args)
     register_builtin_configs_from_helm_package()
     register_configs_from_directory(args.local_path)
+
+    load_entry_point_plugins()
+
+    if args.plugins:
+        import_user_plugins(args.plugins)
 
     if args.enable_huggingface_models:
         from helm.benchmark.huggingface_registration import register_huggingface_hub_model_from_flag_value
@@ -241,17 +324,22 @@ def helm_run(args):
         all_models = set(model_metadata_registry.get_all_models())
         for model_to_run in args.models_to_run:
             if model_to_run not in all_models:
-                raise Exception(f"Unknown model '{model_to_run}' passed to --models-to-run")
+                try:
+                    get_model_deployment(model_to_run)
+                except ModelDeploymentNotFoundError:
+                    raise Exception(f"Unknown model '{model_to_run}' passed to --models-to-run")
     else:
         model_expander_wildcard_pattern = re.compile(
             r"\bmodel=(?:all|text_code|text|code|instruction_following|full_functionality_text|limited_functionality_text)\b"  # noqa: E501
         )
         if any(model_expander_wildcard_pattern.search(run_entry.description) for run_entry in run_entries):
-            raise Exception("--models-to-run must be set if the `models=` run expander expands to multiple models")
+            raise Exception(
+                "--models-to-run must be set (because the `model=` run expander expands to multiple models)"
+            )
 
         model_expander_pattern = re.compile(r"\bmodel=\b")
         if not any(model_expander_pattern.search(run_entry.description) for run_entry in run_entries):
-            raise Exception("--models-to-run must be set if the `models=` run expander is omitted")
+            raise Exception("--models-to-run must be set (because the `model=` run expander is omitted)")
 
     run_specs = run_entries_to_run_specs(
         run_entries=run_entries,
@@ -369,6 +457,12 @@ def build_parser():
         type=str,
         default=None,
         help="PATH to a YAML file to customize logging",
+    )
+    parser.add_argument(
+        "--plugins",
+        nargs="+",
+        help="Importable module names or filesystem paths that register custom run specs / scenarios / datasets",
+        default=None,
     )
     add_run_args(parser)
     return parser

@@ -45,7 +45,7 @@ class MegatronClient(CachingClient):
         out = json.loads(response.text)
 
         # Detect if the server returned an error string.
-        if type(out) != dict:
+        if not isinstance(out, dict):
             raise ValueError(f"{response}: {response.text}")
         return out
 

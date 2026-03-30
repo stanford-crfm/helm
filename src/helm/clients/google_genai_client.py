@@ -51,7 +51,7 @@ class GoogleGenAIClient(CachingClient):
         api_key: Optional[str] = None,
         project_id: Optional[str] = None,
         location: Optional[str] = None,
-        thinking_budget: Optional[int] = None,
+        thinking_config: Optional[Dict[str, Any]] = None,
         genai_model: Optional[str] = None,
         genai_use_vertexai: Optional[bool] = None,
     ) -> None:
@@ -59,7 +59,7 @@ class GoogleGenAIClient(CachingClient):
         self.project_id = project_id
         self.location = location
         self.genai_model = genai_model
-        self.thinking_budget = thinking_budget
+        self.thinking_config = ThinkingConfig.model_validate(thinking_config) if thinking_config else None
         if genai_use_vertexai is True:
             hlog("GoogleGenAIClient using Vertex AI API with configured project ID and location")
             self.client = Client(vertexai=True, project=project_id, location=location)
@@ -144,7 +144,6 @@ class GoogleGenAIClient(CachingClient):
                 seed = int(request.random)
             except ValueError as e:
                 raise NonRetriableException("Request.random must be an int for GoogleGenAIClient") from e
-
         return GenerateContentConfig(
             system_instruction=system_instruction,
             temperature=request.temperature,
@@ -158,7 +157,7 @@ class GoogleGenAIClient(CachingClient):
             seed=seed,
             response_mime_type=response_mime_type,
             response_json_schema=response_json_schema,
-            thinking_config=ThinkingConfig(thinking_budget=self.thinking_budget, include_thoughts=True),
+            thinking_config=self.thinking_config,
             # Cannot request logprobs becuse it results in an error:
             # google.genai.errors.ServerError: 500 INTERNAL. {'error': {'code': 500, 'message': 'Missing Logprobs results.', 'status': 'INTERNAL'}}
             # response_logprobs=True,

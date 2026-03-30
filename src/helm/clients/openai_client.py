@@ -1,7 +1,7 @@
 # mypy: check_untyped_defs = False
 from dataclasses import replace
 import re
-from typing import Any, Dict, List, Optional, cast, Union, Callable
+from typing import Any, Dict, List, Optional, Union, Callable
 
 from openai import OpenAIError
 
@@ -13,12 +13,7 @@ from helm.common.request import ErrorFlags, Thinking, wrap_request_time, Request
 from helm.common.hierarchical_logger import hlog, hwarn, hexception
 from helm.common.object_spec import get_class_by_name
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
-)
 from helm.clients.client import Client, CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
-from helm.tokenizers.tokenizer import Tokenizer
 
 try:
     import openai
@@ -122,8 +117,6 @@ class OpenAIClient(CachingClient):
 
     def __init__(
         self,
-        tokenizer: Tokenizer,
-        tokenizer_name: str,
         cache_config: CacheConfig,
         api_key: Optional[str] = None,
         org_id: Optional[str] = None,
@@ -134,8 +127,6 @@ class OpenAIClient(CachingClient):
         **kwargs,
     ):
         super().__init__(cache_config=cache_config)
-        self.tokenizer = tokenizer
-        self.tokenizer_name = tokenizer_name
         self.client = OpenAI(api_key=api_key, organization=org_id, base_url=base_url, **kwargs)
         self.reasoning_effort = reasoning_effort
         self.openai_model_name = openai_model_name
@@ -370,17 +361,23 @@ class OpenAIClient(CachingClient):
             if self.output_processor:
                 raw_completion_content = self.output_processor(raw_completion_content)
             text: str = request.prompt + raw_completion_content if request.echo_prompt else raw_completion_content
-            # The OpenAI chat completion API doesn't return us tokens or logprobs, so we tokenize ourselves.
-            tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-                TokenizationRequest(text, tokenizer=self.tokenizer_name)
-            )
             # Log probs are not currently not supported by the OpenAI chat completion API, so set to 0 for now.
-            tokens: List[Token] = [
-                Token(text=cast(str, raw_token), logprob=0) for raw_token in tokenization_result.raw_tokens
-            ]
             # vLLM has a optional `reasoning_content` field in the message
             # that is not in the standard OpenAI API.
             # This field is also used by some model providers such as Grok.
+            tokens: List[Token] = []
+            if "logprobs" in raw_completion and raw_completion["logprobs"]:
+                raw_completion_logprobs = raw_completion["logprobs"]
+                if "content" in raw_completion_logprobs and raw_completion_logprobs["contents"]:
+                    for raw_completion_token in raw_completion_logprobs["contents"]:
+                        tokens.append(
+                            Token(
+                                text=raw_completion_token["token"],
+                                logprob=raw_completion_token["logprob"],
+                            )
+                        )
+            logprob = sum([token.logprob for token in tokens])
+
             thinking = (
                 Thinking(text=raw_completion["message"]["reasoning_content"])
                 if "reasoning_content" in raw_completion["message"]
@@ -388,7 +385,7 @@ class OpenAIClient(CachingClient):
             )
             completion = GeneratedOutput(
                 text=text,
-                logprob=0,  # OpenAI does not provide logprobs
+                logprob=logprob,
                 tokens=tokens,
                 finish_reason={"reason": raw_completion["finish_reason"]},
                 thinking=thinking,
@@ -533,15 +530,11 @@ class OpenAITranscriptionThenCompletionClient(Client):
 
     def __init__(
         self,
-        tokenizer: Tokenizer,
-        tokenizer_name: str,
         cache_config: CacheConfig,
         api_key: Optional[str] = None,
         org_id: Optional[str] = None,
     ):
         self._openai_client = OpenAIClient(
-            tokenizer=tokenizer,
-            tokenizer_name=tokenizer_name,
             cache_config=cache_config,
             api_key=api_key,
             org_id=org_id,

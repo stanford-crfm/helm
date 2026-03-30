@@ -19,6 +19,7 @@
 }
 
 .completion {
+  white-space: pre-wrap;
   border: solid 1px;
   border-color: #c0c0c0;
   padding: 3px;

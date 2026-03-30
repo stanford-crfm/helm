@@ -1,5 +1,7 @@
 # Holistic Evaluation of Language Models (HELM)
 
+[comment]: <> (When using the img tag, which allows us to specify size, src has to be a URL.)
+<img src="https://github.com/stanford-crfm/helm/raw/v0.5.4/helm-frontend/src/assets/helm-logo.png" alt="HELM logo"  width="480"/>
 
 <a href="https://github.com/stanford-crfm/helm">
     <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/stanford-crfm/helm">
@@ -19,9 +21,6 @@
 <a href="https://pypi.org/project/crfm-helm/">
     <img alt="PyPI" src="https://img.shields.io/pypi/v/crfm-helm?color=blue" />
 </a>
-
-[comment]: <> (When using the img tag, which allows us to specify size, src has to be a URL.)
-<img src="https://github.com/stanford-crfm/helm/raw/v0.5.4/helm-frontend/src/assets/helm-logo.png" alt="HELM logo"  width="480"/>
 
 **Holistic Evaluation of Language Models (HELM)** is an open source Python framework created by the [Center for Research on Foundation Models (CRFM) at Stanford](https://crfm.stanford.edu/) for holistic, reproducible and transparent evaluation of foundation models, including large language models (LLMs) and multimodal models. This framework includes the following features:
 
@@ -82,8 +81,9 @@ The HELM framework was used in the following papers for evaluating models.
 - **Image2Struct: Benchmarking Structure Extraction for Vision-Language Models** - [paper](https://arxiv.org/abs/2410.22456)
 - **Enterprise Benchmarks for Large Language Model Evaluation** - [paper](https://arxiv.org/abs/2410.12857), [documentation](https://crfm-helm.readthedocs.io/en/latest/enterprise_benchmark/)
 - **The Mighty ToRR: A Benchmark for Table Reasoning and Robustness** - [paper](https://arxiv.org/abs/2502.19412), [leaderboard](https://crfm.stanford.edu/helm/torr/latest/)
+- **Efficient Benchmarking of Language Models** - [paper](https://arxiv.org/abs/2308.11696), [documentation](https://crfm-helm.readthedocs.io/en/latest/efficient_benchmarking/)
 - **Reliable and Efficient Amortized Model-based Evaluation** - [paper](https://arxiv.org/abs/2503.13335), [documentation](https://crfm-helm.readthedocs.io/en/latest/reeval/)
-- **MedHELM** - paper in progress, [leaderboard](https://crfm.stanford.edu/helm/medhelm/latest/), [documentation](https://crfm-helm.readthedocs.io/en/latest/reeval/)
+- **Holistic evaluation of large language models for medical tasks with MedHELM** - [paper](https://www.nature.com/articles/s41591-025-04151-2), [leaderboard](https://crfm.stanford.edu/helm/medhelm/latest/)
 - **Holistic Evaluation of Audio-Language Models** - [paper](https://arxiv.org/abs/2508.21376), [leaderboard](https://crfm.stanford.edu/helm/audio/latest/)
 
 The HELM framework can be used to reproduce the published model evaluation results from these papers. To get started, refer to the documentation links above for the corresponding paper, or the [main Reproducing Leaderboards documentation](https://crfm-helm.readthedocs.io/en/latest/reproducing_leaderboards/).

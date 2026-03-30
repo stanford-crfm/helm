@@ -1,0 +1,48 @@
+# This workflow will upload a Python Package using Twine when a release is created
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python#publishing-to-package-registries
+
+name: Publish Python package to PyPI
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  pypi-publish:
+    name: Publish Python package to PyPI
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/crfm-helm
+    permissions:
+      id-token: write
+    steps:
+    - name: Check out repository
+      uses: actions/checkout@v4
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.10"
+    - name: Install uv
+      uses: astral-sh/setup-uv@v6
+      with:
+        version: "0.9.4"
+    - name: Build
+      run: uv build
+    - name: helm-run (wheel)
+      run: uv run --isolated --no-project --with dist/*.whl helm-run --run-entries simple1:model=simple/model1 --max-eval-instances 10 --suite test
+    - name: helm-summarize (wheel)
+      run: uv run --isolated --no-project --with dist/*.whl helm-summarize --suite test
+    - name: helm-server (wheel)
+      run: uv run --isolated --no-project --with dist/*.whl helm-server --help
+    - name: helm-run (source distribution)
+      run: uv run --isolated --no-project --with dist/*.tar.gz helm-run --run-entries simple1:model=simple/model1 --max-eval-instances 10 --suite test
+    - name: helm-summarize (source distribution)
+      run: uv run --isolated --no-project --with dist/*.tar.gz helm-summarize --suite test
+    - name: helm-server (source distribution)
+      run: uv run --isolated --no-project --with dist/*.tar.gz helm-server --help
+    - name: Publish package
+      uses: pypa/gh-action-pypi-publish@release/v1

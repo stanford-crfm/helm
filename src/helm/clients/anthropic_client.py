@@ -1,7 +1,7 @@
-import dataclasses
 from typing import Any, Dict, List, Optional, TypedDict, Union, cast
 import json
 import os
+import re
 import requests
 import tempfile
 import time
@@ -27,7 +27,7 @@ from helm.common.tokenization_request import (
 )
 from helm.proxy.retry import NonRetriableException
 from helm.tokenizers.tokenizer import Tokenizer
-from helm.clients.client import CachingClient, truncate_sequence, truncate_and_tokenize_response_text
+from helm.clients.client import CachingClient, truncate_sequence
 
 try:
     from anthropic import Anthropic, BadRequestError
@@ -257,8 +257,6 @@ class AnthropicMessagesClient(CachingClient):
 
     def __init__(
         self,
-        tokenizer: Tokenizer,
-        tokenizer_name: str,
         cache_config: CacheConfig,
         thinking_budget_tokens: Optional[int] = None,
         anthropic_model_name: Optional[str] = None,
@@ -266,8 +264,6 @@ class AnthropicMessagesClient(CachingClient):
         stream: Optional[bool] = None,
     ):
         super().__init__(cache_config=cache_config)
-        self.tokenizer = tokenizer
-        self.tokenizer_name = tokenizer_name
         self.client = Anthropic(api_key=api_key)
         self.api_key: Optional[str] = api_key
         self.anthropic_model_name: Optional[str] = anthropic_model_name
@@ -386,8 +382,8 @@ class AnthropicMessagesClient(CachingClient):
             # Avoid error:
             # `top_k` must be unset when thinking is enabled. Please consult our documentation at https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking#important-considerations-when-using-extended-thinking  # noqa: E501
             del raw_request["top_k"]
-        if raw_request["model"].startswith("claude-sonnet-4-5") or raw_request["model"].startswith("claude-haiku-4-5"):
-            # Avoid error:
+        if re.match(r"^claude-[^-]+-4-[56]", raw_request["model"]):
+            # Avoid error for Claude 4.5 / 4.6:
             # `temperature` and `top_p` cannot both be specified for this model. Please use only one.
             del raw_request["top_p"]
 
@@ -449,21 +445,25 @@ class AnthropicMessagesClient(CachingClient):
                 )
 
             response_message: Message = Message.model_validate(raw_response)
-            response_text: Optional[str] = None
-            response_thinking: Optional[str] = None
+            text_blocks: List[str] = []
+            thinking_blocks: List[str] = []
             for content in response_message.content:
                 if isinstance(content, TextBlock):
-                    response_text = content.text
+                    text_blocks.append(content.text)
                 elif isinstance(content, ThinkingBlock):
-                    response_thinking = content.thinking
-            if response_text is None:
-                raise Exception("Anthropic response did not contain text block")
-            completion = truncate_and_tokenize_response_text(
-                response_text, request, self.tokenizer, self.tokenizer_name, original_finish_reason=""
+                    thinking_blocks.append(content.thinking)
+            if not text_blocks:
+                raise Exception("Anthropic response did not contain text blocks")
+            text_output = "".join(text_blocks)
+            thinking = Thinking(text="".join(thinking_blocks)) if thinking_blocks else None
+            completions.append(
+                GeneratedOutput(
+                    text=text_output,
+                    logprob=0.0,
+                    tokens=[],
+                    thinking=thinking,
+                )
             )
-            if response_thinking is not None:
-                completion = dataclasses.replace(completion, thinking=Thinking(text=response_thinking))
-            completions.append(completion)
 
         return RequestResult(
             success=True,

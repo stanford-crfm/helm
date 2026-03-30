@@ -214,7 +214,7 @@ class N2C2CTMatchingScenario(Scenario):
     def create_prompt(self, patient: Dict[str, Any]) -> str:
         # Cast None values to empty strings during string formatting, but keep the original functions returning None
         notes_list = [
-            f"## Note #{i+1}\nDate: {XMLDataLoader.get_date_of_note(patient, i) or ''}\n{note}"
+            f"## Note #{i + 1}\nDate: {XMLDataLoader.get_date_of_note(patient, i) or ''}\n{note}"
             for i, note in enumerate(patient["ehr"])
         ]
         notes: str = ("\n" + "*" * 50 + "\n\n").join(notes_list)

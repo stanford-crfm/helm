@@ -17,4 +17,5 @@ exclude =
 # W503 - line break before binary operator, conflicts with Black
 # W605 - invalid escape sequence '\', causes failures
 # E501 - line too long
-ignore = E203,E231,E731,W503,W605,E501
+# F824 - global name / nonlocal name is unused: name is never assigned in scope
+ignore = E203,E231,E731,W503,W605,E501,F824

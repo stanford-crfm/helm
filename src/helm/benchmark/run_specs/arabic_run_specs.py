@@ -105,6 +105,7 @@ def get_alrage_spec() -> RunSpec:
         input_noun="السؤال",
         output_noun="الإجابة",
         max_tokens=100,
+        stop_sequences=[],
     )
 
     annotator_specs = [AnnotatorSpec(class_name="helm.benchmark.annotation.alrage_annotator.ALRAGEAnnotator")]

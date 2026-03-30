@@ -1,0 +1,37 @@
+name: Test Scenarios
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/helm/benchmark/scenarios/test_*_scenario.py'
+  pull_request:
+    paths:
+      - 'src/helm/benchmark/scenarios/test_*_scenario.py'
+  schedule:
+    - cron: "30 15 * * *"
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run scenario tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.9.4"
+      - name: Install dependencies
+        run: uv sync --extra ci --extra scenarios
+      - name: Run scenario tests
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: uv run pytest -m scenarios

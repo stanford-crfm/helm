@@ -1,17 +1,19 @@
-from typing import Dict, Optional, List
+import threading
+from typing import Callable, Dict, Optional, List, TypeVar
 from dataclasses import dataclass
 
 import cattrs
 import yaml
 
-from helm.common.hierarchical_logger import hlog, hwarn
-from helm.common.object_spec import ObjectSpec
 from helm.benchmark.model_metadata_registry import (
     ModelMetadata,
     get_model_metadata,
     get_unknown_model_metadata,
     register_model_metadata,
 )
+from helm.common.hierarchical_logger import hlog, hwarn
+from helm.common.object_spec import ObjectSpec
+from helm.common.plugins import import_all_modules_in_package
 
 
 class ClientSpec(ObjectSpec):
@@ -19,6 +21,10 @@ class ClientSpec(ObjectSpec):
 
 
 class WindowServiceSpec(ObjectSpec):
+    pass
+
+
+class ModelDeploymentNotFoundError(ValueError):
     pass
 
 
@@ -123,12 +129,37 @@ def register_model_deployments_from_path(path: str) -> None:
         register_model_deployment(model_deployment)
 
 
+_DISCOVER_MODEL_DEPLOYMENT_GENERATORS_LOCK = threading.Lock()
+_DISCOVER_MODEL_DEPLOYMENT_GENERATORS_DONE = False
+
+
+def discover_model_deployment_generators() -> None:
+    """Discover and register all model deployment generators in helm.benchmark.model_deployments"""
+    global _DISCOVER_MODEL_DEPLOYMENT_GENERATORS_DONE
+    with _DISCOVER_MODEL_DEPLOYMENT_GENERATORS_LOCK:
+        if _DISCOVER_MODEL_DEPLOYMENT_GENERATORS_DONE:
+            return
+        _DISCOVER_MODEL_DEPLOYMENT_GENERATORS_DONE = True
+
+        import helm.benchmark.model_deployments  # noqa
+
+        import_all_modules_in_package(helm.benchmark.model_deployments)
+
+
 def get_model_deployment(name: str, warn_deprecated: bool = False) -> ModelDeployment:
-    if name not in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
-        raise ValueError(f"Model deployment {name} not found")
-    deployment: ModelDeployment = DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[name]
+    deployment: Optional[ModelDeployment] = DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT.get(name)
+
+    if not deployment:
+        discover_model_deployment_generators()
+        for prefix, model_deployment_generator in _REGISTERED_MODEL_DEPLOYMENT_GENERATORS.items():
+            if name.startswith(prefix):
+                deployment = model_deployment_generator(name)
+
+    if not deployment:
+        raise ModelDeploymentNotFoundError(f"Model deployment {name} not found")
+
     if deployment.deprecated and warn_deprecated:
-        hwarn(f"DEPLOYMENT Model deployment {name} is deprecated")
+        hwarn(f"Model deployment {name} is deprecated")
     return deployment
 
 
@@ -209,6 +240,34 @@ def get_default_model_deployment_for_model(
             hlog("If you want to use a different model deployment, please specify it explicitly.")
         return chosen_deployment.name
 
-    # Some models are added but have no deployments yet.
-    # In this case, we return None.
-    return None
+    # See if we can auto-generate a model deployment for this model.
+    # Use the model deployment as the default model deployment if so.
+    # Otherwise, return None.
+    try:
+        return get_model_deployment(model_name).name
+    except ValueError:
+        return None
+
+
+ModelDeploymentGenerator = Callable[[str], ModelDeployment]
+"""A function that takes in a model name and returns a ModelDeployment"""
+
+
+_REGISTERED_MODEL_DEPLOYMENT_GENERATORS: Dict[str, ModelDeploymentGenerator] = {}
+"""Dict of prefixes to ModelDeploymentGenerators."""
+
+
+F = TypeVar("F", bound=ModelDeploymentGenerator)
+
+
+def model_deployment_generator(prefix: str) -> Callable[[F], F]:
+    """Register the ModelDeploymentGenerator for the given model name prefix."""
+
+    def wrap(func: F) -> F:
+        key = prefix.strip("/") + "/"
+        if key in _REGISTERED_MODEL_DEPLOYMENT_GENERATORS:
+            raise ValueError(f"A ModelDeploymentGenerator with prefix {key} already exists")
+        _REGISTERED_MODEL_DEPLOYMENT_GENERATORS[key] = func
+        return func
+
+    return wrap

@@ -92,7 +92,7 @@ class Qwen2AudioLMClient(CachingClient):
                 assert media_object.is_local_file, "Only local audio files are supported"
                 query.append({"type": "audio", "audio_url": media_object.location})
 
-                prompt_text += f"<|im_start|>user\nAudio {media_num+1}: <|audio_bos|><|AUDIO|><|audio_eos|>\n"
+                prompt_text += f"<|im_start|>user\nAudio {media_num + 1}: <|audio_bos|><|AUDIO|><|audio_eos|>\n"
             elif media_object.is_type(TEXT_TYPE):
                 if media_object.text is None:
                     raise ValueError("MediaObject of text type has missing text field value")

@@ -206,7 +206,6 @@ run_groups:
       The Exam assesses students’ professional skills requirement in medical schools.
       This subset contains reasoning and medical ethics. We collected a total of 116 questions and answers.
       The TPAT-1 consists of 5 choices per question.
-    description: TBD
     metric_groups:
       - accuracy
       - efficiency

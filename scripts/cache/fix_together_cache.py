@@ -39,7 +39,7 @@ def fix(mongo_uri: str):
         target_store.put(request, response)
 
         if i + 1 % 10_000 == 0:
-            hlog(f"Processed {i+1} entries.")
+            hlog(f"Processed {i + 1} entries.")
 
     with htrack_block(f"Dropping {source_name} collection and renaming {target_name} to {source_name}"):
         source_collection = db["crfm-models"][source_name]

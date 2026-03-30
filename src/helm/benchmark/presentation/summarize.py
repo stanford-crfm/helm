@@ -44,7 +44,6 @@ from helm.benchmark.metrics.metric import (
 )
 from helm.benchmark.metrics.statistic import Stat, merge_stat
 from helm.benchmark.run_spec import RunSpec
-from helm.benchmark.runner import LATEST_SYMLINK
 from helm.benchmark.presentation.table import Cell, HeaderCell, Table, Hyperlink, table_to_latex
 from helm.benchmark.presentation.schema import (
     MetricGroup,
@@ -57,6 +56,9 @@ from helm.benchmark.presentation.schema import (
     BY_GROUP,
     THIS_GROUP_ONLY,
     NO_GROUPS,
+    validate_schema,
+    SchemaValidationError,
+    ValidationSeverity,
 )
 from helm.benchmark.config_registry import register_builtin_configs_from_helm_package, register_configs_from_directory
 from helm.benchmark.presentation.run_display import write_run_display_json
@@ -355,6 +357,7 @@ class Summarizer:
         verbose: bool,
         num_threads: int,
         allow_unknown_models: bool,
+        schema_validation: str = "warn",
     ):
         """
         A note on the relation between `release`, `suites`, and `suite`:
@@ -372,6 +375,7 @@ class Summarizer:
         self.suite: Optional[str] = None
         self.schema_path = schema_path
         self.release: Optional[str] = None
+        self.schema_validation = schema_validation
         if suite:
             self.suite = suite
             self.run_release_path = os.path.join(output_path, "runs", suite)
@@ -1352,16 +1356,35 @@ class Summarizer:
 
         parallel_map(process, self.runs, parallelism=self.num_threads)
 
-    def symlink_latest(self) -> None:
-        # Create a symlink runs/latest -> runs/<name_of_suite>,
-        # so runs/latest always points to the latest run suite.
-        releases_dir: str = os.path.dirname(self.run_release_path)
-        symlink_path: str = os.path.abspath(os.path.join(releases_dir, LATEST_SYMLINK))
-        hlog(f"Symlinking {self.run_release_path} to {LATEST_SYMLINK}.")
-        if os.path.islink(symlink_path):
-            # Remove the previous symlink if it exists.
-            os.unlink(symlink_path)
-        os.symlink(os.path.basename(self.run_release_path), symlink_path)
+    def _run_schema_validation(self) -> None:
+        """Run schema validation based on the schema_validation setting."""
+        if self.schema_validation == "off":
+            return
+
+        # Always use strict=False so we can log all messages (including warnings)
+        # before potentially raising an error
+        messages = validate_schema(
+            self.schema,
+            schema_path=self.schema_path,
+            strict=False,
+        )
+
+        # Log all messages - warnings first, then errors
+        warnings = [m for m in messages if m.severity == ValidationSeverity.WARNING]
+        errors = [m for m in messages if m.severity == ValidationSeverity.ERROR]
+
+        for msg in warnings:
+            hwarn(f"Schema validation warning: {msg}")
+
+        for msg in errors:
+            hlog(f"Schema validation error: {msg}")
+
+        if messages:
+            hlog(f"Schema validation complete: {len(errors)} error(s), {len(warnings)} warning(s)")
+
+        # Raise error if in "error" mode and there are errors
+        if self.schema_validation == "error" and errors:
+            raise SchemaValidationError(messages)
 
     def run_pipeline(self, skip_completed: bool) -> None:
         """Run the entire summarization pipeline."""
@@ -1374,6 +1397,7 @@ class Summarizer:
         # because it uses self.runs
         self.fix_up_schema()
         self.check_metrics_defined()
+        self._run_schema_validation()
         self.write_schema()
 
         self.write_run_display_json(skip_completed)
@@ -1383,8 +1407,6 @@ class Summarizer:
         self.write_runs_to_run_suites()
         self.write_groups()
         self.write_cost_report()
-
-        self.symlink_latest()
 
 
 @htrack("summarize")
@@ -1434,6 +1456,7 @@ def summarize(args):
         verbose=args.debug,
         num_threads=args.num_threads,
         allow_unknown_models=args.allow_unknown_models,
+        schema_validation=args.schema_validation,
     )
     summarizer.run_pipeline(skip_completed=args.skip_completed_run_display_json)
     hlog("Done.")
@@ -1454,6 +1477,13 @@ def main():
         help="Path to the schema file (e.g., schema_classic.yaml).",
     )
     parser.add_argument(
+        "--schema-validation",
+        type=str,
+        choices=["error", "warn", "off"],
+        default="warn",
+        help="Schema validation mode: 'error' (fail on errors), 'warn' (log warnings), or 'off' (skip validation).",
+    )
+    parser.add_argument(
         "--suite",
         type=str,
         help="Name of the suite this summarization should go under.",
@@ -1461,13 +1491,13 @@ def main():
     parser.add_argument(
         "--release",
         type=str,
-        help="Experimental: Name of the release this summarization should go under.",
+        help="Name of the release this summarization should go under.",
     )
     parser.add_argument(
         "--suites",
         type=str,
         nargs="+",
-        help="Experimental: List of suites to summarize for this this release.",
+        help="List of suites to summarize for this this release.",
     )
     parser.add_argument(
         "-n",

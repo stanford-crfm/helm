@@ -215,7 +215,7 @@ def check_limits(
             prefix,
             suffix,
         ):
-            print(f"max_prompt_length could be bigger. Params: max_prompt_length={max_prompt_length+1}, max_tokens=1")
+            print(f"max_prompt_length could be bigger. Params: max_prompt_length={max_prompt_length + 1}, max_tokens=1")
             result = False
         # Check that max_prompt_length - 1 is ok
         if not try_request(
@@ -231,7 +231,7 @@ def check_limits(
         ):
             print(
                 f"max_prompt_length ssems to be inconsistent. max_prompt_length={max_prompt_length} "
-                f"is ok but max_prompt_length={max_prompt_length-1} is not, with max_tokens=0"
+                f"is ok but max_prompt_length={max_prompt_length - 1} is not, with max_tokens=0"
             )
             result = False
 
@@ -275,7 +275,7 @@ def check_limits(
         ):
             print(
                 f"max_prompt_length_plus_tokens is too big. Params: max_prompt_length={max_prompt_length},"
-                f" max_tokens={max_prompt_length_plus_tokens-max_prompt_length}"
+                f" max_tokens={max_prompt_length_plus_tokens - max_prompt_length}"
             )
             result = False
         if try_request(
@@ -291,7 +291,7 @@ def check_limits(
         ):
             print(
                 f"max_prompt_length_plus_tokens could be bigger. Params: max_prompt_length={max_prompt_length},"
-                f" max_tokens={max_prompt_length_plus_tokens-max_prompt_length+1}"
+                f" max_tokens={max_prompt_length_plus_tokens - max_prompt_length + 1}"
             )
             result = False
 

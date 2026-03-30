@@ -11,7 +11,7 @@ try:
     from writerai import Writer
     from writerai.types.chat_completion import ChatCompletion
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, ["openai"])
+    handle_module_not_found_error(e, ["writer"])
 
 
 class WriterClient(CachingClient):

@@ -150,44 +150,9 @@ run_groups:
       - alrage
       - mbzuai_human_translated_arabic_mmlu
 
-  - name: mbzuai_human_translated_arabic_mmlu
-    display_name: MBZUAI Human-Translated Arabic MMLU
-    short_display_name: Translated MMLU
-    description: A translation from MBZUAI by human translators of the Massive Multitask Language Understanding benchmark.
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: multiple-choice question answering
-      what: math, science, history, etc.
-      who: various online sources
-      when: before 2021
-      language: Arabic
-
-  - name: arabic_mmlu
-    display_name: ArabicMMLU
-    description: ArabicMMLU
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: "question answering"
-      what: "academic questions across various disciplines"
-      who: "academic exams writers and takers"
-      when: "before 2024"
-      language: Arabic
-
   - name: alghafa
     display_name: AlGhafa
-    description: AlGhafa
+    description: An Arabic language multiple choice evaluation benchmark derived from publicly available NLP datasets ([paper](https://aclanthology.org/2023.arabicnlp-1.21/))
     metric_groups:
       - accuracy
       - efficiency
@@ -202,26 +167,9 @@ run_groups:
       when: "before 2023"
       language: Arabic
 
-  - name: arabic_exams
-    display_name: Arabic EXAMS
-    description: Arabic EXAMS
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: "multiple choice question answering"
-      what: High school examinations
-      who: High school examinations writers and test-takers
-      when: before 2020
-      language: Arabic
-
-  - name: aratrust
-    display_name: AraTrust
-    description: AraTrust
+  - name: arabic_mmlu
+    display_name: ArabicMMLU
+    description: A native Arabic language question answering benchmark using questions sourced from school exams across diverse educational levels in different countries spanning North Africa, the Levant, and the Gulf regions ([dataset](https://huggingface.co/datasets/MBZUAI/ArabicMMLU))
     metric_groups:
       - accuracy
       - efficiency
@@ -236,26 +184,26 @@ run_groups:
       when: "before 2024"
       language: Arabic
 
-  - name: alrage
-    display_name: ALRAGE
-    description: ALRAGE
+  - name: arabic_exams
+    display_name: Arabic EXAMS
+    description: The Arabic language subset of the EXAMS multilingual question answering benchmark, which consists of high school exam questions across various school subjects ([paper](https://aclanthology.org/2020.emnlp-main.438/))
     metric_groups:
       - accuracy
       - efficiency
       - general_information
     environment:
-      main_name: alrage_score
+      main_name: exact_match
       main_split: test
     taxonomy:
-      task: "openbook (RAG) open-ended question answering"
-      what: "?"
-      who: "?"
-      when: "?"
+      task: "multiple choice question answering"
+      what: High school examinations
+      who: High school examinations writers and test-takers
+      when: before 2020
       language: Arabic
 
   - name: madinah_qa
     display_name: MadinahQA
-    description: Arabic language competency benchmark
+    description: A question answering benchmark published by MBZUAI that tests knowledge of Arabic language and grammar ([dataset](https://huggingface.co/datasets/MBZUAI/MadinahQA))
     metric_groups:
       - accuracy
       - efficiency
@@ -268,4 +216,56 @@ run_groups:
       what: "academic questions about Arabic language"
       who: "academic exams writers and takers"
       when: "before 2024"
+      language: Arabic
+
+  - name: aratrust
+    display_name: AraTrust
+    description: An Arab-region-specific safety evaluation dataset consisting of human-written questions including direct attacks, indirect attacks, and harmless requests with sensitive words ([paper](https://arxiv.org/abs/2410.17040))
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: "safety"
+      what: "human-written questions including direct attacks, indirect attacks, and harmless requests"
+      who: "human question writers"
+      when: "2024"
+      language: Arabic
+
+  - name: alrage
+    display_name: ALRAGE
+    description: An Arabic language passage-based open-ended model-graded question answering benchmark that reflects retrieval-augmented generation use cases ([dataset](https://huggingface.co/datasets/OALL/ALRAGE))
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: alrage_score
+      main_split: test
+    taxonomy:
+      task: "openbook (RAG) open-ended question answering"
+      what: "passage-based question answering"
+      who: "book authors"
+      when: "before 2025"
+      language: Arabic
+
+  - name: mbzuai_human_translated_arabic_mmlu
+    display_name: MBZUAI Human-Translated Arabic MMLU
+    short_display_name: Translated MMLU
+    description: A translation of MMLU to Arabic by human translators published by MBZUAI ([dataset](https://huggingface.co/datasets/MBZUAI/human_translated_arabic_mmlu))
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: math, science, history, etc.
+      who: various online sources
+      when: before 2021
       language: Arabic

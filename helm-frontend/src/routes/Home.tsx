@@ -6,8 +6,6 @@ import ThaiExamLanding from "@/components/Landing/ThaiExamLanding";
 import FinanceLanding from "@/components/Landing/FinanceLanding";
 import HEIMLanding from "@/components/Landing/HEIMLanding";
 import VHELMLanding from "@/components/VHELMLanding";
-import CallCenterLanding from "@/components/Landing/CallCenterLanding";
-import CallTranscriptSummarizationLanding from "@/components/Landing/CallTranscriptSummarizationLanding";
 import CLEVALanding from "@/components/Landing/CLEVALanding";
 import ToRRLanding from "@/components/Landing/ToRRLanding";
 import HomeLanding from "@/components/Landing/HomeLanding";
@@ -25,6 +23,8 @@ import SQLLanding from "@/components/Landing/SQLLanding";
 import ViLLMLanding from "@/components/Landing/ViLLMLanding";
 import SLPHelmLanding from "@/components/Landing/SLPHelmLanding";
 import AudioLanding from "@/components/Landing/AudioLanding";
+import ArabicLanding from "@/components/Landing/ArabicLanding";
+import RoboRewardLanding from "@/components/Landing/RoboRewardLanding";
 
 export default function Home() {
   // TODO consider a more streamlined way to do this?
@@ -46,10 +46,6 @@ export default function Home() {
     return <ThaiExamLanding />;
   } else if (window.PROJECT_ID === "finance") {
     return <FinanceLanding />;
-  } else if (window.PROJECT_ID === "call-center") {
-    return <CallCenterLanding />;
-  } else if (window.PROJECT_ID === "call-transcript-summarization") {
-    return <CallTranscriptSummarizationLanding />;
   } else if (window.PROJECT_ID === "cleva") {
     return <CLEVALanding />;
   } else if (window.PROJECT_ID === "torr") {
@@ -80,6 +76,10 @@ export default function Home() {
     return <SLPHelmLanding />;
   } else if (window.PROJECT_ID === "audio") {
     return <AudioLanding />;
+  } else if (window.PROJECT_ID === "arabic") {
+    return <ArabicLanding />;
+  } else if (window.PROJECT_ID === "robo-reward-bench") {
+    return <RoboRewardLanding />;
   } else if (window.PROJECT_ID === "home") {
     return <HomeLanding />;
   } else {

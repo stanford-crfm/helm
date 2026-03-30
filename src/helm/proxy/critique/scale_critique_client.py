@@ -14,7 +14,7 @@ from helm.common.critique_request import (
     CritiqueTaskTemplate,
     CritiqueResponse,
 )
-from helm.common.optional_dependencies import handle_module_not_found_error
+from helm.common.optional_dependencies import OptionalDependencyNotInstalled
 from helm.proxy.critique.critique_client import CritiqueClient
 
 try:
@@ -22,7 +22,9 @@ try:
     from scaleapi.tasks import TaskType, TaskStatus
     from scaleapi.exceptions import ScaleDuplicateResource
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, ["human-evaluation"])
+    raise OptionalDependencyNotInstalled(
+        "`scaleapi` is not installed. Please install the `scaleapi` package manually."
+    ) from e
 
 
 class ScaleCritiqueClientError(Exception):
