@@ -6,6 +6,14 @@ on:
       - main
     paths:
       - 'docs/**'
+      - 'mkdocs.yml'
+      - 'src/helm/config/model_metadata.yaml'
+      - 'docs/mkdocs_macros.py'
+      - 'src/helm/benchmark/metrics/**'
+      - 'src/helm/benchmark/scenarios/**'
+      - 'src/helm/benchmark/augmentations/**'
+      - 'src/helm/benchmark/adaptation/**'
+      - 'src/helm/common/**'
       - '.github/workflows/deploy-docs.yml'
 
 permissions:
@@ -17,6 +25,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Prepare MkDocs reference pages for Jekyll
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install -r docs/requirements.txt
+          python docs/scripts/jekyll_prepare_mkdocstring_pages.py
 
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1

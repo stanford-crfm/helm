@@ -1,5 +1,8 @@
 mkdocs==1.6.0
+mkdocs-material==9.7.4
 mkdocstrings==0.30.1
 mkdocstrings-python==1.3.0
 mkdocs-macros-plugin==1.5.0
 mkdocs-include-markdown-plugin==4.0.0
+beautifulsoup4>=4.12
+html2text>=2024.2

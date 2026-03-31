@@ -24,6 +24,7 @@ exclude:
   - requirements.txt
   - README.md
   - mkdocs.yml
+  - scripts
 
 defaults:
   - scope:
