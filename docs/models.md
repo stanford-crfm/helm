@@ -6,8 +6,6 @@ title: Models
 
 ## Introduction
 
-MedHELM model listings are generated from [`model_metadata.yaml`](https://github.com/PacificAI/medhelm/tree/main/src/helm/config/model_metadata.yaml) via the same macros as upstream HELM (`models_by_organization_with_tag`). Deprecated and `simple/*` models are omitted.
-
 ## Text Models
 
 {% for tag in ["TEXT_MODEL_TAG", "CODE_MODEL_TAG"] %}

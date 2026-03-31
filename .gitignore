@@ -47,6 +47,9 @@ notes.otl
 # For vim
 *.swp
 
+# MkDocs (default build output; recreated by `mkdocs build`)
+site/
+
 # Miscellaneous
 .nfs*
 
