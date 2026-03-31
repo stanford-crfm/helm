@@ -13,6 +13,11 @@ import sys
 from pathlib import Path
 
 # (site subdirectory under site/, Jekyll front-matter title, docs markdown filename)
+def _escape_liquid_braces(text: str) -> str:
+    """Avoid Jekyll/Liquid parsing ``{{``/``}}`` from docstrings (e.g. BibTeX, prompts)."""
+    return text.replace("{{", "&#123;&#123;").replace("}}", "&#125;&#125;")
+
+
 PAGES: list[tuple[str, str, str]] = [
     ("models", "Models", "models.md"),
     ("metrics", "Metrics", "metrics.md"),
@@ -53,7 +58,7 @@ def main() -> None:
         if article is None:
             raise SystemExit(f"Could not find article in {built}")
 
-        body = h.handle(str(article)).strip() + "\n"
+        body = _escape_liquid_braces(h.handle(str(article)).strip()) + "\n"
         out_path = docs_dir / md_name
         out_path.write_text(f"---\ntitle: {title}\n---\n\n{body}", encoding="utf-8")
         print(f"Wrote Jekyll-ready {out_path.relative_to(repo_root)}")
