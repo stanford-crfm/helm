@@ -1355,12 +1355,24 @@ model_deployments:
   - name: google/llama-4-scout-17b-16e-instruct
     model_name: meta/llama-4-scout-17b-16e-instruct
     tokenizer_name: meta/llama-4-scout-17b-16e-instruct
-    max_sequence_length: 128000
+    max_sequence_length: 1000000
     client_spec:
-      class_name: "helm.clients.vertexai_client.VertexAIChatClient"
+      class_name: "helm.clients.google_genai_client.GoogleGenAIClient"
       args:
-        vertexai_model: publishers/meta/models/llama-4-scout-17b-16e-instruct-maas
-        genai_use_vertexai: False
+        genai_model: meta/llama-4-scout-17b-16e-instruct-maas
+        genai_use_vertexai: True
+        location: us-east5
+
+  - name: google/llama-4-maverick-17b-128e-instruct
+    model_name: meta/llama-4-maverick-17b-128e-instruct
+    tokenizer_name: meta/llama-4-scout-17b-16e-instruct
+    max_sequence_length: 10000000
+    client_spec:
+      class_name: "helm.clients.google_genai_client.GoogleGenAIClient"
+      args:
+        genai_model: meta/llama-4-maverick-17b-128e-instruct-maas
+        genai_use_vertexai: True
+        location: us-east5
 
   ## Gemma
   - name: together/gemma-2b
