@@ -127,7 +127,7 @@ python-dateutil==2.9.0.post0
 pytz==2025.2
 pyyaml==6.0.3
 regex==2026.1.15
-requests==2.33.0
+requests==2.33.1
 retrying==1.4.2
 rich==13.9.4
 rouge-score==0.1.2

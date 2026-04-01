@@ -2,6 +2,10 @@
 
 ## [Upcoming]
 
+### Models
+
+- Add GPT-5.4, GPT-5.4 mini, and GPT-5.4 nano (#4145)
+
 ## [v0.5.14] - 2026-03-26
 
 ### Breaking Changes
@@ -12,7 +16,7 @@
 ### Models
 
 - Add Mistral Large 3, Mistral Medium 3.1, Mistral Small 3.2, and Ministral 3 (#4098)
-- Add GPT-5.4, GPT-5.4 mini, and GPT-5.4 nano (#4099)
+- Add GPT-5.4 (#4099)
 - Switch llama-4-scout-17b-16e-instruct to use Vertex AI instead of Together (#4104)
 - Add the ability to use models from certain providers without manually configuring `model_deployments.yaml` (#4100, #4103, #4117):
   - The following providers are supported:
