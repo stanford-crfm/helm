@@ -138,17 +138,23 @@ To reproduce or extend results locally, see [medhelm.org](https://medhelm.org) (
 
 ## Citation
 
-If you use this software in your research, please cite the [Holistic Evaluation of Language Models paper](https://openreview.net/forum?id=iO4LZibEqW) as below.
+MedHELM builds on the Holistic Evaluation of Language Models framework. If you use this software in your research, please cite the MedHELM and HELM papers as below.
 
 ```bibtex
-@article{
-liang2023holistic,
-title={Holistic Evaluation of Language Models},
-author={Percy Liang and Rishi Bommasani and Tony Lee and Dimitris Tsipras and Dilara Soylu and Michihiro Yasunaga and Yian Zhang and Deepak Narayanan and Yuhuai Wu and Ananya Kumar and Benjamin Newman and Binhang Yuan and Bobby Yan and Ce Zhang and Christian Alexander Cosgrove and Christopher D Manning and Christopher Re and Diana Acosta-Navas and Drew Arad Hudson and Eric Zelikman and Esin Durmus and Faisal Ladhak and Frieda Rong and Hongyu Ren and Huaxiu Yao and Jue WANG and Keshav Santhanam and Laurel Orr and Lucia Zheng and Mert Yuksekgonul and Mirac Suzgun and Nathan Kim and Neel Guha and Niladri S. Chatterji and Omar Khattab and Peter Henderson and Qian Huang and Ryan Andrew Chi and Sang Michael Xie and Shibani Santurkar and Surya Ganguli and Tatsunori Hashimoto and Thomas Icard and Tianyi Zhang and Vishrav Chaudhary and William Wang and Xuechen Li and Yifan Mai and Yuhui Zhang and Yuta Koreeda},
-journal={Transactions on Machine Learning Research},
-issn={2835-8856},
-year={2023},
-url={https://openreview.net/forum?id=iO4LZibEqW},
-note={Featured Certification, Expert Certification}
+
+@Article{Bedi2026,
+author={Bedi, Suhana and Cui, Hejie and Fuentes, Miguel and Unell, Alyssa and Wornow, Michael and Banda, Juan M. and Kotecha, Nikesh and Keyes, Timothy and Mai, Yifan and Oez, Mert and Qiu, Hao and Jain, Shrey and Schettini, Leonardo and Kashyap, Mehr and Fries, Jason Alan and Swaminathan, Akshay and Chung, Philip and Haredasht, Fateme Nateghi and Lopez, Ivan and Aali, Asad and Tse, Gabriel and Nayak, Ashwin and Vedak, Shivam and Jain, Sneha S. and Patel, Birju and Fayanju, Oluseyi and Shah, Shreya and Goh, Ethan and Yao, Dong-han and Soetikno, Brian and Reis, Eduardo and Gatidis, Sergios and Divi, Vasu and Capasso, Robson and Saralkar, Rachna and Chiang, Chia-Chun and Jindal, Jenelle and Pham, Tho and Ghoddusi, Faraz and Lin, Steven and Chiou, Albert S. and Hong, Hyo Jung and Roy, Mohana and Gensheimer, Michael F. and Patel, Hinesh and Schulman, Kevin and Dash, Dev and Char, Danton and Downing, Lance and Grolleau, Francois and Black, Kameron and Mieso, Bethel and Zahedivash, Aydin and Yim, Wen-wai and Sharma, Harshita and Lee, Tony and Kirsch, Hannah and Lee, Jennifer and Ambers, Nerissa and Lugtu, Carlene and Sharma, Aditya and Mawji, Bilal and Alekseyev, Alex and Zhou, Vicky and Kakkar, Vikas and Helzer, Jarrod and Revri, Anurang and Bannett, Yair and Daneshjou, Roxana and Chen, Jonathan and Alsentzer, Emily and Morse, Keith and Ravi, Nirmal and Aghaeepour, Nima and Kennedy, Vanessa and Chaudhari, Akshay and Wang, Thomas and Koyejo, Sanmi and Lungren, Matthew P. and Horvitz, Eric and Liang, Percy and Pfeffer, Michael A. and Shah, Nigam H.},
+title={Holistic evaluation of large language models for medical tasks with MedHELM},
+journal={Nature Medicine},
+year={2026},
+month={Mar},
+day={01},
+volume={32},
+number={3},
+pages={943-951},
+abstract={While large language models (LLMs) achieve near-perfect scores on medical licensing exams, these evaluations inadequately reflect the complexity and diversity of real-world clinical practice. Here we introduce MedHELM, an extensible evaluation framework with three contributions. First, a clinician-validated taxonomy organizing medical AI applications into five categories that mirror real clinical tasks---clinical decision support (diagnostic decisions, treatment planning), clinical note generation (visit documentation, procedure reports), patient communication (education materials, care instructions), medical research (literature analysis, clinical data analysis) and administration (scheduling, workflow coordination). These encompass 22 subcategories and 121 specific tasks reflecting daily medical practice. Second, a comprehensive benchmark suite of 37 evaluations covering all subcategories. Third, systematic comparison of nine frontier LLMs---Claude 3.5 Sonnet, Claude 3.7 Sonnet, DeepSeek R1, Gemini 1.5 Pro, Gemini 2.0 Flash, GPT-4o, GPT-4o mini, Llama 3.3 and o3-mini---using an automated LLM-jury evaluation method. Our LLM-jury uses multiple AI evaluators to assess model outputs against expert-defined criteria. Advanced reasoning models (DeepSeek R1, o3-mini) demonstrated superior performance with win rates of 66{\%}, although Claude 3.5 Sonnet achieved comparable results at 15{\%} lower computational cost. These results not only highlight current model capabilities but also demonstrate how MedHELM could enable evidence-based selection of medical AI systems for healthcare applications.},
+issn={1546-170X},
+doi={10.1038/s41591-025-04151-2},
+url={https://doi.org/10.1038/s41591-025-04151-2}
 }
 ```
