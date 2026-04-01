@@ -4238,6 +4238,20 @@ model_deployments:
         # The model name is case sensitive on Together AI for this model
         together_model: Qwen/Qwen3-235B-A22B-Thinking-2507
 
+  - name: together/qwen3.5-397b-a17b
+    model_name: qwen/qwen3.5-397b-a17b
+    tokenizer_name: qwen/qwen3.5-397b-a17b
+    max_sequence_length: 262144
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
+  - name: together/qwen3.5-9b
+    model_name: qwen/qwen3.5-9b
+    tokenizer_name: qwen/qwen3.5-9b
+    max_sequence_length: 262144
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+
   - name: huggingface/qwen2.5-7b-instruct-4bit
     model_name: qwen/qwen2.5-7b-instruct
     tokenizer_name: qwen/qwen2.5-7b-instruct
