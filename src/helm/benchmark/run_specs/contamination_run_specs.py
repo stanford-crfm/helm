@@ -28,11 +28,10 @@ def get_contamination_spec(dataset: str, strategy: str, language: str) -> RunSpe
     # 1. Aplica a métrica customizada (com a limpeza oficial) para TODAS as estratégias TS-Guessing
     metric_specs = [
         MetricSpec(
-            class_name="helm.benchmark.metrics.contamination_metrics.TSGuessingMetric",
-            args={"language": language}
+            class_name="helm.benchmark.metrics.contamination_metrics.TSGuessingMetric", args={"language": language}
         )
     ]
-    
+
     # 2. Adiciona as genéricas como baseline de comparação
     metric_specs.extend(
         get_basic_metric_specs(

@@ -12,6 +12,7 @@ PROMPT_CONFIGS_MASTER = {
     "ts_guessing_question_multichoice": TS_GUESSING_MULTICHOICE,
 }
 
+
 class ContaminationUtils:
     """
     Utilities for contamination detection strategies. Provides common functionalities for

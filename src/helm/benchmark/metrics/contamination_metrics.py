@@ -24,6 +24,7 @@ class TSGuessingMetric(MetricInterface):
 
     def _ensure_nltk_resources(self):
         import nltk
+
         try:
             nltk.data.find("tokenizers/punkt")
         except LookupError:
@@ -34,13 +35,13 @@ class TSGuessingMetric(MetricInterface):
         """Cleans the raw model response using enhanced TS-Guessing rules."""
         if not text:
             return ""
-        
+
         processed_text = str(text).strip()
-        
+
         # Layer 1: Remove verbal prefixes (Answer:, Resposta:, etc.)
         verbal_prefix_pattern = r"^(answer|resposta|the answer is|a resposta é|a resposta e)s?\s*[:\-]*\s*"
         processed_text = re.sub(verbal_prefix_pattern, "", processed_text, flags=re.IGNORECASE).strip()
-            
+
         # Layer 2: Remove choice letter prefixes (A:, A., A -, B) etc.)
         choice_prefix_pattern = r"^[a-z][\s\.\:\)\-]+\s*"
         processed_text = re.sub(choice_prefix_pattern, "", processed_text, flags=re.IGNORECASE).strip()
@@ -52,25 +53,26 @@ class TSGuessingMetric(MetricInterface):
                 processed_text = sentences[0]
         except Exception as e:
             hlog(f"DEBUG: sent_tokenize failed: {e}")
-            
+
         # Layer 4: Final sanitization (Remove [MASK], quotes, and brackets)
         processed_text = processed_text.replace("[MASK]", "").strip()
-        
+
         if processed_text.startswith("[") and processed_text.endswith("]"):
             processed_text = processed_text[1:-1].strip()
-            
-        if (processed_text.startswith('"') and processed_text.endswith('"')) or \
-           (processed_text.startswith("'") and processed_text.endswith("'")):
+
+        if (processed_text.startswith('"') and processed_text.endswith('"')) or (
+            processed_text.startswith("'") and processed_text.endswith("'")
+        ):
             processed_text = processed_text[1:-1].strip()
-            
+
         return processed_text.lower()
 
     def evaluate(
         self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
     ) -> MetricResult:
         """Evaluates instances and returns statistics aligned with HELM standards."""
-        
-        use_stemmer = (self.language == "en")
+
+        use_stemmer = self.language == "en"
         scorer = rouge_scorer.RougeScorer(["rougeLsum"], use_stemmer=use_stemmer)
 
         em_scores = []
@@ -81,7 +83,7 @@ class TSGuessingMetric(MetricInterface):
             golds = [ref for ref in request_state.instance.references if ref.is_correct]
             if not golds:
                 continue
-            
+
             gold_text = golds[0].output.text.lower().strip()
 
             if not request_state.result or not request_state.result.completions:
@@ -91,12 +93,14 @@ class TSGuessingMetric(MetricInterface):
                 clean_pred = self._process_response(raw_pred)
 
             is_match = 1.0 if clean_pred == gold_text else 0.0
-            
+
             try:
-                rouge_score = scorer.score(clean_pred, gold_text)["rougeLsum"].fmeasure if clean_pred and gold_text else 0.0
+                rouge_score = (
+                    scorer.score(clean_pred, gold_text)["rougeLsum"].fmeasure if clean_pred and gold_text else 0.0
+                )
             except Exception:
                 rouge_score = 0.0
-                
+
             em_scores.append(is_match)
             rouge_scores.append(rouge_score)
 
@@ -120,9 +124,9 @@ class TSGuessingMetric(MetricInterface):
         return MetricResult(
             [
                 Stat(MetricName("ts_guessing_exact_match", split=split)).add(em_mean),
-                Stat(MetricName("ts_guessing_rouge_l_f1", split=split)).add(rouge_mean)
-            ], 
-            per_instance_stats_list
+                Stat(MetricName("ts_guessing_rouge_l_f1", split=split)).add(rouge_mean),
+            ],
+            per_instance_stats_list,
         )
 
     def get_metadata(self) -> List[MetricMetadata]:

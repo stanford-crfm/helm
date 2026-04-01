@@ -2,6 +2,7 @@ import pytest
 
 from helm.benchmark.metrics.contamination_metrics import TSGuessingMetric
 
+
 def test_ts_guessing_metric_clean_processing_english():
     metric = TSGuessingMetric(language="en")
 
@@ -18,6 +19,7 @@ def test_ts_guessing_metric_clean_processing_english():
 
     # Test removing [MASK] tags
     assert metric._process_response("[MASK] Tokyo") == "tokyo"
+
 
 def test_ts_guessing_metric_clean_processing_portuguese():
     metric = TSGuessingMetric(language="pt")
