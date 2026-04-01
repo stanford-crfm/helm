@@ -798,6 +798,18 @@ tokenizer_configs:
     end_of_text_token: "<|im_end|>"
     prefix_token: ""
 
+  - name: qwen/qwen3.5-397b-a17b
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|im_end|>"
+    prefix_token: ""
+
+  - name: qwen/qwen3.5-9b
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<|im_end|>"
+    prefix_token: ""
+
   - name: qwen/qwq-32b-preview
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
