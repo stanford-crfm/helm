@@ -112,7 +112,7 @@ class TSGuessingQuestionBaseStrategy(ContaminationStrategy):
         final_prompt = f"{instruction}\n{sentence_formatted}\n\n{answer_prefix}"
 
         # Create a reference containing the original (masked) word as ground truth.
-        masked_word_ref = Reference(output=Output(text=word_to_mask.lower()), tags=["correct"])
+        masked_word_ref = Reference(output=Output(text=word_to_mask.strip()), tags=["correct"])
 
         # Create a new instance with the masked input and reference.
         new_input = replace(instance.input, text=final_prompt)

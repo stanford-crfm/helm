@@ -92,7 +92,7 @@ class TSGuessingQuestionMultiChoiceStrategy(ContaminationStrategy):
         prompt = self._build_masked_prompt(question_text, choices, masked_idx, masked_letter, prompt_components)
 
         # Create a reference object with the original (unmasked) text
-        masked_option_ref = Reference(output=Output(text=masked_option_text.lower()), tags=["correct"])
+        masked_option_ref = Reference(output=Output(text=masked_option_text.strip()), tags=["correct"])
 
         # Create a new instance with the modified input and reference
         new_input = replace(instance.input, text=prompt)

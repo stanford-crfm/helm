@@ -1,7 +1,8 @@
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.benchmark.adaptation.common_adapter_specs import get_generation_adapter_spec
-from helm.benchmark.metrics.common_metric_specs import get_exact_match_metric_specs, get_basic_metric_specs
+from helm.benchmark.metrics.common_metric_specs import get_basic_metric_specs
+from helm.benchmark.metrics.metric import MetricSpec
 
 
 @run_spec_function("contamination")
@@ -24,10 +25,17 @@ def get_contamination_spec(dataset: str, strategy: str, language: str) -> RunSpe
         stop_sequences=["\n"],
     )
 
-    if strategy == "ts_guessing_question_base":
-        metric_specs = get_exact_match_metric_specs()
-    elif strategy == "ts_guessing_question_multichoice":
-        metric_specs = get_basic_metric_specs(
+    # 1. Aplica a métrica customizada (com a limpeza oficial) para TODAS as estratégias TS-Guessing
+    metric_specs = [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.contamination_metrics.TSGuessingMetric",
+            args={"language": language}
+        )
+    ]
+    
+    # 2. Adiciona as genéricas como baseline de comparação
+    metric_specs.extend(
+        get_basic_metric_specs(
             [
                 "exact_match",
                 "quasi_exact_match",
@@ -36,8 +44,7 @@ def get_contamination_spec(dataset: str, strategy: str, language: str) -> RunSpe
                 "rouge_l",
             ]
         )
-    else:
-        metric_specs = get_exact_match_metric_specs()
+    )
 
     return RunSpec(
         name=f"contamination:dataset={dataset},strategy={strategy},language={language}",
