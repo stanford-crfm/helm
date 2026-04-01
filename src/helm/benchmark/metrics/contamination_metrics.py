@@ -110,7 +110,7 @@ class TSGuessingMetric(MetricInterface):
             ]
             per_instance_stats_list.append(
                 PerInstanceStats(
-                    instance_id=request_state.instance.id,
+                    instance_id=request_state.instance.id or "",
                     perturbation=request_state.instance.perturbation,
                     train_trial_index=request_state.train_trial_index,
                     stats=instance_stats,
