@@ -161,19 +161,20 @@ html[data-theme="dark"] .theme-toggle-moon { display: none; }
 .home-logos a:hover { color: var(--accent); }
 .home-logos img { display: block; height: 48px; width: auto; }
 .home-logo-medhelm-wrap { align-self: center; }
-.home-logo-medhelm { height: 60px !important; width: auto; }
+.home-logo-medhelm { height: 72px !important; width: auto; }
+.home-logo-crfm { height: 58px !important; width: auto; }
 /* CRFM mark is dark gray / red on dark areas; invert filter washes it out. Use a light pad in dark theme. */
 html[data-theme="dark"] a.home-logo-on-dark-chip {
   display: inline-flex;
   align-items: center;
   background: #ececec;
-  padding: 0.25rem 0.55rem;
+  padding: 0.3rem 0.6rem;
   border-radius: 8px;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.2);
 }
-html[data-theme="dark"] a.home-logo-on-dark-chip img {
+html[data-theme="dark"] a.home-logo-on-dark-chip img.home-logo-crfm {
   display: block;
-  height: 44px !important;
+  height: 58px !important;
   width: auto;
 }
 
