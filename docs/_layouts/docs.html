@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  {% include theme_head.html %}
   <title>{% if page.title %}{{ page.title }} | {% endif %}{{ site.title }}</title>
   <link rel="stylesheet" href="{{ '/assets/css/style.css' | relative_url }}">
 </head>
@@ -24,5 +25,6 @@
     </div>
   </footer>
   {% include github_stars.html %}
+  <script src="{{ '/assets/js/theme-toggle.js' | relative_url }}" defer></script>
 </body>
 </html>

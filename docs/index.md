@@ -4,23 +4,18 @@ title: MedHELM
 ---
 
 <div class="home-logos">
-  <a href="https://crfm.stanford.edu/" rel="noopener" target="_blank" aria-label="Stanford CRFM"><img src="{{ '/assets/images/crfm-logo.png' | relative_url }}" alt="Stanford CRFM" height="48"/></a>
+  <a href="{{ '/' | relative_url }}" class="home-logo-medhelm-wrap" aria-label="MedHELM"><img class="home-logo-medhelm" src="{{ '/assets/images/medhelm_logo.jpg' | relative_url }}" alt="MedHELM" height="60"/></a>
+  <a href="https://crfm.stanford.edu/" rel="noopener" target="_blank" class="home-logo-on-dark-chip" aria-label="Stanford CRFM"><img src="{{ '/assets/images/crfm-logo.png' | relative_url }}" alt="Stanford CRFM" height="48"/></a>
   <a href="https://crfm.stanford.edu/helm/" rel="noopener" target="_blank" aria-label="HELM"><img src="{{ '/assets/images/helm-logo.png' | relative_url }}" alt="HELM" height="48"/></a>
   <a href="https://hai.stanford.edu/" rel="noopener" target="_blank" aria-label="Stanford HAI"><img src="{{ '/assets/images/chai-logo.svg' | relative_url }}" alt="Stanford HAI" height="48"/></a>
   <a href="https://pacific.ai/" rel="noopener" target="_blank" aria-label="Pacific AI"><img src="{{ '/assets/images/pacific-ai-logo.svg' | relative_url }}" alt="Pacific AI" height="48"/></a>
 </div>
 
-# MedHELM
-
-<img src="{{ '/assets/images/medhelm_logo.jpg' | relative_url }}" alt="MedHELM" width="160"/>
-
-<a href="https://github.com/PacificAI/medhelm/graphs/contributors"><img alt="GitHub contributors" src="https://img.shields.io/github/contributors/PacificAI/medhelm"></a>
-<a href="https://github.com/PacificAI/medhelm/blob/main/LICENSE"><img alt="License: Apache 2.0" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"></a>
-<a href="https://pypi.org/project/medhelm/"><img alt="PyPI" src="https://img.shields.io/pypi/v/medhelm?color=blue" /></a>
-
-**License:** This project is licensed under the [Apache License 2.0](https://github.com/PacificAI/medhelm/blob/main/LICENSE).
-
-# MedHELM
+<p class="home-badges">
+  <a href="https://github.com/PacificAI/medhelm/graphs/contributors"><img alt="GitHub contributors" src="https://img.shields.io/github/contributors/PacificAI/medhelm"></a>
+  <a href="https://github.com/PacificAI/medhelm/blob/main/LICENSE"><img alt="License: Apache 2.0" src="https://img.shields.io/badge/License-Apache%202.0-blue.svg"></a>
+  <a href="https://pypi.org/project/medhelm/"><img alt="PyPI" src="https://img.shields.io/pypi/v/medhelm?color=blue" /></a>
+</p>
 
 **MedHELM** is a multi-institutional effort to develop standardized, clinically grounded benchmarks for evaluating large language models in healthcare. It was made possible by a unique collaboration between the Center for Research on Foundation Models, Technology and Digital Solutions at Stanford Healthcare, and Microsoft Healthcare and Life Sciences in partnership with faculty in the Departments of **Medicine, Computer Science, Anesthesiology, Dermatology, Pediatrics and Biomedical Data Science** as well as trainees from the MCiM program at the Clinical Excellence Research Center. The effort was coordinated by the Center for Biomedical Informatics Research.
 
@@ -121,3 +116,7 @@ url={https://openreview.net/forum?id=iO4LZibEqW},
 note={Featured Certification, Expert Certification}
 }
 ```
+
+## License
+
+This project is licensed under the [Apache License 2.0](https://github.com/PacificAI/medhelm/blob/main/LICENSE).

@@ -28,10 +28,25 @@ brew install ruby
 # Then:
 cd docs
 bundle install
-bundle exec jekyll serve
 ```
 
-Open http://localhost:4000/
+### Full site preview (recommended)
+
+Several pages (`models.md`, `metrics.md`, `scenarios.md`, `perturbations.md`, `schemas.md`) are **MkDocs sources** in git (mkdocstrings / mkdocs-macros). Jekyll’s **Liquid** parser does not understand that syntax, so a plain `bundle exec jekyll serve` fails on `models.md`.
+
+CI runs `docs/scripts/jekyll_prepare_mkdocstring_pages.py` before Jekyll to expand those files. Do the same locally from the **repository root**:
+
+```bash
+pip install -r docs/requirements.txt   # once: MkDocs, mkdocstrings, beautifulsoup4, html2text, …
+chmod +x docs/scripts/serve_jekyll_local.sh   # once, if needed
+./docs/scripts/serve_jekyll_local.sh
+```
+
+Open http://localhost:4000/ — when you stop the server (Ctrl+C), the script restores the original `docs/*.md` sources from git so nothing is left expanded by mistake.
+
+### Jekyll only (home and non-MkDocs pages)
+
+If you only need a quick look at layouts like the homepage and do not care that `/models/` and other reference pages are missing or broken, you can still run `cd docs && bundle exec jekyll serve` after temporarily moving aside `models.md`, or rely on the script above for a faithful build.
 
 (Alternatively, use [rbenv](https://github.com/rbenv/rbenv) or [asdf](https://asdf-vm.com/) to install Ruby 3 or 4.)
 

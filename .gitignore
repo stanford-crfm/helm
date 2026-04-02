@@ -50,6 +50,9 @@ notes.otl
 # MkDocs (default build output; recreated by `mkdocs build`)
 site/
 
+# Jekyll (created by `jekyll build` in docs/; CI builds fresh for Pages)
+docs/_site/
+
 # Miscellaneous
 .nfs*
 
