@@ -1430,7 +1430,7 @@ def summarize(args):
         release = args.release
         suites = args.suites
     else:
-        raise ValueError("Exactly one of --release or --suite must be specified.")
+        suite = "default"
 
     schema_path: Optional[str]
     if args.auto_generate_schema:
