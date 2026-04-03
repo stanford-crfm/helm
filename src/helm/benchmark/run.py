@@ -251,7 +251,7 @@ def add_run_args(parser: argparse.ArgumentParser):
         "--suite",
         type=str,
         help="Name of the suite this run belongs to (default is today's date).",
-        required=True,
+        default="default",
     )
     parser.add_argument(
         "--local-path",
