@@ -462,7 +462,7 @@ override-dependencies = [
 ]
 
 [tool.uv.extra-build-dependencies]
-openai-whisper = ["pkg_resources"]
+openai-whisper = ["setuptools>=80.8.0"]
 
 [tool.setuptools]
 package-dir = { "" = "src" }
