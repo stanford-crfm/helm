@@ -416,7 +416,7 @@ dev = [
     "pre-commit~=2.20.0",
     # Errors produced by type checkers and linters are very version-specific
     # so they are pinned to an exact version.
-    "black==24.3.0",
+    "black==26.3.1",
     "mypy==1.16.0",
     "flake8==7.3.0",
     "en_core_web_sm@https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl",
