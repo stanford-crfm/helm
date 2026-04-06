@@ -15,6 +15,7 @@ import getRunSpecByName, {
   getRunSpecByNameUrl,
 } from "@/services/getRunSpecByName";
 import { getScenarioStateByNameUrl } from "@/services/getScenarioStateByName";
+import { getPerInstanceStatsByNameUrl } from "@/services/getPerInstanceStatsByName";
 import Tab from "@/components/Tab";
 import Tabs from "@/components/Tabs";
 import Loading from "@/components/Loading";
@@ -163,6 +164,14 @@ export default function Run() {
               target="_blank"
             >
               Full JSON
+            </a>
+            <a
+              className="link link-primary link-hover"
+              href={getPerInstanceStatsByNameUrl(runSpec.name, runSuite)}
+              download="true"
+              target="_blank"
+            >
+              Per-Instance Stats JSON
             </a>
           </div>
         </div>
