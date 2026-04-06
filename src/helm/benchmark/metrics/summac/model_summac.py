@@ -1,3 +1,5 @@
+# mypy: ignore-errors
+
 ###############################################
 # Source: https://github.com/tingofurro/summac
 ###############################################
