@@ -131,7 +131,7 @@ class AlGhafaScenario(Scenario):
         return ScenarioMetadata(
             name="alghafa",
             display_name="AlGhafa",
-            description="AlGhafa",
+            description="An Arabic language multiple choice evaluation benchmark derived from publicly available NLP datasets ([paper](https://aclanthology.org/2023.arabicnlp-1.21/))",
             taxonomy=TaxonomyInfo(
                 task="multiple choice question answering",
                 what="Various",

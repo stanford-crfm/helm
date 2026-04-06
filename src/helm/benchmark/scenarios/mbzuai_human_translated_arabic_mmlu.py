@@ -76,7 +76,11 @@ class MBZUAIHumanTranslatedArabicMMLUScenario(Scenario):
             short_display_name="Translated MMLU",
             description="A translation of MMLU to Arabic by human translators published by MBZUAI ([dataset](https://huggingface.co/datasets/MBZUAI/human_translated_arabic_mmlu))",
             taxonomy=TaxonomyInfo(
-                task="openbook (RAG) open-ended question answering", what="?", when="?", who="?", language="Arabic"
+                task="multiple-choice question answering",
+                what="math, science, history, etc.",
+                when="various online sources",
+                who="before 2021",
+                language="Arabic",
             ),
             main_metric="exact_match",
             main_split="test",

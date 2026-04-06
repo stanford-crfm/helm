@@ -87,7 +87,7 @@ class ArabicMMLUScenario(Scenario):
         return ScenarioMetadata(
             name="arabic_mmlu",
             display_name="Arabic MMLU",
-            description="Arabic MMLU",
+            description="A native Arabic language question answering benchmark using questions sourced from school exams across diverse educational levels in different countries spanning North Africa, the Levant, and the Gulf regions ([dataset](https://huggingface.co/datasets/MBZUAI/ArabicMMLU))",
             taxonomy=TaxonomyInfo(
                 task="question answering",
                 what="academic questions across various disciplines",

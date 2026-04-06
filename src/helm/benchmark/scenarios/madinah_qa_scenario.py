@@ -87,7 +87,7 @@ class MadinahQAScenario(Scenario):
         return ScenarioMetadata(
             name="madinah_qa",
             display_name="MadinahQA",
-            description="Arabic language competency benchmark",
+            description="A question answering benchmark published by MBZUAI that tests knowledge of Arabic language and grammar ([dataset](https://huggingface.co/datasets/MBZUAI/MadinahQA))",
             taxonomy=TaxonomyInfo(
                 task="question answering",
                 what="academic questions about Arabic language",

@@ -124,7 +124,7 @@ class AraTrustScenario(Scenario):
         return ScenarioMetadata(
             name="aratrust",
             display_name="AraTrust",
-            description="AraTrust",
+            description="An Arab-region-specific safety evaluation dataset consisting of human-written questions including direct attacks, indirect attacks, and harmless requests with sensitive words ([paper](https://arxiv.org/abs/2410.17040))",
             taxonomy=TaxonomyInfo(
                 task="question answering",
                 what="academic questions across various disciplines",

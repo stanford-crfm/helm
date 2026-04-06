@@ -119,7 +119,7 @@ class ArabicEXAMSScenario(Scenario):
         return ScenarioMetadata(
             name="arabic_exams",
             display_name="EXAMS (Arabic)",
-            description="EXAMS (Arabic)",
+            description="The Arabic language subset of the EXAMS multilingual question answering benchmark, which consists of high school exam questions across various school subjects ([paper](https://aclanthology.org/2020.emnlp-main.438/))",
             taxonomy=TaxonomyInfo(
                 task="multiple choice question answering",
                 what="High school examinations",

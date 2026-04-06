@@ -59,9 +59,13 @@ class ALRAGEScenario(Scenario):
         return ScenarioMetadata(
             name="alrage",
             display_name="ALRAGE",
-            description="ALRAGE",
+            description="An Arabic language passage-based open-ended model-graded question answering benchmark that reflects retrieval-augmented generation use cases ([dataset](https://huggingface.co/datasets/OALL/ALRAGE))",
             taxonomy=TaxonomyInfo(
-                task="openbook (RAG) open-ended question answering", what="?", when="?", who="?", language="Arabic"
+                task="openbook (RAG) open-ended question answering",
+                what="passage-based question answering",
+                when="book authors",
+                who="before 2025",
+                language="Arabic",
             ),
             main_metric="exact_match",
             main_split="test",
