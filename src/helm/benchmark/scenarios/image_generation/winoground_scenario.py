@@ -3,10 +3,20 @@ import os
 
 from datasets import load_dataset
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import get_file_name
 from helm.common.images_utils import copy_image
 from helm.common.media_object import MediaObject, MultimediaObject
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, Output, Reference, CORRECT_TAG, TEST_SPLIT
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Input,
+    Output,
+    Reference,
+    CORRECT_TAG,
+    TEST_SPLIT,
+    ScenarioMetadata,
+)
 
 
 class WinogroundScenario(Scenario):
@@ -60,3 +70,15 @@ class WinogroundScenario(Scenario):
                 )
             )
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="winoground",
+            display_name="Winoground",
+            description="Winoground is a novel task and dataset for evaluating the ability of vision "
+            "and language models to conduct visio-linguistic compositional reasoning "
+            "([paper](https://arxiv.org/abs/2204.03162)).",
+            taxonomy=TaxonomyInfo(task="Reasoning", what=None, when=None, who=None, language=None),
+            main_metric="unknown",
+            main_split="test",
+        )

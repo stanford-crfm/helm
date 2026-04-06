@@ -1,6 +1,7 @@
 from typing import List
 
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT, ScenarioMetadata
 
 
 class MagazineCoverScenario(Scenario):
@@ -89,3 +90,13 @@ class MagazineCoverScenario(Scenario):
             Instance(Input(text=construct_prompt(headline)), references=[], split=TEST_SPLIT)
             for headline in self.HEADLINES
         ]
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="magazine_cover",
+            display_name="Magazine Cover Photos",
+            description="Prompts to generate magazine cover photos",
+            taxonomy=TaxonomyInfo(task="Originality", what=None, when=None, who=None, language=None),
+            main_metric="unknown",
+            main_split="test",
+        )
