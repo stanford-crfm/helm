@@ -194,19 +194,15 @@ class GenderPerturbation(TextPerturbation):
 
     def substitute_word(self, text: str, word: str, synonym: str, rng: Random) -> str:
         """Substitute the occurences of word in text with its synonym with self.probability"""
-        # Pattern capturing any occurence of given word in the text, surrounded by non-alphanumeric characters
-        pattern = f"[^\\w]({word})[^\\w]"
+        # Pattern capturing any occurence of given word in the text using word boundaries
+        pattern = f"\\b({word})\\b"
 
         # Substitution function
         def sub_func(m: re.Match):
-            match_str = m.group(0)  # The full match (e.g. " Man ", " Man,", " Man.", "-Man.")
             match_word = m.group(1)  # Captured group (e.g. "Man")
             if rng.uniform(0, 1) < self.prob:
-                syn = match_case(match_word, synonym)  # Synoynm with matching case (e.g. "Woman")
-                match_str = match_str.replace(
-                    match_word, syn
-                )  # Synonym placed in the matching group (e.g. " Woman ", " Woman,", " Woman.", "-Woman")
-            return match_str
+                return match_case(match_word, synonym)  # Synonym with matching case (e.g. "Woman")
+            return match_word
 
         # Execute the RegEx
         return re.sub(pattern, sub_func, text, flags=re.IGNORECASE)
