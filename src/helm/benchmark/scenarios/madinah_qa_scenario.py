@@ -3,6 +3,7 @@ from typing import Dict, List
 
 import datasets
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -13,6 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -80,3 +82,19 @@ class MadinahQAScenario(Scenario):
                 instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="madinah_qa",
+            display_name="MadinahQA",
+            description="Arabic language competency benchmark",
+            taxonomy=TaxonomyInfo(
+                task="question answering",
+                what="academic questions about Arabic language",
+                when="before 2024",
+                who="academic exams writers and takers",
+                language="Arabic",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )
