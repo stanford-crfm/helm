@@ -87,5 +87,5 @@ class ArabicContentGenerationSimilarityAnnotator(Annotator):
             raise ValueError(f"Could not parse annotator response: '{annotator_response_text}'")
         return {
             "reasoning": match.group(1),
-            "score": match.group(2),
+            "score": int(match.group(2)),
         }
