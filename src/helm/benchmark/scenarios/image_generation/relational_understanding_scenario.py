@@ -2,8 +2,9 @@ from typing import List, Set
 import csv
 import os
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT, ScenarioMetadata
 
 
 class RelationalUnderstandingScenario(Scenario):
@@ -50,3 +51,15 @@ class RelationalUnderstandingScenario(Scenario):
                     seen_prompts.add(prompt)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="relational_understanding",
+            display_name="Relational Understanding",
+            description="Based on existing cognitive, linguistic, and developmental literature, the "
+            "authors created a set of 15 relations (8 physical, 7 agentic) and a set of 12 "
+            "entities (6 objects, 6 agents)",
+            taxonomy=TaxonomyInfo(task="Reasoning", what=None, when=None, who=None, language=None),
+            main_metric="unknown",
+            main_split="test",
+        )

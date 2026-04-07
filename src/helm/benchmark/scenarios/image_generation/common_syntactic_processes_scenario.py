@@ -1,6 +1,7 @@
 from typing import List, Dict
 
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT, ScenarioMetadata
 
 
 class CommonSyntacticProcessesScenario(Scenario):
@@ -103,3 +104,14 @@ class CommonSyntacticProcessesScenario(Scenario):
             for prompt, phenomenon in self.PROMPT_TO_PHENOMENON.items()
             if phenomenon == self.phenomenon
         ]
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="common_syntactic_processes",
+            display_name="Common Syntactic Processes",
+            description="Prompts from 8 different grammatical phenomena "
+            "([paper](https://arxiv.org/abs/2210.12889)).",
+            taxonomy=TaxonomyInfo(task="Reasoning", what=None, when=None, who=None, language=None),
+            main_metric="unknown",
+            main_split="test",
+        )

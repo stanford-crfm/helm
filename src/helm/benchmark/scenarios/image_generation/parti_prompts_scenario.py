@@ -2,8 +2,9 @@ import csv
 import os
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT, ScenarioMetadata
 
 
 class PartiPromptsScenario(Scenario):
@@ -92,3 +93,49 @@ class PartiPromptsScenario(Scenario):
                     instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        if self.category == "Illustrations":
+            return ScenarioMetadata(
+                name="parti_prompts_reasoning",
+                display_name="PartiPrompts (reasoning categories)",
+                description="PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to "
+                "more comprehensively evaluate and test the limits of text-to-image synthesis "
+                "models.",
+                taxonomy=TaxonomyInfo(task="Reasoning", what=None, when=None, who=None, language=None),
+                main_metric="unknown",
+                main_split="test",
+            )
+        elif self.category == "World":
+            return ScenarioMetadata(
+                name="parti_prompts_knowledge",
+                display_name="PartiPrompts (knowledge categories)",
+                description="PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to "
+                "more comprehensively evaluate and test the limits of text-to-image synthesis "
+                "models.",
+                taxonomy=TaxonomyInfo(task="Knowledge", what=None, when=None, who=None, language=None),
+                main_metric="unknown",
+                main_split="test",
+            )
+        elif self.category == "Abstract":
+            return ScenarioMetadata(
+                name="parti_prompts_knowledge",
+                display_name="PartiPrompts (extra categories)",
+                description="PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to "
+                "more comprehensively evaluate and test the limits of text-to-image synthesis "
+                "models.",
+                taxonomy=TaxonomyInfo(task="Extra", what=None, when=None, who=None, language=None),
+                main_metric="unknown",
+                main_split="test",
+            )
+        else:
+            return ScenarioMetadata(
+                name="parti_prompts_image_quality",
+                display_name="PartiPrompts (image quality categories)",
+                description="PartiPrompts (P2) is a set of 1600 diverse English prompts that allow us to "
+                "more comprehensively evaluate and test the limits of text-to-image synthesis "
+                "models.",
+                taxonomy=TaxonomyInfo(task="Image quality", what=None, when=None, who=None, language=None),
+                main_metric="unknown",
+                main_split="test",
+            )

@@ -1,6 +1,7 @@
 from typing import List
 
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT, ScenarioMetadata
 
 
 class LandingPageScenario(Scenario):
@@ -44,3 +45,13 @@ class LandingPageScenario(Scenario):
             for app_type in self.APPLICATION_TYPES
             for platform in self.PLATFORMS
         ]
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="landing_page",
+            display_name="Landing Page",
+            description="Prompts to generate landing pages for mobile or web applications.",
+            taxonomy=TaxonomyInfo(task="Originality", what=None, when=None, who=None, language=None),
+            main_metric="unknown",
+            main_split="test",
+        )
