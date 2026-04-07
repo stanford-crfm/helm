@@ -3,6 +3,7 @@ from typing import Dict, List
 
 import datasets
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -13,6 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -124,3 +126,19 @@ class AlGhafaScenario(Scenario):
                 instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="alghafa",
+            display_name="AlGhafa",
+            description="An Arabic language multiple choice evaluation benchmark derived from publicly available NLP datasets ([paper](https://aclanthology.org/2023.arabicnlp-1.21/))",
+            taxonomy=TaxonomyInfo(
+                task="multiple choice question answering",
+                what="Various",
+                when="before 2023",
+                who="Various",
+                language="Arabic",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

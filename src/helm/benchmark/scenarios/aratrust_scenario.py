@@ -3,6 +3,7 @@ from typing import List
 
 import datasets
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -117,3 +119,19 @@ class AraTrustScenario(Scenario):
             instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="aratrust",
+            display_name="AraTrust",
+            description="An Arab-region-specific safety evaluation dataset consisting of human-written questions including direct attacks, indirect attacks, and harmless requests with sensitive words ([paper](https://arxiv.org/abs/2410.17040))",
+            taxonomy=TaxonomyInfo(
+                task="question answering",
+                what="academic questions across various disciplines",
+                when="before 2024",
+                who="academic exams writers and takers",
+                language="Arabic",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

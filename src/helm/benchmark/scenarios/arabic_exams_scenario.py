@@ -3,6 +3,7 @@ from typing import List
 
 import datasets
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -13,6 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.hierarchical_logger import hwarn
 
@@ -112,3 +114,19 @@ class ArabicEXAMSScenario(Scenario):
                 instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="arabic_exams",
+            display_name="EXAMS (Arabic)",
+            description="The Arabic language subset of the EXAMS multilingual question answering benchmark, which consists of high school exam questions across various school subjects ([paper](https://aclanthology.org/2020.emnlp-main.438/))",
+            taxonomy=TaxonomyInfo(
+                task="multiple choice question answering",
+                what="High school examinations",
+                when="before 2020",
+                who="High school examinations writers and test-takers",
+                language="Arabic",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

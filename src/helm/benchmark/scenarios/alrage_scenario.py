@@ -3,6 +3,7 @@ from typing import List
 
 import datasets
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -52,3 +54,19 @@ class ALRAGEScenario(Scenario):
             instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="alrage",
+            display_name="ALRAGE",
+            description="An Arabic language passage-based open-ended model-graded question answering benchmark that reflects retrieval-augmented generation use cases ([dataset](https://huggingface.co/datasets/OALL/ALRAGE))",
+            taxonomy=TaxonomyInfo(
+                task="openbook (RAG) open-ended question answering",
+                what="passage-based question answering",
+                when="book authors",
+                who="before 2025",
+                language="Arabic",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

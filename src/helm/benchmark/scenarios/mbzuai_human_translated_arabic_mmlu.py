@@ -3,6 +3,7 @@ from typing import List
 
 import datasets
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -66,3 +68,20 @@ class MBZUAIHumanTranslatedArabicMMLUScenario(Scenario):
             instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="mbzuai_human_translated_arabic_mmlu",
+            display_name="MBZUAI Human-Translated Arabic MMLU",
+            short_display_name="Translated MMLU",
+            description="A translation of MMLU to Arabic by human translators published by MBZUAI ([dataset](https://huggingface.co/datasets/MBZUAI/human_translated_arabic_mmlu))",
+            taxonomy=TaxonomyInfo(
+                task="multiple-choice question answering",
+                what="math, science, history, etc.",
+                when="various online sources",
+                who="before 2021",
+                language="Arabic",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )
