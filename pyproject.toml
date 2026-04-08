@@ -427,7 +427,7 @@ docs = [
   "mkdocstrings==0.30.1",
   "mkdocstrings-python==1.3.0",
   "mkdocs-macros-plugin==1.5.0",
-  "mkdocs-include-markdown-plugin==4.0.0",
+  "mkdocs-include-markdown-plugin==7.1.8",
 ]
 
 types = [
