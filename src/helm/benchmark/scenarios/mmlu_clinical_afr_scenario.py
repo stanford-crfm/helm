@@ -5,7 +5,18 @@ from typing import Dict, List
 from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output, ScenarioMetadata
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    TEST_SPLIT,
+    CORRECT_TAG,
+    Input,
+    Output,
+    ScenarioMetadata,
+)
 
 
 class MMLU_Clinical_Afr_Scenario(Scenario):
@@ -91,16 +102,20 @@ class MMLU_Clinical_Afr_Scenario(Scenario):
     def get_metadata(self) -> ScenarioMetadata:
         language = self._LANGUAGE_CODE_TO_NAME[self.lang]
         subject = self.subject.replace("_", " ")
-        return ScenarioMetadata(name=f'mmlu_clinical_afr_clinical_knowledge_{self.lang}',
-                 display_name=f'MMLU Clinical Knowledge ({language.title()})',
-                 short_display_name=f'MMLU Clinical Knowledge ({language.title()})',
-                 description=f'The {subject} subject in the Massive Multitask Language Understanding '
-                             '(MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark '
-                             f'translated to {language} by human translators.',
-                 taxonomy=TaxonomyInfo(task='multiple-choice question answering',
-                                       what=self.subject,
-                                       when='before 2021',
-                                       who='various online sources',
-                                       language=language),
-                 main_metric='exact_match',
-                 main_split='test')
+        return ScenarioMetadata(
+            name=f"mmlu_clinical_afr_clinical_knowledge_{self.lang}",
+            display_name=f"MMLU Clinical Knowledge ({language.title()})",
+            short_display_name=f"MMLU Clinical Knowledge ({language.title()})",
+            description=f"The {subject} subject in the Massive Multitask Language Understanding "
+            "(MMLU) ([Hendrycks et al. 2021](https://arxiv.org/abs/2009.03300)) benchmark "
+            f"translated to {language} by human translators.",
+            taxonomy=TaxonomyInfo(
+                task="multiple-choice question answering",
+                what=self.subject,
+                when="before 2021",
+                who="various online sources",
+                language=language,
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )
