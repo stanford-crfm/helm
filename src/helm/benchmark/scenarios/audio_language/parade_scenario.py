@@ -2,6 +2,7 @@ from typing import List
 import os
 import json
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from tqdm import tqdm
 from helm.common.media_object import MediaObject, MultimediaObject
@@ -95,3 +97,22 @@ class PARADEScenario(Scenario):
             )
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="parade",
+            display_name="PARADE",
+            description="The PARADE dataset is inspired by the PAIRS dataset for evaluating occupation "
+            "and status  bias in vision-language models. We collect a new dataset of "
+            "audio-text multi-choice QA  task that involves exploring occupation and status "
+            "bias. The dataset consists of 436  audio-text QA pairs with 3 options each.\n",
+            taxonomy=TaxonomyInfo(
+                task="audio classification",
+                what="audio, question and answer given the audio",
+                when="2025",
+                who="OpenAI's TTS",
+                language="English",
+            ),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )

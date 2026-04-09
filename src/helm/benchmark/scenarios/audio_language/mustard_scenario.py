@@ -4,6 +4,7 @@ from typing import List
 
 from tqdm import tqdm
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     Scenario,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.audio_utils import is_invalid_audio_file, extract_audio
 from helm.common.media_object import MediaObject, MultimediaObject
@@ -140,3 +142,22 @@ class MUStARDScenario(Scenario):
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="mustard",
+            display_name="MUStARD",
+            description="A multimodal video corpus for research in automated sarcasm discovery. The "
+            "dataset is compiled from popular TV shows including Friends, The Golden Girls, "
+            "The Big Bang Theory, and Sarcasmaholics Anonymous.  ([Castro et al, "
+            "2019](https://arxiv.org/abs/1906.01815)).\n",
+            taxonomy=TaxonomyInfo(
+                task="sarcasm detection",
+                what="clips from television shows",
+                when="2019",
+                who="real speakers",
+                language="English",
+            ),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )

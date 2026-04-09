@@ -4,6 +4,7 @@ import os
 from datasets import load_dataset
 from tqdm import tqdm
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 
@@ -161,3 +163,26 @@ class CoVoST2Scenario(Scenario):
             instances.append(Instance(input=input, references=references, split=split))
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="covost2",
+            display_name="CoVost-2",
+            description="CoVost-2 is a large-scale multilingual speech translation corpus covering "
+            "translations from 21 languages into English and from English into 15 "
+            "languages.\n"
+            "The dataset contains the audio, transcriptions, and translations in the "
+            "following languages: French, German, Dutch, Russian, Spanish, Italian, "
+            "Turkish, Persian, Swedish, Mongolian, Chinese, Welsh, Catalan, Slovenian, "
+            "Estonian, Indonesian, Arabic, Tamil, Portuguese, Latvian, and Japanese ([Wang "
+            "et al, 2020](https://arxiv.org/abs/2007.10310)).\n",
+            taxonomy=TaxonomyInfo(
+                task="audio machine translation",
+                what="audio, transcriptions, and translations in 15 languages",
+                when="2020",
+                who="real speakers",
+                language="15 languages",
+            ),
+            main_metric="bleu",
+            main_split="test",
+        )

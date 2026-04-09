@@ -4,6 +4,7 @@ from typing import List
 import os
 import json
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from tqdm import tqdm
 from datasets import load_dataset
@@ -122,3 +124,26 @@ class SpeechRobustBenchScenario(Scenario):
             references = [Reference(Output(text=answer), tags=[CORRECT_TAG])]
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="speech_robust_bench",
+            display_name="Robust Speech Bench",
+            description="Speech Robust Bench (Shah et al, 2024) is a comprehensive benchmark for "
+            "evaluating  the robustness of ASR models to diverse corruptions. SRB is "
+            "composed of 114 input  perturbations which simulate an heterogeneous range of "
+            "corruptions that ASR models  may encounter when deployed in the wild. In this "
+            "scenario, we select 4 subsets:  accent_cv, accent_cv_es, chinme, and AIM for "
+            "evaluation.\n"
+            "The dataset contains the audio, transcriptions for all subsets  ([Shah et al, "
+            "2024](https://arxiv.org/abs/2403.07937)).\n",
+            taxonomy=TaxonomyInfo(
+                task="audio recognition",
+                what="audio, transcripts of audio samples in a wide range of " "perturbations",
+                when="2024",
+                who="real speakers",
+                language="English, Spanish",
+            ),
+            main_metric="wer_score",
+            main_split="test",
+        )

@@ -3,6 +3,7 @@
 from typing import List
 import os
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from tqdm import tqdm
 
@@ -81,3 +83,25 @@ class VocalSoundScenario(Scenario):
 
         assert len(instances) > 0, f"No instances found for sound: {self._sound}"
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="vocal_sound",
+            display_name="VocalSound",
+            description="VocalSound dataset consisting of over 21,000 crowdsourced recordings of "
+            "laughter, sighs, coughs, throat  clearing, sneezes, and sniffs from 3,365 "
+            "unique subjects. \n"
+            "Different from previous datasets, the VocalSound dataset contains meta "
+            "information such as speaker  age, gender, native language, country, and health "
+            "condition ([Gong et al, 2022](https://arxiv.org/abs/2205.03433)).\n",
+            taxonomy=TaxonomyInfo(
+                task="audio classification",
+                what='audio samples of behaviours ("cough", "laughter", "sigh", '
+                '"sneeze", "sniff", "throatclearing")',
+                when="2022",
+                who="real speakers",
+                language="English",
+            ),
+            main_metric="quasi_prefix_exact_match",
+            main_split="test",
+        )
