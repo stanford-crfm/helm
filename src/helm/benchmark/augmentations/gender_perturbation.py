@@ -41,7 +41,7 @@ GENDER_TERM_MAPPINGS: List[Tuple[str, ...]] = [
     ("grandchild", "granddaughter", "grandson"),
     ("grandchildren", "granddaughters", "grandsons"),
     ("grandparent", "grandmother", "grandfather"),
-    ("grandparents", "grandmothers", "grandfather"),
+    ("grandparents", "grandmothers", "grandfathers"),
     ("grandparent", "grandma", "granddad"),
     ("grandparents", "grandmas", "granddads"),
     ("human", "female", "male"),
