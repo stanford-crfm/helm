@@ -7,7 +7,6 @@ title: MedHELM
   <a href="{{ '/' | relative_url }}" class="home-logo-medhelm-wrap" aria-label="MedHELM"><img class="home-logo-medhelm" src="{{ '/assets/images/medhelm_logo.jpg' | relative_url }}" alt="MedHELM" height="72"/></a>
   <a href="https://crfm.stanford.edu/" rel="noopener" target="_blank" class="home-logo-on-dark-chip" aria-label="Stanford CRFM"><img class="home-logo-crfm" src="{{ '/assets/images/crfm-logo.png' | relative_url }}" alt="Stanford CRFM" height="58"/></a>
   <a href="https://crfm.stanford.edu/helm/" rel="noopener" target="_blank" aria-label="HELM"><img src="{{ '/assets/images/helm-logo.png' | relative_url }}" alt="HELM" height="48"/></a>
-  <a href="https://hai.stanford.edu/" rel="noopener" target="_blank" aria-label="Stanford HAI"><img src="{{ '/assets/images/chai-logo.svg' | relative_url }}" alt="Stanford HAI" height="48"/></a>
   <a href="https://pacific.ai/" rel="noopener" target="_blank" aria-label="Pacific AI"><img src="{{ '/assets/images/pacific-ai-logo.svg' | relative_url }}" alt="Pacific AI" height="48"/></a>
 </div>
 
