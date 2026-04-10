@@ -2,6 +2,7 @@ import json
 import os
 from typing import Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
+    ScenarioMetadata,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_file_downloaded
@@ -133,3 +135,21 @@ class Crossmodal3600Scenario(Scenario):
                 )
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="crossmodal_3600",
+            display_name="Crossmodal 3600",
+            description="Crossmodal-3600 dataset (XM3600 in short), a geographically-diverse set of "
+            "3600 images annotated with human-generated reference captions in 36 languages. "
+            "([Thapliyal et al., 2022](https://arxiv.org/abs/2205.12522))",
+            taxonomy=TaxonomyInfo(
+                task="multilingual captioning",
+                what="Real-world images",
+                when="2022",
+                who="Human experts",
+                language="36 languages",
+            ),
+            main_metric="prometheus_vision",
+            main_split="test",
+        )

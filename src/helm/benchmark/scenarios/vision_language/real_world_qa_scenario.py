@@ -4,6 +4,7 @@ import os
 from datasets import load_dataset
 from tqdm import tqdm
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
+    ScenarioMetadata,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.images_utils import generate_hash
@@ -55,3 +57,20 @@ class RealWorldQAScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="real_world_qa",
+            display_name="RealWorldQA",
+            description="A benchmark designed to to evaluate real-world spatial understanding "
+            "capabilities of multimodal models ([xAI, 2024](https://x.ai/blog/grok-1.5v)).",
+            taxonomy=TaxonomyInfo(
+                task="short-answer question answering",
+                what="Real world images",
+                when="2024",
+                who="Human experts",
+                language="English",
+            ),
+            main_metric="quasi_leave_articles_exact_match",
+            main_split="test",
+        )

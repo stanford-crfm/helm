@@ -3,6 +3,7 @@ from typing import List
 import json
 import os
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
+    ScenarioMetadata,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_file_downloaded
@@ -73,3 +75,16 @@ class MSRVTTScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="msr_vtt",
+            display_name="MST-VTT",
+            description="A large-scale video benchmark for video understanding, especially the emerging "
+            "task of translating video to text.",
+            taxonomy=TaxonomyInfo(
+                task="captioning", what="Real-world videos", when="2016", who="Human experts", language="English"
+            ),
+            main_metric="f1_score",
+            main_split="test",
+        )

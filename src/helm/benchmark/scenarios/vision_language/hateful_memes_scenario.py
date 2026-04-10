@@ -4,6 +4,7 @@ from typing import List
 from datasets import load_dataset
 from tqdm import tqdm
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     ALL_SPLITS,
     CORRECT_TAG,
@@ -13,6 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
+    ScenarioMetadata,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
@@ -92,3 +94,16 @@ class HatefulMemesScenario(Scenario):
                 )
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="hateful_memes",
+            display_name="Hateful Memes",
+            description="Multimodal hate speech detection in memes ([Kiela et al., "
+            "2020](https://arxiv.org/abs/2005.04790)).",
+            taxonomy=TaxonomyInfo(
+                task="toxicity identification", what="Memes", when="2020", who="Human experts", language="English"
+            ),
+            main_metric="quasi_prefix_exact_match",
+            main_split="test",
+        )

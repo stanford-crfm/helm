@@ -2,11 +2,13 @@ import os
 import json
 from typing import Any, Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     Instance,
     Input,
     Scenario,
+    ScenarioMetadata,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_file_downloaded
@@ -101,3 +103,20 @@ class MMSafetyBenchScenario(Scenario):
                 )
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="mm_safety_bench",
+            display_name="MM-SafetyBench",
+            description="Exposes the vulnerability of open-source VLMs with toxic and biased content "
+            "([Liu et al., 2023](https://arxiv.org/abs/2311.17600)).",
+            taxonomy=TaxonomyInfo(
+                task="toxicity mitigation",
+                what="Jail-break images",
+                when="2023",
+                who="Human experts",
+                language="English",
+            ),
+            main_metric="toxic_frac",
+            main_split="test",
+        )

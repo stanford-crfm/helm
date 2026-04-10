@@ -4,6 +4,7 @@ from typing import List
 from datasets import load_dataset
 from tqdm import tqdm
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     VALID_SPLIT,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
+    ScenarioMetadata,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_directory_exists
@@ -72,3 +74,17 @@ class Flickr30KScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="flickr30k",
+            display_name="Flickr30k",
+            description="An image caption corpus consisting of 158,915 crowd-sourced captions "
+            "describing 31,783 Flickr images. ([Young et al., "
+            "2014](https://shannon.cs.illinois.edu/DenotationGraph/TACLDenotationGraph.pdf))",
+            taxonomy=TaxonomyInfo(
+                task="image captioning", what="Flickr images", when="2014", who="Human experts", language="English"
+            ),
+            main_metric="prometheus_vision",
+            main_split="test",
+        )

@@ -4,6 +4,7 @@ import os
 from datasets import load_dataset
 from tqdm import tqdm
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     VALID_SPLIT,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
+    ScenarioMetadata,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.images_utils import generate_hash
@@ -138,3 +140,21 @@ class BlinkScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="blink",
+            display_name="BLINK",
+            description="BLINK is a benchmark containing 14 visual perception tasks that can be solved "
+            "by humans within a blink, but difficulty for VLMs. ([Fu, "
+            "2024](https://arxiv.org/abs/2404.12390)).",
+            taxonomy=TaxonomyInfo(
+                task="multiple-choice question answering",
+                what="Real-world images",
+                when="2024",
+                who="Human experts",
+                language="English",
+            ),
+            main_metric="quasi_prefix_exact_match",
+            main_split="valid",
+        )

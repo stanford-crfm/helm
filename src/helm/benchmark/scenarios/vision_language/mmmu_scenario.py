@@ -4,6 +4,7 @@ from typing import Dict, List
 from datasets import load_dataset
 from tqdm import tqdm
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     VALID_SPLIT,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
+    ScenarioMetadata,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_directory_exists
@@ -185,3 +187,22 @@ class MMMUScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="mmmu",
+            display_name="MMMU",
+            description="A benchmark designed to evaluate multimodal models on massive multi-discipline "
+            "tasks demanding college-level subject knowledge and deliberate reasoning ([Yue "
+            "et al., 2023](https://arxiv.org/abs/2311.16502)).",
+            taxonomy=TaxonomyInfo(
+                task="multiple-choice question answering",
+                what="Art & Design, Business, Science, Health & Medicine, Humanities "
+                "& Social Science, and Tech & Engineering",
+                when="2023",
+                who="Human experts",
+                language="English",
+            ),
+            main_metric="quasi_prefix_exact_match",
+            main_split="valid",
+        )

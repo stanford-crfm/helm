@@ -4,6 +4,7 @@ from typing import List
 from datasets import load_dataset
 from tqdm import tqdm
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     ALL_SPLITS,
@@ -14,6 +15,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
+    ScenarioMetadata,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_directory_exists
@@ -81,3 +83,21 @@ class AOKVQAScenario(Scenario):
                 )
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="a_okvqa",
+            display_name="A-OKVQA",
+            description="A crowdsourced dataset composed of a diverse set of about 25K questions "
+            "requiring a broad base of commonsense and world knowledge to answer ([Schwenk "
+            "et al., 2022](https://arxiv.org/abs/2206.01718)).",
+            taxonomy=TaxonomyInfo(
+                task="multiple-choice question answering",
+                what="Real-world images",
+                when="2023",
+                who="Human experts",
+                language="English",
+            ),
+            main_metric="quasi_prefix_exact_match",
+            main_split="valid",
+        )
