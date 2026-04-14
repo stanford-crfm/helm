@@ -5,36 +5,42 @@ title: Installation
 
 ## Create a virtual environment
 
-It is recommended to install MedHELM into a virtual environment with Python version >=3.10 to avoid dependency conflicts. MedHELM requires Python >=3.10. To create and activate a Python virtual environment, follow the instructions below.
+MedHELM is compatible with Python 3.10, 3.11, and 3.12. We recommend **Python 3.12** for best compatibility.
 
-Using [Virtualenv](https://docs.python.org/3/library/venv.html#creating-virtual-environments):
+It is recommended to install MedHELM into a virtual environment to avoid dependency conflicts.
 
+### Using uv (Recommended)
+
+[uv](https://docs.astral.sh/uv/) is a fast Python package manager. To create and activate a Python virtual environment:
+
+```bash
+# Create a virtual environment with Python 3.12
+uv venv --python 3.12 .venv
+
+# Activate the virtual environment
+source .venv/bin/activate
 ```
-# Create a virtual environment.
-# Only run this the first time.
-python3 -m pip install virtualenv
-python3 -m virtualenv -p python3.10 helm-venv
 
-# Activate the virtual environment.
-source helm-venv/bin/activate
+### Using venv (Alternative)
+
+```bash
+# Create a virtual environment
+python3.12 -m venv .venv
+
+# Activate the virtual environment
+source .venv/bin/activate
 ```
 
 ## Install MedHELM
 
-Choose one of the following tiers depending on which scenarios you want to run.
+Choose one of the following tiers depending on which scenarios you want to run. After activating your environment, use `pip` for installation (it handles legacy packages better than uv).
 
 ### Standard (recommended to start)
 
 Scenarios: **PubMedQA**, **MedCalc-Bench**, **MedicationQA**, **MedHallu**.
 
-```
+```bash
 pip install medhelm
-```
-
-With [uv](https://docs.astral.sh/uv/):
-
-```
-uv pip install medhelm
 ```
 
 ### Clinical NLP tier (`[summarization]`)
@@ -43,15 +49,11 @@ Adds heavier libraries (bert-score, rouge-score, nltk). **Install may take 2–3
 
 Scenarios: **DischargeMe** (hospital course summaries), **ACI-Bench** (clinical transcripts), **Patient-Edu** (simplifying medical jargon).
 
-```
+```bash
 pip install "medhelm[summarization]"
 ```
 
-With uv:
-
-```
-uv pip install "medhelm[summarization]"
-```
+**Note on macOS with Python 3.12:** Use `pip` (not `uv`) for this tier due to build compatibility with `pyemd`.
 
 ### Gated / licensing tier (`[gated]`)
 
@@ -59,25 +61,40 @@ Adds **gdown** so the code can download data from Google Drive. Install can also
 
 Scenarios: **MedQA** (USMLE/Board exams), **MedMCQA** (AIIMS/NEET exams).
 
-```
+```bash
 pip install "medhelm[gated]"
 ```
 
-With uv:
+### Install all tiers at once
 
-```
-uv pip install "medhelm[gated]"
+To install all scenarios (standard, summarization, and gated):
+
+```bash
+pip install "medhelm[summarization,gated]"
 ```
 
 ## Summary
 
 | Tier | Install | Scenarios |
-|------|--------|-----------|
-| **Standard** | `pip install medhelm` or `uv pip install medhelm` | PubMedQA, MedCalc-Bench, MedicationQA, MedHallu |
+|------|--------|------------|
+| **Standard** | `pip install medhelm` | PubMedQA, MedCalc-Bench, MedicationQA, MedHallu |
 | **Summarization** | `pip install "medhelm[summarization]"` | DischargeMe, ACI-Bench, Patient-Edu (2–3 min install) |
 | **Gated** | `pip install "medhelm[gated]"` | MedQA, MedMCQA (Google Drive) |
+| **All tiers** | `pip install "medhelm[summarization,gated]"` | All of the above (install once, run any scenario) |
 
-See [Quick Start](/quick_start) for running benchmarks with `uv run medhelm-run`.
+See [Quick Start](/quick_start) for running benchmarks with `medhelm-run` (after activating your environment).
+
+## Troubleshooting
+
+### macOS with Python 3.12 and the summarization tier
+
+If you encounter build errors with `pyemd` when installing `medhelm[summarization]` on macOS:
+
+```bash
+pip install "medhelm[summarization]"
+```
+
+This is a known compatibility issue. Use `pip` instead of `uv` for this tier.
 
 ## Install Multimodal Support
 
