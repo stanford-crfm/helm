@@ -49,6 +49,7 @@ nav:
     - downloading_raw_results.md
     - reproducing_leaderboards.md
     - benchmark.md
+    - lica_bench.md
     - huggingface_models.md
   - Papers:
     - heim.md

@@ -79,6 +79,7 @@ The HELM framework was used in the following papers for evaluating models.
 - **Holistic Evaluation of Vision-Language Models (VHELM)** - [paper](https://arxiv.org/abs/2410.07112), [leaderboard](https://crfm.stanford.edu/helm/vhelm/latest/), [documentation](https://crfm-helm.readthedocs.io/en/latest/vhelm/)
 - **Holistic Evaluation of Text-To-Image Models (HEIM)** - [paper](https://arxiv.org/abs/2311.04287), [leaderboard](https://crfm.stanford.edu/helm/heim/latest/), [documentation](https://crfm-helm.readthedocs.io/en/latest/heim/)
 - **Image2Struct: Benchmarking Structure Extraction for Vision-Language Models** - [paper](https://arxiv.org/abs/2410.22456)
+- **LICA-Bench (graphic design layout and VLM evaluation)** - [code](https://github.com/purvanshi/lica-bench), [documentation in HELM](docs/lica_bench.md)
 - **Enterprise Benchmarks for Large Language Model Evaluation** - [paper](https://arxiv.org/abs/2410.12857), [documentation](https://crfm-helm.readthedocs.io/en/latest/enterprise_benchmark/)
 - **The Mighty ToRR: A Benchmark for Table Reasoning and Robustness** - [paper](https://arxiv.org/abs/2502.19412), [leaderboard](https://crfm.stanford.edu/helm/torr/latest/)
 - **Efficient Benchmarking of Language Models** - [paper](https://arxiv.org/abs/2308.11696), [documentation](https://crfm-helm.readthedocs.io/en/latest/efficient_benchmarking/)

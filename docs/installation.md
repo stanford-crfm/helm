@@ -41,3 +41,4 @@ Additional steps are required for multimodal evaluations:
 
 - **HEIM (Text-to-image Model Evaluation)** - to install the additional dependencies to run HEIM (text-to-image evaluation), refer to the [HEIM documentation](heim.md).
 - **VHELM (Vision-Language Models)** - To install the additional dependencies to run VHELM (Vision-Language Models), refer to the [VHELM documentation](vhelm.md).
+- **LICA-Bench (graphic design VLM tasks)** - Install with `pip install "crfm-helm[lica-bench]"` and follow [LICA-Bench in HELM](lica_bench.md).

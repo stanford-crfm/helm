@@ -130,6 +130,11 @@ seahelm = [
     "python-crfsuite~=0.9.11",
 ]
 
+# Graphic design / layout VLM benchmarks (https://github.com/purvanshi/lica-bench)
+lica-bench = [
+    "lica-bench>=0.1.0",
+]
+
 # Model extras
 accelerate = [
     "accelerate~=0.25",
