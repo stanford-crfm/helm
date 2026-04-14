@@ -28,35 +28,55 @@ Documentation: **[medhelm.org](https://medhelm.org)**
 
 ## Install & run (MedHELM library)
 
-MedHELM uses the HELM core engine and adds medical benchmarks. Install from PyPI:
+MedHELM uses the HELM core engine and adds medical benchmarks.
 
-### Standard (recommended to start)
+### Using uv (recommended)
 
-Scenarios: **PubMedQA**, **MedCalc-Bench**, **MedicationQA**, **MedHallu**.
-
+1. Create a virtual environment with Python 3.12:
 ```sh
-pip install medhelm
-# or with uv:
+uv venv --python 3.12 .venv
+```
+
+2. Activate the environment:
+```sh
+source .venv/bin/activate
+```
+
+3. Install MedHELM:
+```sh
 uv pip install medhelm
 ```
+
+### Standard tier (recommended to start)
+
+Scenarios: **PubMedQA**, **MedCalc-Bench**, **MedicationQA**, **MedHallu**.
 
 **Quick test** (small model, 2 instances — runs in seconds):
 
 ```sh
-uv run medhelm-run --run-entries "pubmed_qa:model=openai/gpt2,model_deployment=huggingface/gpt2" --suite my_med_test --max-eval-instances 2
-uv run helm-summarize --suite my_med_test
-uv run helm-server --suite my_med_test
+medhelm-run --run-entries "pubmed_qa:model=openai/gpt2,model_deployment=huggingface/gpt2" --suite my_med_test --max-eval-instances 2
+helm-summarize --suite my_med_test
+helm-server --suite my_med_test
 ```
 
 **Full example** (better quality, 10 instances):
 
 ```sh
-uv run medhelm-run --run-entries "pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" --suite my_med_test --max-eval-instances 10
-uv run helm-summarize --suite my_med_test
-uv run helm-server --suite my_med_test
+medhelm-run --run-entries "pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" --suite my_med_test --max-eval-instances 10
+helm-summarize --suite my_med_test
+helm-server --suite my_med_test
 ```
 
 Then open http://localhost:8000/ in your browser.
+
+### Alternative: Using pip
+
+If you prefer `pip` instead of `uv`:
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+pip install medhelm
+```
 
 ### Clinical NLP tier (`[summarization]`)
 
@@ -64,17 +84,24 @@ Adds heavy libraries (bert-score, rouge-score, nltk). **Install can take 2–3 m
 
 Scenarios: **DischargeMe** (hospital course summaries; requires PhysioNet `data_path`), **ACI-Bench** (clinical transcripts), **Patient-Edu** (simplifying medical jargon).
 
+**⚠️ Note on macOS with Python 3.12:** Use `pip` instead of `uv` for this tier due to build compatibility issues with `pyemd`.
+
+Install (use `pip` on Intel Mac):
 ```sh
 pip install "medhelm[summarization]"
-# or: uv pip install "medhelm[summarization]"
+```
+
+Or with `uv` (Linux/other platforms):
+```sh
+uv pip install "medhelm[summarization]"
 ```
 
 Example (ACI-Bench; runs without extra data):
 
 ```sh
-uv run medhelm-run --run-entries "aci_bench:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" --suite med_summaries --max-eval-instances 5
-uv run helm-summarize --suite med_summaries
-uv run helm-server --suite med_summaries
+medhelm-run --run-entries "aci_bench:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" --suite med_summaries --max-eval-instances 5
+helm-summarize --suite med_summaries
+helm-server --suite med_summaries
 ```
 
 ### Gated / licensing tier (`[gated]`)
@@ -83,25 +110,27 @@ Adds **gdown** for scenarios that use Google Drive. Install can also take longer
 
 Scenarios: **MedQA** (USMLE/Board exams), **MedMCQA** (AIIMS/NEET exams).
 
+Install:
 ```sh
-pip install "medhelm[gated]"
-# or: uv pip install "medhelm[gated]"
+uv pip install "medhelm[gated]"
 ```
 
 Example:
 
 ```sh
-uv run medhelm-run --run-entries "med_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" --suite board_exams --max-eval-instances 10
-uv run helm-summarize --suite board_exams
-uv run helm-server --suite board_exams
+medhelm-run --run-entries "med_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" --suite board_exams --max-eval-instances 10
+helm-summarize --suite board_exams
+helm-server --suite board_exams
 ```
 
 ### Classic HELM commands
 
 You can still use `helm-run`, `helm-summarize`, and `helm-server`; `medhelm-run` is an alias for `helm-run`.
 
+After activating your environment:
+
 ```sh
-helm-run --run-entries mmlu:subject=philosophy,model=openai/gpt2 --suite my-suite --max-eval-instances 10
+medhelm-run --run-entries mmlu:subject=philosophy,model=openai/gpt2 --suite my-suite --max-eval-instances 10
 helm-summarize --suite my-suite
 helm-server --suite my-suite
 ```
