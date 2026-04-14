@@ -17,19 +17,21 @@ MedHELM extends the HELM framework to evaluate **large language models (LLMs) in
 
 Before you install MedHELM, make sure your system meets the following requirements:
 
-1. [Conda](https://www.anaconda.com/docs/getting-started/getting-started) (~30 minutes to install)
+1. [Python 3.12](https://www.python.org/downloads/)
   
-    Used to manage the Python virtual environment for MedHELM.
+    MedHELM is compatible with Python 3.12 and newer.
 
-2. [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) (~30 minutes to install)
+2. [uv](https://docs.astral.sh/uv/getting-started/installation/) (~5 minutes to install)
+
+    Fast Python package manager. Used to create virtual environments and manage dependencies.
+
+3. [Google Cloud CLI](https://cloud.google.com/sdk/docs/install) (~30 minutes to install)
 
     Required for downloading MedHELM results stored in Google Cloud.
 
-    **Note:** During installation, the installer will recommend Python 3.12 for full feature support. These features are not needed. MedHELM is **only** compatible with `Python 3.10`.
+4. GPU Access (Optional)
 
-3. GPU Access
-
-    Needed for running models locally. The exact GPU requirements depend on the model size and benchmark.
+    Needed for running larger models locally. The exact GPU requirements depend on the model size and benchmark.
 
 ---
 
@@ -39,19 +41,20 @@ Before you install MedHELM, make sure your system meets the following requiremen
 
 #### 1. Install Dependencies
 
-Run the following commands to create and activate a new python virtual environment:
+Create a virtual environment with uv and install MedHELM:
 
-```
-# Create and activate a clean environment
-conda create -n medhelm python=3.10 pip wget
-conda activate medhelm
-pip install -U setuptools
+```bash
+# Create a virtual environment with Python 3.12
+uv venv --python 3.12 .venv
+
+# Activate the environment
+source .venv/bin/activate
+
+# Install MedHELM with all extras (standard, summarization, and gated tiers)
+pip install "medhelm[summarization,gated]"
 ```
 
-Run the following command to install HELM and the necessary MedHELM extensions:
-```
-pip install -U "medhelm[summarization]"
-```
+**Note:** On macOS with Python 3.12, use `pip` for the summarization tier due to build compatibility. The gated tier works with both `uv` and `pip`.
 
 #### 2. Download Leaderboard Results
 
@@ -80,48 +83,31 @@ gcloud storage rsync -r $GCS_BENCHMARK_OUTPUT_PATH $OUTPUT_PATH
 **Quick test** (small model, 2 instances — runs in seconds):
 
 ```bash
-RUN_ENTRIES="pubmed_qa:model=openai/gpt2,model_deployment=huggingface/gpt2"
-SUITE="my-medhelm-suite"
-MAX_EVAL_INSTANCES=2
-helm-run --run-entries $RUN_ENTRIES --suite $SUITE --max-eval-instances $MAX_EVAL_INSTANCES --output-path $OUTPUT_PATH
+medhelm-run --run-entries "pubmed_qa:model=openai/gpt2,model_deployment=huggingface/gpt2" --suite my-medhelm-suite --max-eval-instances 2
 ```
 
 **Full example** (better quality, 10 instances):
 
 ```bash
-RUN_ENTRIES="pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct"
-SUITE="my-medhelm-suite"
-MAX_EVAL_INSTANCES=10
-helm-run --run-entries $RUN_ENTRIES --suite $SUITE --max-eval-instances $MAX_EVAL_INSTANCES --output-path $OUTPUT_PATH
+medhelm-run --run-entries "pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" --suite my-medhelm-suite --max-eval-instances 10
 ```
 
 #### 4. Build and Open the Local Leaderboard
 
 ```bash
-SCHEMA="schema_medhelm.yaml"
-RELEASE="my-medhelm-release"
-LIVE_LEADERBOARD_SUITE="v2.0.0"
+# Summarize the results
+helm-summarize --suite my-medhelm-suite
 
-wget -O $SCHEMA \
-   https://raw.githubusercontent.com/PacificAI/medhelm/v0.5.7/src/helm/benchmark/static/schema_medhelm.yaml
-
-# Create the leaderboard
-helm-summarize \
-  --suites $SUITE $LIVE_LEADERBOARD_SUITE \
-  --schema $SCHEMA \
-  --release $RELEASE \
-  --output-path $OUTPUT_PATH
-
-# Load the leaderboard
-helm-server \
-  --release $RELEASE \
-  --output-path $OUTPUT_PATH
+# Start the web server
+helm-server --suite my-medhelm-suite
 ```
+
+Then open http://localhost:8000 in your browser.
 
 **Expected outcome:**
 
-* Benchmark results for the tiny evaluation at `$OUTPUT_PATH/runs/$SUITE`.
-* A local leaderboard combining results from the live leaderboard and the tiny evaluation (the URL will be printed in the terminal).
+* Benchmark results for the evaluation at `benchmark_output/runs/my-medhelm-suite/`.
+* A local leaderboard displaying results in an interactive web UI.
 
 ---
 
@@ -176,23 +162,31 @@ MedHELM evaluates models across a clinician‑validated taxonomy: **5 categories
 
 ## Installation
 
-**NOTE**: MedHELM is compatible **only** with `Python 3.10`. Other Python versions are not supported.
+MedHELM is compatible with Python 3.10, 3.11, and 3.12. We recommend **Python 3.12** for best compatibility.
 
-#### 1. Create a Virtual Environment
+### Quick Setup with uv (Recommended)
 
-Run the following commands to create and activate a new python virtual environment:
-
+1. Create a virtual environment:
 ```bash
-# Create and activate a clean environment
-conda create -n medhelm python=3.10 pip wget
-conda activate medhelm
-pip install -U setuptools
+uv venv --python 3.12 .venv
+source .venv/bin/activate
 ```
 
-#### 2. Install HELM and MedHELM-specific Dependencies:
-
+2. Install MedHELM:
 ```bash
-pip install -U "medhelm[summarization]"
+# For all scenarios (standard, summarization, gated)
+pip install "medhelm[summarization,gated]"
+```
+
+**Note on macOS/Python 3.12:** Use `pip` (not `uv`) for the `[summarization]` tier due to compatibility with `pyemd`.
+
+### Alternative: Using conda
+
+If you prefer conda:
+```bash
+conda create -n medhelm python=3.12 pip
+conda activate medhelm
+pip install "medhelm[summarization,gated]"
 ```
 
 ---
@@ -201,60 +195,48 @@ pip install -U "medhelm[summarization]"
 
 **Quick test:** Use **GPT‑2** with 2 instances to verify install and run the full pipeline in seconds. **Full example:** Use **Qwen2.5‑7B‑Instruct** with 10 instances for better quality.
 
-#### 1. Run the Benchmark 
+### Step 1: Run the Benchmark
+
+Make sure your environment is activated:
+```bash
+source .venv/bin/activate
+```
 
 **Quick test** (runs in seconds):
 
 ```bash
-RUN_ENTRIES="pubmed_qa:model=openai/gpt2,model_deployment=huggingface/gpt2"
-SUITE="my-medhelm-suite"
-MAX_EVAL_INSTANCES=2
-OUTPUT_PATH="./benchmark_output"
-helm-run --run-entries $RUN_ENTRIES --suite $SUITE --max-eval-instances $MAX_EVAL_INSTANCES --output-path $OUTPUT_PATH
+medhelm-run --run-entries "pubmed_qa:model=openai/gpt2,model_deployment=huggingface/gpt2" --suite my-medhelm-suite --max-eval-instances 2
 ```
 
 **Full example** (10 instances, better quality):
 
 ```bash
-RUN_ENTRIES="pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct"
-SUITE="my-medhelm-suite"
-MAX_EVAL_INSTANCES=10
-OUTPUT_PATH="./benchmark_output"
-helm-run --run-entries $RUN_ENTRIES --suite $SUITE --max-eval-instances $MAX_EVAL_INSTANCES --output-path $OUTPUT_PATH
+medhelm-run --run-entries "pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" --suite my-medhelm-suite --max-eval-instances 10
 ```
 
-For more information about `helm-run`, refer to the [Using helm-run](/tutorial#using-helm-run) page.
+For more information about `medhelm-run`, refer to the [Using helm-run](/tutorial#using-helm-run) page.
 
-#### 2. Create the Leaderboard
+### Step 2: Summarize Results
 
-The following commands convert the results from step 1 into an interactive leaderboard.
+Convert the benchmark results into an interactive leaderboard:
 
 ```bash
-SCHEMA="schema_medhelm.yaml"
-RELEASE="my-medhelm-release"
-
-wget -O $SCHEMA \
-   https://raw.githubusercontent.com/PacificAI/medhelm/v0.5.7/src/helm/benchmark/static/schema_medhelm.yaml
-helm-summarize \
-  --suites $SUITE \
-  --schema $SCHEMA \
-  --release $RELEASE \
-  --output-path $OUTPUT_PATH
+helm-summarize --suite my-medhelm-suite
 ```
 
-For more information about `helm-summarize`, refer to the [Using helm-summarize](/tutorial#using-helm-summarize) page.
+For more information, refer to the [Using helm-summarize](/tutorial#using-helm-summarize) page.
 
-#### 3. Run the Leaderboard Locally
+### Step 3: View the Leaderboard Locally
 
-This command runs the leaderboard on a local server. The exact address and port will show on the command output.
+Start the web server to view your leaderboard:
 
 ```bash
-helm-server \
-  --release $RELEASE \
-  --output-path $OUTPUT_PATH
+helm-server --suite my-medhelm-suite
 ```
 
-For more information about `helm-run`, refer to the [Using helm-server](/tutorial#using-helm-server) page.
+Then open http://localhost:8000 in your browser.
+
+For more information, refer to the [Using helm-server](/tutorial#using-helm-server) page.
 
 ---
 
