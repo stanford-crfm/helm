@@ -411,7 +411,7 @@ litellm = [
 [dependency-groups]
 
 dev = [
-    "pytest~=7.2.0",
+    "pytest>=7.2,<9.1",
     "xdoctest~=1.2.0",
     "pre-commit~=2.20.0",
     # Errors produced by type checkers and linters are very version-specific
