@@ -402,9 +402,9 @@ def _apply_output_mapping_pattern(pattern: str, prediction: str) -> str:
     if not match:
         return ""
     elif match.groups():
-        return match.group(0)
+        return match.group(1)
     else:
-        return match.string
+        return match.group(0)
 
 
 # TODO This should probably be made into an implementation of MetricInterface. For now it lives here
