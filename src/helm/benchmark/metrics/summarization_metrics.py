@@ -493,7 +493,7 @@ class SummarizationHumanEvalAnalyzer:
         print("=" * 40)
 
         print("COHERENCE")
-        for model, score in self._compute_average(self.relevance):
+        for model, score in self._compute_average(self.coherence):
             print(f"{model:40}: {score:.4f}")
         print("=" * 40)
 
