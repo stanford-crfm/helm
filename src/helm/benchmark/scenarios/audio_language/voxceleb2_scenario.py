@@ -1,6 +1,7 @@
 from typing import List
 import os
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -9,6 +10,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from tqdm import tqdm
 from helm.common.media_object import MediaObject, MultimediaObject
@@ -103,3 +105,24 @@ class VoxCeleb2Scenario(Scenario):
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="voxceleb2",
+            display_name="VoxCeleb2",
+            description="VoxCeleb is an audio-visual dataset consisting of short clips of human speech, "
+            "extracted from  interview videos uploaded to YouTube. It contains over a "
+            "million utterances from over 6,000  speakers with their gender, race, identity "
+            "information in 145 different nationalities, covering  a wide range of accents, "
+            "ages, ethnicities and languages. ([Chung et al, "
+            "2018](https://www.robots.ox.ac.uk/~vgg/publications/2018/Chung18a/chung18a.pdf))\n",
+            taxonomy=TaxonomyInfo(
+                task="audio identification",
+                what="audio clips in the wild",
+                when="2018",
+                who="real speakers",
+                language="English, Germany, French",
+            ),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )

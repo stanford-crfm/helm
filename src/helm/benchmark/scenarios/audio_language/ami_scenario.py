@@ -2,6 +2,7 @@ from typing import List
 import os
 import json
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from tqdm import tqdm
 from datasets import load_dataset
@@ -94,3 +96,27 @@ class AMIScenario(Scenario):
             references = [Reference(Output(text=answer), tags=[CORRECT_TAG])]
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="ami",
+            display_name="AMI Meeting Corpus",
+            description="The AMI Meeting Corpus (Carletta et al. 2005) is a multi-modal data set "
+            "consisting of  100 hours of meeting recordings. It is being created in the "
+            "context of a project that  is developing meeting browsing technology. The "
+            "corpus is being recorded using a wide  range of devices including "
+            "close-talking and far-field microphones, individual and  room-view video "
+            "cameras, projection, a whiteboard, and individual pens, all of which  produce "
+            "output signals that are synchronized with each other.\n"
+            "The dataset contains the audio, transcriptions for all subsets  ([Carletta et "
+            "al, 2005](https://link.springer.com/chapter/10.1007/11677482_3)).\n",
+            taxonomy=TaxonomyInfo(
+                task="audio recognition",
+                what="audio, transcripts of audio samples from meeting environments",
+                when="2005",
+                who="real speakers",
+                language="English",
+            ),
+            main_metric="wer_score",
+            main_split="test",
+        )

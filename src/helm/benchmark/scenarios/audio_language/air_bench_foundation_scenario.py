@@ -1,6 +1,7 @@
 from typing import List
 import os
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -9,6 +10,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from tqdm import tqdm
 from helm.common.media_object import MediaObject, MultimediaObject
@@ -152,3 +154,26 @@ class AirBenchFoundationScenario(Scenario):
             )
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="air_bench_foundation",
+            display_name="Air-Bench Foundation",
+            description="Air-Bench (Yang et al, 2024) encompasses two dimensions: foundation and chat "
+            "benchmarks. The former consists of 19 tasks with  approximately 19k "
+            "single-choice questions. The latter one contains 2k instances of open-ended "
+            "question-and-answer data.  We consider the chat benchmark in this scenario.\n"
+            "The dataset contains the audio multiple choice question answering task in "
+            "three subjects: music instrument classification, music genera recognition, and "
+            "music question-answering. ([Yang et al, "
+            "2024](https://aclanthology.org/2024.acl-long.109.pdf)).\n",
+            taxonomy=TaxonomyInfo(
+                task="audio question answering",
+                what="audio, question, and answer of the question",
+                when="2024",
+                who="real speakers",
+                language="English",
+            ),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )

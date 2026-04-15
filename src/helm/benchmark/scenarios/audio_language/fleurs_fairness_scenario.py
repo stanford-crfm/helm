@@ -2,6 +2,7 @@
 
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from collections import OrderedDict
 from tqdm import tqdm
@@ -81,3 +83,26 @@ class FLEURSFairnessScenario(Scenario):
             references = [Reference(Output(text=answer), tags=[CORRECT_TAG])]
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="fleurs_fairness",
+            display_name="FLEURS Fairness",
+            description="FLEURS is an n-way parallel speech dataset in 102 languages built on top of "
+            "the machine translation FLoRes-101  benchmark, with approximately 12 hours of "
+            "speech supervision per language. FLEURS can be used for a variety of  speech "
+            "tasks, including Automatic Speech Recognition (ASR), Speech Language "
+            "Identification (Speech LangID),  Translation and Retrieval.\n"
+            "We only use the English subset of the dataset for the fairness task. We ask "
+            "the model to do ASR on audio files from different gender groups ([Conneau et "
+            "al, 2022](https://arxiv.org/abs/2205.12446)).\n",
+            taxonomy=TaxonomyInfo(
+                task="audio classification",
+                what="audio, transcripts, and gender of the speaker",
+                when="2022",
+                who="real speakers",
+                language="English",
+            ),
+            main_metric="wer_score",
+            main_split="test",
+        )
