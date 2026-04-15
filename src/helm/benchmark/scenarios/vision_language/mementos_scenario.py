@@ -4,6 +4,7 @@ from typing import List
 from datasets import load_dataset
 from tqdm import tqdm
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
@@ -13,6 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
 from helm.common.media_object import MediaObject, MultimediaObject
@@ -113,12 +115,19 @@ class MementosScenario(Scenario):
 
         return instances
 
-
-def main():
-    scenario = MementosScenario("robotics")
-    instances = scenario.get_instances("output")
-    print(instances)
-
-
-if __name__ == "__main__":
-    main()
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="mementos",
+            display_name="Mementos",
+            description="A Comprehensive Benchmark for Multimodal Large Language Model Reasoning over "
+            "Image Sequences ([Wang et al., 2024](https://arxiv.org/abs/2401.10529)).",
+            taxonomy=TaxonomyInfo(
+                task="short-answer question answering",
+                what="Image sequences of comics, daily life and robotics",
+                when="2024",
+                who="Human experts",
+                language="English",
+            ),
+            main_metric="prometheus_vision",
+            main_split="test",
+        )

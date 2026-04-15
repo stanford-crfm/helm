@@ -2,6 +2,7 @@ from typing import Dict, List, Set
 import json
 import os
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TRAIN_SPLIT,
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
+    ScenarioMetadata,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_file_downloaded
@@ -105,3 +107,21 @@ class VizWizScenario(Scenario):
                     )
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="viz_wiz",
+            display_name="VizWiz",
+            description="A benchmark for visual question answering with images and questions created by "
+            "visually impaired people ([Gurari et al., "
+            "2018](https://arxiv.org/abs/1802.08218)).",
+            taxonomy=TaxonomyInfo(
+                task="short-answer question answering",
+                what="Real-world images",
+                when="2018",
+                who="Visually impaired people",
+                language="English",
+            ),
+            main_metric="quasi_prefix_exact_match",
+            main_split="valid",
+        )

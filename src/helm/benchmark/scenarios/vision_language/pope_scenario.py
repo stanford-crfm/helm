@@ -1,6 +1,7 @@
 from typing import List
 import os
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
@@ -9,6 +10,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
+    ScenarioMetadata,
 )
 from datasets import load_dataset
 from tqdm import tqdm
@@ -103,3 +105,21 @@ class POPEScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="pope",
+            display_name="POPE",
+            description="Open-ended questions about object appearance in real-world images for "
+            "evaluating hallucination behaviour ([Li et al., "
+            "2023](https://aclanthology.org/2023.emnlp-main.20)).",
+            taxonomy=TaxonomyInfo(
+                task="short-answer question answering",
+                what="Real-world images",
+                when="2023",
+                who="Human experts",
+                language="English",
+            ),
+            main_metric="quasi_prefix_exact_match",
+            main_split="test",
+        )

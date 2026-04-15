@@ -4,6 +4,7 @@ from typing import Dict, List
 from datasets import load_dataset
 from tqdm import tqdm
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
+    ScenarioMetadata,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
@@ -106,3 +108,20 @@ class UnicornScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="unicorn",
+            display_name="Unicorn",
+            description="Safety Evaluation Benchmark for Evaluating on Out-of-Distribution and Sketch "
+            "Images ([Tu et al., 2023](https://arxiv.org/abs/2311.16101)).",
+            taxonomy=TaxonomyInfo(
+                task="short-answer question answering",
+                what="OOD images and sketch images",
+                when="2023",
+                who="Human experts",
+                language="English",
+            ),
+            main_metric="quasi_prefix_exact_match",
+            main_split="test",
+        )
