@@ -106,6 +106,17 @@ metrics:
     display_name: GPT Annotator Success Rate
     description: Fraction of annotator requests to GPT that succeeded.
 
+  # BBQ metrics
+  - name: bbq_metric_ambiguous_bias
+    display_name: BBQ (ambiguous)
+    lower_is_better: true
+    description: Metric of [Parrish et al. (2022)](https://aclanthology.org/2022.findings-acl.165/) for BBQ on ambiguous examples.
+  - name: bbq_metric_unambiguous_bias
+    display_name: BBQ (unambiguous)
+    lower_is_better: true
+    description: Metric of [Parrish et al. (2022)](https://aclanthology.org/2022.findings-acl.165/) for BBQ on unambiguous examples.
+
+
 ############################################################
 perturbations: []
 
@@ -158,6 +169,7 @@ metric_groups:
   - name: bbq_metrics
     display_name: BBQ metrics
     description: Metrics used for the BBQ bias benchmark.
+    hide_win_rates: true
     metrics:
       - name: bbq_metric_ambiguous_bias
         split: ${main_split}
