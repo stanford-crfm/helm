@@ -24,15 +24,14 @@ class EhrSqlScenario(Scenario):
     - Includes `value` field as alternative ground truth result.
     """
 
-    BASE_URL: str = (
-        "https://raw.githubusercontent.com/glee4810/EHRSQL/e172ec8e61391ecae2d872c8d0ba02a622222f54/dataset/ehrsql/eicu"
-    )
+    BASE_URL: str = "https://raw.githubusercontent.com/glee4810/EHRSQL/refs/heads/main/dataset/ehrsql/eicu"
     DB_URL: str = (
-        "https://github.com/raulista1997/benchmarkdata/raw/c4c252443fa9c52afb6960f53e51be278639bea2/eicu.sqlite"
+        "https://drive.usercontent.google.com/download?id=1JG9DUdeJeuIXShK6DdEJ61NEyPiaGEKZ"
+        "&export=download&confirm=t&uuid=b6f88ae6-3049-496a-b7bb-fbfdafd83214"
     )
     SQL_SCHEMA_URL: str = (
         "https://raw.githubusercontent.com/glee4810/EHRSQL/"
-        "e172ec8e61391ecae2d872c8d0ba02a622222f54/dataset/ehrsql/eicu/eicu.sql"
+        "9eb39b5e1fd0e4e2ec7bc31208a768dcdf873c50/dataset/ehrsql/eicu/eicu.sql"
     )
 
     name = "ehr_sql"
@@ -95,7 +94,7 @@ class EhrSqlScenario(Scenario):
         with open(json_path, "r", encoding="utf-8") as f:
             raw_data = json.load(f)
             for entry in raw_data:
-                if "question" in entry and "query" in entry:
+                if "question" in entry and "query" in entry and entry["query"] != "null":
                     is_impossible = entry.get("is_impossible", False)
                     input_text = f"-- Database Schema:\n{schema_prompt}\n\n-- \
                     Question:\n{entry['question']}\n\n"

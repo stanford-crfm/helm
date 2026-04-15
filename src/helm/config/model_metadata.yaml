@@ -4468,7 +4468,6 @@ models:
 
   - name: upstage/solar-pro-241126
     display_name: Solar Pro
-    display_name: Solar Pro
     description: Solar Pro is a LLM designed for instruction-following and processing structured formats like HTML and Markdown. It supports English, Korean, and Japanese and has domain expertise in Finance, Healthcare, and Legal. ([blog](https://www.upstage.ai/blog/press/solar-pro-aws)).
     creator_organization_name: Upstage
     access: limited

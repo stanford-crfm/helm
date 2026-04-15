@@ -1,4 +1,4 @@
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Tuple
 import os
 import re
 import sqlite3
@@ -23,40 +23,26 @@ class EhrSqlAnnotator(Annotator):
 
         assert len(request_state.instance.references) == 1
         ground_truth_sql = request_state.instance.references[0].output.text.strip()
-        ground_truth_result: List[str] = []
+        ground_truth_result: List[Tuple[Any, ...]] = []
 
         # Execute the ground truth query
         try:
             with sqlite3.connect(database_path) as conn:
                 cursor = conn.cursor()
+
+                # check the current_time in the ground_truth_sql
+                if "current_time" in ground_truth_sql.lower():
+                    # Replace current_time with the fixed timestamp
+                    ground_truth_sql = re.sub(
+                        r"current_time",
+                        "'2105-12-31 23:59:00'",
+                        ground_truth_sql,
+                        flags=re.IGNORECASE,
+                    )
                 cursor.execute(ground_truth_sql)
                 ground_truth_result = cursor.fetchall()
         except (sqlite3.OperationalError, sqlite3.Warning) as e:
             hwarn(f"Ground truth SQL failed with error: {e}")
-
-        # If ground truth SQL execution didn't return results, attempt to use extra_data["value"]
-        if not ground_truth_result and request_state.instance.extra_data is not None:
-            if "value" in request_state.instance.extra_data:
-                extra_values = list(request_state.instance.extra_data["value"].values())
-
-                # Try inferring types from the database schema if possible
-                with sqlite3.connect(database_path) as conn:
-                    cursor = conn.cursor()
-                    try:
-                        cursor.execute(ground_truth_sql)
-                        fetched_result = cursor.fetchone()
-                        if fetched_result:
-                            # Convert extra_values to match SQLite's expected types
-                            converted_values = [
-                                type(fetched_result[i])(extra_values[i]) for i in range(len(extra_values))
-                            ]
-                            ground_truth_result = converted_values
-                        else:
-                            # If no rows were fetched, use `extra_values` as-is
-                            ground_truth_result = extra_values
-                    except sqlite3.OperationalError:
-                        # If query fails (syntax error, etc.), just use `extra_values` as-is
-                        ground_truth_result = extra_values
 
         assert request_state.result is not None
         assert len(request_state.result.completions) == 1
@@ -65,7 +51,7 @@ class EhrSqlAnnotator(Annotator):
         predicted_sql_match = re.search(r"<\s*sql\s*>(.*?)<\/?\s*sql\s*>", predicted_text, re.DOTALL | re.IGNORECASE)
         predicted_sql = predicted_sql_match.group(1).strip() if predicted_sql_match else predicted_text.strip()
 
-        predicted_result: List[str] = []
+        predicted_result: List[Tuple[Any, ...]] = []
         query_error: Optional[str] = None
         predicted_sql = predicted_sql.replace("`", "").strip()
         predicted_sql = re.sub(r"^sql\n", "", predicted_sql, flags=re.MULTILINE)
