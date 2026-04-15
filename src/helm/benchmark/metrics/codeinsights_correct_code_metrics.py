@@ -77,7 +77,7 @@ def run_executable(executable, std_in, timeout=10):
                and output is the stdout captured from the execution.
     """
     if executable is None:
-        return (0, "")  # Return 0 and empty output for failed compilations
+        return (1, "")  # Non-zero return code signals failed compilation
 
     try:
         result = subprocess.run(
