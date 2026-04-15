@@ -12,6 +12,8 @@ except ModuleNotFoundError as e:
 class TiktokenTokenizer(CachingTokenizer):
     def _tokenize_do_it(self, request: Dict[str, Any]) -> Dict[str, Any]:
         tokenizer = tiktoken.get_encoding(self._get_tokenizer_name(request["tokenizer"]))
+        if request["text"] == "":
+            return {"tokens": []}
         tokens = tokenizer.encode(request["text"])
         if not request["encode"]:
             tokens = [tokenizer.decode([token]) for token in tokens]  # type: ignore
