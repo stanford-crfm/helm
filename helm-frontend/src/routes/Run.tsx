@@ -14,6 +14,7 @@ import type MetricFieldMap from "@/types/MetricFieldMap";
 import getRunSpecByName, {
   getRunSpecByNameUrl,
 } from "@/services/getRunSpecByName";
+import { getPerInstanceStatsByNameUrl } from "@/services/getPerInstanceStatsByName";
 import { getScenarioStateByNameUrl } from "@/services/getScenarioStateByName";
 import Tab from "@/components/Tab";
 import Tabs from "@/components/Tabs";
@@ -163,6 +164,14 @@ export default function Run() {
               target="_blank"
             >
               Full JSON
+            </a>
+            <a
+              className="link link-primary link-hover"
+              href={getPerInstanceStatsByNameUrl(runSpec.name, runSuite)}
+              download="true"
+              target="_blank"
+            >
+              Per-Instance Stats JSON
             </a>
           </div>
         </div>
