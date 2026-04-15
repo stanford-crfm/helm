@@ -132,7 +132,7 @@ seahelm = [
 
 # Graphic design / layout VLM benchmarks (https://github.com/purvanshi/lica-bench)
 lica-bench = [
-    "lica-bench>=0.1.0",
+    "lica-bench @ git+https://github.com/purvanshi/lica-bench.git",
 ]
 
 # Model extras
