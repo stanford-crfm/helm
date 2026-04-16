@@ -2,6 +2,7 @@ from typing import Any, Dict, List, Optional
 
 import random
 from datasets import load_dataset
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -137,6 +139,18 @@ class MELTLMMaskFillingMLQAScenario(MELTLMMaskFillingScenario):
             },
         )
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="melt_lm_mask_filling_mlqa",
+            display_name="MLQA",
+            description="The MLQA benchmark for measuring language model mask filling on Vietnamese " "MLQA.",
+            taxonomy=TaxonomyInfo(
+                task="language model mask filling", what="?", when="?", who="?", language="Vietnamese"
+            ),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )
+
 
 class MELTLMSpellingCorrectionScenario(Scenario):
     """
@@ -249,4 +263,17 @@ class MELTLMSpellingCorrectionVSECScenario(MELTLMSpellingCorrectionScenario):
             splits={
                 TEST_SPLIT: "test",
             },
+        )
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="melt_lm_spelling_correction_vsec",
+            display_name="VSEC",
+            short_display_name="VSEC",
+            description="The VSEC benchmark for measuring language model spelling correction on " "Vietnamese VSEC.",
+            taxonomy=TaxonomyInfo(
+                task="language model spelling correction", what="?", when="?", who="?", language="Vietnamese"
+            ),
+            main_metric="quasi_exact_match",
+            main_split="test",
         )
