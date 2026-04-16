@@ -1474,7 +1474,7 @@ def main():
     parser.add_argument(
         "--schema-path",
         type=str,
-        help="Path to the schema file (e.g., schema_classic.yaml).",
+        help="Path to the schema file (e.g., schema_medhelm.yaml). If unset, uses the repository's default schema; can be overridden by HELM_SCHEMA_PATH.",
     )
     parser.add_argument(
         "--schema-validation",

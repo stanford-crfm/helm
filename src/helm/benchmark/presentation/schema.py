@@ -10,6 +10,8 @@ import yaml
 import re
 from enum import Enum
 from importlib import resources
+import os
+from pathlib import Path
 
 from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import hlog
@@ -21,8 +23,20 @@ from helm.common.hierarchical_logger import hwarn
 # TODO: change to `helm.benchmark.config`
 SCHEMA_YAML_PACKAGE: str = "helm.benchmark.static"
 
-# TODO: add heim, vhelm, etc.
+# Keep the classic filename constant for backwards compatibility (other modules
+# import this symbol).
 SCHEMA_CLASSIC_YAML_FILENAME: str = "schema_classic.yaml"
+
+# Default schema file used when no --schema-path is provided.
+#
+# In this repository (MedHELM), we want the out-of-the-box default UX for
+# `helm-summarize` / `helm-server` to reflect the MedHELM leaderboard schema.
+# Users can still override this with HELM_SCHEMA_PATH or --schema-path.
+SCHEMA_DEFAULT_YAML_FILENAME: str = "schema_medhelm.yaml"
+
+# Optional override for the default schema file used by helm-summarize / helm-server.
+# This is useful for projects (e.g. MedHELM) where the desired default is not Classic.
+DEFAULT_SCHEMA_PATH_ENV_VAR: str = "HELM_SCHEMA_PATH"
 
 
 _ADAPTER_SPEC_PACKAGE = "helm.benchmark.adaptation"
@@ -264,7 +278,18 @@ def get_adapter_fields() -> List[Field]:
 
 
 def get_default_schema_path() -> str:
-    return str(resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_CLASSIC_YAML_FILENAME))
+    override = os.environ.get(DEFAULT_SCHEMA_PATH_ENV_VAR)
+    if override:
+        # Expand ~ and allow relative paths (relative to current working directory).
+        p = Path(override).expanduser()
+        if not p.is_absolute():
+            p = (Path.cwd() / p).resolve()
+        if not p.is_file():
+            raise FileNotFoundError(
+                f"{DEFAULT_SCHEMA_PATH_ENV_VAR} was set to '{override}', but no file exists at '{p}'."
+            )
+        return str(p)
+    return str(resources.files(SCHEMA_YAML_PACKAGE).joinpath(SCHEMA_DEFAULT_YAML_FILENAME))
 
 
 def read_schema(schema_path: str) -> Schema:
