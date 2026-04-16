@@ -1308,6 +1308,28 @@ model_deployments:
         thinking_config:
           include_thoughts: true
 
+  - name: google/gemini-3-flash-preview
+    model_name: google/gemini-3-flash-preview
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1048576  # Source: https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/3-flash
+    # TODO: Max output tokens: 65536
+    client_spec:
+      class_name: "helm.clients.google_genai_client.GoogleGenAIClient"
+      args:
+        thinking_config:
+          include_thoughts: true
+
+  - name: google/gemini-3.1-flash-lite-preview
+    model_name: google/gemini-3.1-flash-lite-preview
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1048576  # Source: https://docs.cloud.google.com/vertex-ai/generative-ai/docs/models/gemini/3-1-flash-lite
+    # TODO: Max output tokens: 65536
+    client_spec:
+      class_name: "helm.clients.google_genai_client.GoogleGenAIClient"
+      args:
+        thinking_config:
+          include_thoughts: true
+
   - name: google/gemini-robotics-er-1.5-preview
     model_name: google/gemini-robotics-er-1.5-preview
     tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
