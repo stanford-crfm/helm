@@ -133,10 +133,15 @@ class MedDialogScenario(Scenario):
 
                 with open(split_path, "r") as f:
                     examples: List = json.load(f)["data"]
+                    seen_sources: set = set()
                     for example in examples:
+                        src_text = example["src"]
+                        if src_text in seen_sources:
+                            continue
+                        seen_sources.add(src_text)
                         instances.append(
                             Instance(
-                                input=Input(text=example["src"]),
+                                input=Input(text=src_text),
                                 references=[Reference(Output(text=example["tgt"]), tags=[CORRECT_TAG])],
                                 split=split,
                             )
