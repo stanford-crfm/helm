@@ -3,6 +3,7 @@ from typing import Dict, List, Tuple, Optional
 
 import random
 from datasets import load_dataset
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -14,6 +15,7 @@ from helm.benchmark.scenarios.scenario import (
     PassageQuestionInput,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -104,6 +106,17 @@ class MELTKnowledgeZaloScenario(MELTClosedBookQAScenario):
                 TRAIN_SPLIT: "train",
                 TEST_SPLIT: "test",
             },
+        )
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="melt_knowledge_zalo",
+            display_name="ZaloE2E",
+            short_display_name="ZaloE2E",
+            description="The ZaloE2E benchmark for measuring knowledge extraction on Vietnamese " "ZaloE2E.",
+            taxonomy=TaxonomyInfo(task="instrinsic knowledge", what="?", when="?", who="?", language="Vietnamese"),
+            main_metric="quasi_exact_match",
+            main_split="test",
         )
 
 
@@ -244,3 +257,14 @@ class MELTKnowledgeViMMRCScenario(MELTMultipleChoiceQAScenario):
             random.shuffle(references)
 
         return inputs, references
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="melt_knowledge_vimmrc",
+            display_name="ViMMRC",
+            short_display_name="ViMMRC",
+            description="The ViMMRC benchmark for measuring knowledge extraction on Vietnamese ViMMRC.",
+            taxonomy=TaxonomyInfo(task="instrinsic knowledge", what="?", when="?", who="?", language="Vietnamese"),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )
