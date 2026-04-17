@@ -47,12 +47,13 @@ class CodeInsightsCorrectCodeScenario(Scenario):
                 # If more than one test case is requested, only take the first ones
                 question_test_cases = question_test_cases[: self.num_testcases]
 
+            unit_test_block = (
+                f"Unit Test Input: {question_test_cases}\n\n" if question_test_cases else ""
+            )
             prompt = (
                 f"Question: {target['question_name']} — {target['question_text']}\n\n"
-                f"Unit Test Input: {question_test_cases}\n\n"
-                if question_test_cases
-                else ""
-                "Template:\n"
+                + unit_test_block
+                + "Template:\n"
                 f"{target['question_template']}\n\n"
                 "Provide ONLY your C++ implementation following the given template, where the answer will replace the {{ STUDENT_ANSWER }} block in the template. "
                 "DO NOT reproduce the template part as the generated code would be inserted to the template, "
