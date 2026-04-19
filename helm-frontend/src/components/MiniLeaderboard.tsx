@@ -56,6 +56,7 @@ export default function MiniLeaderboard({
       <LeaderboardTable
         schema={schema}
         groupTable={groupTable}
+        runGroupName={runGroupName}
         numRowsToDisplay={numRowsToDisplay}
         sortColumnIndex={sortColumnIndex}
         displayColumnIndexes={[0, 1]}
