@@ -86,12 +86,21 @@ class LocalWindowService(ConfigurableWindowService, ABC):
         """Tokenizes the text and returns the number of tokens."""
         return len(self.encode(text).tokens)
 
+    def _effective_prompt_token_budget(self, expected_completion_token_length: int = 0) -> int:
+        return max(
+            0,
+            min(
+                self.max_request_length,
+                self.max_sequence_and_generated_tokens_length - expected_completion_token_length,
+            ),
+        )
+
     def fits_within_context_window(self, text: str, expected_completion_token_length: int = 0) -> bool:
         """
         Checks if the given text fits within the context window given by `max_request_length`
         taking to account the expected completion length (defaults to 0).
         """
-        return self.get_num_tokens(text) + expected_completion_token_length <= self.max_request_length
+        return self.get_num_tokens(text) <= self._effective_prompt_token_budget(expected_completion_token_length)
 
     def truncate_from_right(self, text: str, expected_completion_token_length: int = 0) -> str:
         """
@@ -104,7 +113,7 @@ class LocalWindowService(ConfigurableWindowService, ABC):
 
         Since we are only passing in a single string, the tokenizer will simply truncate from the right.
         """
-        max_length: int = self.max_request_length - expected_completion_token_length
+        max_length: int = self._effective_prompt_token_budget(expected_completion_token_length)
         result: str = self.decode(self.encode(text, truncation=True, max_length=max_length).tokens)
 
         # HACK: For the vast majority of cases, the above logic works, but it sometimes doesn't work
