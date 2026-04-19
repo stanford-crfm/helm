@@ -9,6 +9,7 @@ import HeaderValue from "@/types/HeaderValue";
 interface Props {
   schema: Schema;
   groupTable: GroupsTable;
+  runGroupName?: string;
   numRowsToDisplay: number;
   sortColumnIndex?: number;
   sortable?: boolean;
@@ -18,6 +19,7 @@ interface Props {
 export default function LeaderboardTable({
   schema,
   groupTable,
+  runGroupName,
   numRowsToDisplay,
   sortColumnIndex = 1,
   sortable = true,
@@ -131,6 +133,14 @@ export default function LeaderboardTable({
     return "";
   };
 
+  const getRunsHref = (model: string): string => {
+    const params = new URLSearchParams({ q: getModelForRunName(model) });
+    if (runGroupName) {
+      params.set("group", runGroupName);
+    }
+    return `/runs/?${params.toString()}`;
+  };
+
   const columns: JSX.Element[][] = []; // whitespace-nowrap px-4 sticky top-0
   columns.push(
     groupTable.header.map((headerValue: HeaderValue, idx) => (
@@ -186,7 +196,7 @@ export default function LeaderboardTable({
               <RowValue
                 value={{
                   ...rowValue,
-                  href: "/runs/?q=" + getModelForRunName(String(row[0].value)),
+                  href: getRunsHref(String(row[0].value)),
                 }}
                 title={`Click value to see all predictions for: ${getModelForRunName(
                   String(row[0].value),
