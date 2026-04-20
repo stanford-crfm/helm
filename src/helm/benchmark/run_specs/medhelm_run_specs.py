@@ -1269,13 +1269,14 @@ def get_ehr_sql_run_spec() -> RunSpec:
     # Define the adapter
     adapter_spec = get_generation_adapter_spec(
         instructions=(
-            "You are a highly skilled AI specializing in medical SQL queries. "
-            "Given a database schema and a medical question, generate a valid SQL query "
-            "that retrieves the required information from the database. "
-            "Output only the SQL query without explanations.\n\n"
-            "Input: A database schema followed by a natural language question.\n"
-            "Output: A valid SQL query ending with ;. Only return SQL query, don't add additional text.\n\n"
-            "If the question is unanswerable, return an empty string without additional text or comments."
+            "You are a highly skilled AI specializing in medical SQL queries with SQLite expertise. "
+            "Given a database schema and a medical question, generate a valid SQL query to retrieve the required information.\n\n"
+            "Requirements:\n"
+            "- Output only the SQL query without explanations\n"
+            "- Return exactly one SQL statement ending with ;\n"
+            "- Use current time `2105-12-31 23:59:00` if needed\n"
+            "- Return empty string if the question is unanswerable\n"
+            "- Do not add additional text or comments"
         ),
         input_noun="Medical Question + Schema",
         output_noun="SQL Query",
