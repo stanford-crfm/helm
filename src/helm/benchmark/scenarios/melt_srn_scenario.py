@@ -5,6 +5,7 @@ import dataclasses
 
 from copy import copy
 from dataclasses import dataclass
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -15,6 +16,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -340,3 +342,14 @@ class MELTSRNScenario(Scenario):
             instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="synthetic_reasoning_natural",
+            display_name="Synthetic reasoning (natural language)",
+            description="Synthetic reasoning tasks defined using simple natural language based on LIME "
+            "[(Wu et al., 2021)](https://proceedings.mlr.press/v139/wu21c.html).",
+            taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
+            main_metric="f1_set_match",
+            main_split="test",
+        )

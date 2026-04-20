@@ -3,6 +3,7 @@ from abc import abstractmethod
 from typing import Dict, List, Tuple, Optional
 
 from datasets import load_dataset
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -15,6 +16,7 @@ from helm.benchmark.scenarios.scenario import (
     PassageQuestionInput,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from helm.benchmark.scenarios.math_scenario import get_answer
 
@@ -149,6 +151,16 @@ class MELTQAMLQAScenario(MELTQAScenario):
             },
         )
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="melt_question_answering_mlqa",
+            display_name="MLQA",
+            description="Scenarios for question answering with the MLQA dataset.",
+            taxonomy=TaxonomyInfo(task="question answering", what="?", when="?", who="?", language="Vietnamese"),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )
+
 
 class MELTQAXQuADScenario(MELTQAScenario):
     """
@@ -172,6 +184,16 @@ class MELTQAXQuADScenario(MELTQAScenario):
                 VALID_SPLIT: "translate_train",
                 TEST_SPLIT: "test",
             },
+        )
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="melt_question_answering_xquad",
+            display_name="XQuAD",
+            description="Scenarios for question answering with the XQuAD dataset.",
+            taxonomy=TaxonomyInfo(task="question answering", what="?", when="?", who="?", language="Vietnamese"),
+            main_metric="quasi_exact_match",
+            main_split="test",
         )
 
 
@@ -322,6 +344,18 @@ class MELTSummarizationVietnewsScenario(MELTSummarizationScenario):
             **kwargs,
         )
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="melt_summarization_vietnews",
+            display_name="VietNews",
+            description="Scenarios for summarization with the VietNews dataset.",
+            taxonomy=TaxonomyInfo(
+                task="summarization", what="Vietnamese online newspapers.", when="?", who="?", language="Vietnamese"
+            ),
+            main_metric="rouge_2",
+            main_split="test",
+        )
+
 
 class MELTSummarizationWikilinguaScenario(MELTSummarizationScenario):
     """
@@ -346,6 +380,16 @@ class MELTSummarizationWikilinguaScenario(MELTSummarizationScenario):
                 TEST_SPLIT: "test",
             },
             **kwargs,
+        )
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="melt_summarization_wikilingua",
+            display_name="WikiLingua",
+            description="Scenarios for summarization with the WikiLingua dataset.",
+            taxonomy=TaxonomyInfo(task="summarization", what="?", when="?", who="?", language="Vietnamese"),
+            main_metric="rouge_2",
+            main_split="test",
         )
 
 
@@ -501,6 +545,30 @@ class MELTMATHScenario(Scenario):
 
         return instances
 
+    def get_metadata(self) -> ScenarioMetadata:
+        if self.use_chain_of_thought:
+            return ScenarioMetadata(
+                name="melt_math_chain_of_thought",
+                display_name="MATH (chain-of-thought)",
+                description="The MATH benchmark for measuring mathematical problem solving on competition "
+                "math problems with chain-of-thought style reasoning [(Hendrycks et al., "
+                "2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/be83ab3ecd0db773eb2dc1b0a17836a1-Abstract-round2.html).",
+                taxonomy=TaxonomyInfo(task="reasoning", what="n/a", when="n/a", who="n/a", language="synthetic"),
+                main_metric="math_equiv_chain_of_thought",
+                main_split="test",
+            )
+        else:
+            return ScenarioMetadata(
+                name="melt_math_regular",
+                display_name="MATH",
+                description="The MATH benchmark for measuring mathematical problem solving on competition "
+                "math problems [(Hendrycks et al., "
+                "2021)](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/be83ab3ecd0db773eb2dc1b0a17836a1-Abstract-round2.html).",
+                taxonomy=TaxonomyInfo(task="reasoning", what="n/a", when="n/a", who="n/a", language="synthetic"),
+                main_metric="math_equiv",
+                main_split="test",
+            )
+
 
 class MELTTextClassificationScenario(Scenario):
     name = "melt_text_classification"
@@ -617,6 +685,17 @@ class MELTTextClassificationVSMECScenario(MELTTextClassificationScenario):
         """
         return sample[self.text_key], [sample[self.label_key].lower()]
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="melt_text_classification_vsmec",
+            display_name="VSMEC",
+            short_display_name="VSMEC",
+            description="The VSMEC benchmark for measuring text classification on Vietnamese MSEC.",
+            taxonomy=TaxonomyInfo(task="text classification", what="?", when="?", who="?", language="Vietnamese"),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )
+
 
 class MELTTextClassificationPhoATISScenario(MELTTextClassificationScenario):
     """
@@ -650,6 +729,19 @@ class MELTTextClassificationPhoATISScenario(MELTTextClassificationScenario):
         list of answers for the instance.
         """
         return sample[self.text_key], sample[self.label_key].lower().split("#")
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="melt_text_classification_phoatis",
+            display_name="PhoATIS",
+            short_display_name="PhoATIS",
+            description="The PhoATIS benchmark for measuring text classification on Vietnamese ATIS.",
+            taxonomy=TaxonomyInfo(
+                task="text classification", what="Flight information.", when="?", who="?", language="Vietnamese"
+            ),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )
 
 
 class MELTTSentimentAnalysisVLSPScenario(MELTTextClassificationScenario):
@@ -686,6 +778,19 @@ class MELTTSentimentAnalysisVLSPScenario(MELTTextClassificationScenario):
 
         return sample[self.text_key], [sample[self.label_key].lower()]
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="melt_sentiment_analysis_vlsp",
+            display_name="VLSP",
+            short_display_name="VLSP",
+            description="The VLSP benchmark for measuring sentiment analysis on Vietnamese VLSP.",
+            taxonomy=TaxonomyInfo(
+                task="sentiment analysis", what="Online comments", when="?", who="?", language="Vietnamese"
+            ),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )
+
 
 class MELTTSentimentAnalysisVSFCScenario(MELTTextClassificationScenario):
     """
@@ -720,6 +825,17 @@ class MELTTSentimentAnalysisVSFCScenario(MELTTextClassificationScenario):
         """
 
         return sample[self.text_key], [sample[self.label_key].lower()]
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="melt_sentiment_analysis_vsfc",
+            display_name="VSFC",
+            short_display_name="VSFC",
+            description="The VSFC benchmark for measuring sentiment analysis on Vietnamese VSFC.",
+            taxonomy=TaxonomyInfo(task="sentiment analysis", what="?", when="?", who="?", language="Vietnamese"),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )
 
 
 class MELTToxicityDetectionViHSDScenario(MELTTextClassificationScenario):
@@ -757,6 +873,17 @@ class MELTToxicityDetectionViHSDScenario(MELTTextClassificationScenario):
         label = sample[self.label_key]
         return sample[self.text_key], [self.label_mapping[label]]
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="melt_toxicity_detection_vihsd",
+            display_name="ViHSD",
+            short_display_name="ViHSD",
+            description="The ViHSD benchmark for measuring toxicity detection on Vietnamese ViHSD.",
+            taxonomy=TaxonomyInfo(task="toxicity classification", what="?", when="?", who="?", language="Vietnamese"),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )
+
 
 class MELTToxicityDetectionViCTSDScenario(MELTTextClassificationScenario):
     """
@@ -791,3 +918,14 @@ class MELTToxicityDetectionViCTSDScenario(MELTTextClassificationScenario):
         """
         label = sample[self.label_key]
         return sample[self.text_key], [self.label_mapping[label]]
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="melt_toxicity_detection_victsd",
+            display_name="ViCTSD",
+            short_display_name="ViCTSD",
+            description="The ViCTSD benchmark for measuring toxicity detection on Vietnamese ViCTSD.",
+            taxonomy=TaxonomyInfo(task="toxicity classification", what="?", when="?", who="?", language="Vietnamese"),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )

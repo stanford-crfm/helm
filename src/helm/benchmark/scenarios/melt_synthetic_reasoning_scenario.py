@@ -2,6 +2,7 @@ from typing import Dict, List, Tuple
 
 import numpy as np
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -220,3 +222,15 @@ class MELTSyntheticReasoningScenario(Scenario):
             instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        human_readable_mode = self.mode.replace("_", " ")
+        return ScenarioMetadata(
+            name=f"melt_synthetic_reasoning_{self.mode}",
+            display_name=f"Synthetic reasoning ({human_readable_mode})",
+            description=f"Synthetic reasoning tasks defined using {human_readable_mode} based on LIME [(Wu et "
+            "al., 2021)](https://proceedings.mlr.press/v139/wu21c.html).",
+            taxonomy=TaxonomyInfo(task="reasoning", what="n/a", when="n/a", who="n/a", language="synthetic"),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )
