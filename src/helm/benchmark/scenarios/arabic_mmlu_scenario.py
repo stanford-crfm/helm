@@ -59,8 +59,9 @@ class ArabicMMLUScenario(Scenario):
             assert isinstance(dataset, datasets.Dataset)
             for row_index, row in enumerate(dataset):
                 # Include the Context field (reading passage) when available.
-                # The Arabic Language (General) subset has context passages;
-                # most other subsets have no Context (all null).
+                # Some subsets (e.g. Arabic Language (General)) and individual
+                # examples across other subsets include a context passage;
+                # rows without context have a null/empty Context field.
                 context = row.get("Context")
                 question = row["Question"]
                 if context and isinstance(context, str) and context.strip():
