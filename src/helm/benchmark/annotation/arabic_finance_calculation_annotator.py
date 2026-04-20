@@ -11,7 +11,7 @@ from helm.proxy.retry import NonRetriableException
 class AnnotatorResponseParseFailure(NonRetriableException):
     def __init__(self, response_text: str, **kwargs):
         self.response_text = response_text
-        super().__init__(kwargs)
+        super().__init__(kwargs.get("message", ""))
 
 
 class ArabicFinanceCalculationAnnotator(Annotator):
