@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import type Instance from "@/types/Instance";
 import type MetricFieldMap from "@/types/MetricFieldMap";
@@ -10,6 +10,7 @@ import DisplayRequest from "@/types/DisplayRequest";
 import getInstances from "@/services/getInstances";
 import getDisplayPredictionsByName from "@/services/getDisplayPredictionsByName";
 import getDisplayRequestsByName from "@/services/getDisplayRequestsByName";
+import { matchesInstanceSearch } from "./instanceFilters";
 
 const INSTANCES_PAGE_SIZE = 10;
 
@@ -41,6 +42,9 @@ export default function Instances({
     undefined | Record<string, Record<string, DisplayRequest[]>>
   >();
   const [currentInstancesPage, setCurrentInstancesPage] = useState<number>(1);
+  const [instanceQuery, setInstanceQuery] = useState<string>(
+    searchParams.get("instanceQuery") ?? "",
+  );
 
   useEffect(() => {
     const controller = new AbortController();
@@ -101,11 +105,26 @@ export default function Instances({
     return () => controller.abort();
   }, [runName, suite, userAgreed]);
 
-  const pagedInstances = instances.slice(
+  const filteredInstances = useMemo(
+    () =>
+      instances.filter((instance) =>
+        matchesInstanceSearch(instance, instanceQuery),
+      ),
+    [instanceQuery, instances],
+  );
+
+  useEffect(() => {
+    setCurrentInstancesPage(1);
+  }, [instanceQuery]);
+
+  const pagedInstances = filteredInstances.slice(
     (currentInstancesPage - 1) * INSTANCES_PAGE_SIZE,
     (currentInstancesPage - 1) * INSTANCES_PAGE_SIZE + INSTANCES_PAGE_SIZE,
   );
-  const totalInstancesPages = Math.ceil(instances.length / INSTANCES_PAGE_SIZE);
+  const totalInstancesPages = Math.max(
+    1,
+    Math.ceil(filteredInstances.length / INSTANCES_PAGE_SIZE),
+  );
 
   // Handle scrolling to anchored instance
   useEffect(() => {
@@ -145,6 +164,35 @@ export default function Instances({
 
   return (
     <>
+      <div className="mb-6">
+        <label className="form-control w-full max-w-xl">
+          <div className="label">
+            <span className="label-text font-medium">Search instances</span>
+          </div>
+          <input
+            className="input input-bordered w-full"
+            type="search"
+            placeholder="Filter by instance id, input text, or reference"
+            value={instanceQuery}
+            onChange={(event) => {
+              const nextQuery = event.target.value;
+              setInstanceQuery(nextQuery);
+
+              if (nextQuery) {
+                searchParams.set("instanceQuery", nextQuery);
+              } else {
+                searchParams.delete("instanceQuery");
+              }
+
+              searchParams.set("instancesPage", "1");
+              setSearchParams(searchParams);
+            }}
+          />
+        </label>
+        <p className="mt-2 text-sm text-gray-600">
+          Showing {filteredInstances.length} of {instances.length} instances.
+        </p>
+      </div>
       <div className="grid gap-8">
         {pagedInstances.map((instance, idx) => (
           <div id={"instance-" + instance.id} className="border p-4">
@@ -183,6 +231,11 @@ export default function Instances({
           </div>
         ))}
       </div>
+      {filteredInstances.length === 0 ? (
+        <p className="rounded-md border border-dashed p-4 text-sm text-gray-600">
+          No instances match the current search.
+        </p>
+      ) : null}
       <Pagination
         className="flex justify-center my-8"
         onNextPage={() => {
