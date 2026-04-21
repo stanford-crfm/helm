@@ -43,7 +43,7 @@ class ArabicFinanceScenario(Scenario):
         cache_dir = os.path.join(output_path, "data")
         ensure_directory_exists(cache_dir)
         dataset = datasets.load_dataset(
-            "yifanmai/arabic-enterprise",
+            "stanford-crfm/arabic-enterprise",
             "finance",
             cache_dir=cache_dir,
             split="test",
