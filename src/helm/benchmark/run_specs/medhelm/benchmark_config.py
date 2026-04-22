@@ -14,7 +14,6 @@ from helm.benchmark.metrics.common_metric_specs import (
     get_exact_match_metric_specs,
     get_summarization_metric_specs,
 )
-from helm.common.gpu_utils import get_torch_device_name
 
 
 SUMMARIZATION_METRICS = {
@@ -79,6 +78,8 @@ class BenchmarkConfig:
 
     def get_metric_specs(self) -> List[MetricSpec]:
         """Get the metric specifications for the benchmark"""
+        from helm.common.gpu_utils import get_torch_device_name
+
         metric_specs: List[MetricSpec] = []
         summarization = False
         for metric in self.metrics:

@@ -30,7 +30,6 @@ from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.run_specs.medhelm.benchmark_config import get_benchmark_config_from_path
 from helm.benchmark.scenarios.scenario import ScenarioSpec
-from helm.common.gpu_utils import get_torch_device_name
 
 
 def get_judges_config(jury_config_path: Optional[str]) -> dict:
@@ -165,6 +164,8 @@ def get_clear_spec(condition: str, data_path: str) -> RunSpec:
 
 @run_spec_function("mtsamples_replicate")
 def get_mtsamples_spec(jury_config_path: Optional[str] = None) -> RunSpec:
+    from helm.common.gpu_utils import get_torch_device_name
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mtsamples_replicate_scenario.MTSamplesReplicateScenario"
     )
@@ -463,6 +464,8 @@ def get_medbullets_freetext_run_spec() -> RunSpec:
 
 @run_spec_function("medalign")
 def get_medalign_spec(data_path: str, jury_config_path: Optional[str] = None, max_length: int = 100000) -> RunSpec:
+    from helm.common.gpu_utils import get_torch_device_name
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.medalign_scenario.MedalignScenario",
         args={
@@ -568,6 +571,8 @@ def get_shc_sei_spec(data_path: str) -> RunSpec:
 
 @run_spec_function("dischargeme")
 def get_dischargeme_spec(data_path: str, jury_config_path: Optional[str] = None) -> RunSpec:
+    from helm.common.gpu_utils import get_torch_device_name
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.dischargeme_scenario.DischargeMeScenario",
         args={
@@ -634,6 +639,8 @@ def get_aci_bench_run_spec(jury_config_path: Optional[str] = None) -> RunSpec:
     This configuration evaluates the model's ability to summarize
     doctor-patient dialogues into structured clinical notes.
     """
+    from helm.common.gpu_utils import get_torch_device_name
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.aci_bench_scenario.ACIBenchScenario",
         args={},
@@ -699,6 +706,8 @@ def get_aci_bench_run_spec(jury_config_path: Optional[str] = None) -> RunSpec:
 
 @run_spec_function("mtsamples_procedures")
 def get_mtsamples_procedures_spec(jury_config_path: Optional[str] = None) -> RunSpec:
+    from helm.common.gpu_utils import get_torch_device_name
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mtsamples_procedures_scenario.MTSamplesProceduresScenario"
     )
@@ -754,6 +763,8 @@ def get_mtsamples_procedures_spec(jury_config_path: Optional[str] = None) -> Run
 
 @run_spec_function("mimic_rrs")
 def get_mimic_rrs_spec(data_path: str, jury_config_path: Optional[str] = None) -> RunSpec:
+    from helm.common.gpu_utils import get_torch_device_name
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mimic_rrs_scenario.MIMICRRSScenario",
         args={"data_path": data_path},
@@ -813,6 +824,8 @@ def get_mimic_rrs_spec(data_path: str, jury_config_path: Optional[str] = None) -
 
 @run_spec_function("mimic_bhc")
 def get_mimic_bhc_spec(data_path: str, jury_config_path: Optional[str] = None) -> RunSpec:
+    from helm.common.gpu_utils import get_torch_device_name
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mimic_bhc_scenario.MIMICBHCScenario",
         args={"data_path": data_path},
@@ -874,6 +887,8 @@ def get_chw_care_plan_run_spec(data_path: str, jury_config_path: Optional[str] =
     This configuration evaluates the model's ability to summarize
     doctor-patient dialogues into structured clinical notes.
     """
+    from helm.common.gpu_utils import get_torch_device_name
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.chw_care_plan_scenario.CHWCarePlanScenario",
         args={"data_path": data_path},
@@ -931,6 +946,8 @@ def get_chw_care_plan_run_spec(data_path: str, jury_config_path: Optional[str] =
 
 @run_spec_function("medication_qa")
 def get_medication_qa_spec(jury_config_path: Optional[str] = None) -> RunSpec:
+    from helm.common.gpu_utils import get_torch_device_name
+
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medication_qa_scenario.MedicationQAScenario")
 
     adapter_spec = get_generation_adapter_spec(
@@ -980,6 +997,8 @@ def get_medication_qa_spec(jury_config_path: Optional[str] = None) -> RunSpec:
 
 @run_spec_function("starr_patient_instructions")
 def get_starr_patient_instructions_run_spec(data_path: str, jury_config_path: Optional[str] = None) -> RunSpec:
+    from helm.common.gpu_utils import get_torch_device_name
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.starr_patient_instructions_scenario.StarrPatientInstructionsScenario",
         args={"data_path": data_path},
@@ -1042,6 +1061,8 @@ def get_starr_patient_instructions_run_spec(data_path: str, jury_config_path: Op
 
 @run_spec_function("med_dialog")
 def get_med_dialog_spec(subset: str, jury_config_path: Optional[str] = None) -> RunSpec:
+    from helm.common.gpu_utils import get_torch_device_name
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.med_dialog_scenario.MedDialogScenario", args={"subset": subset}
     )
@@ -1118,6 +1139,8 @@ def get_shc_conf_spec(data_path: str) -> RunSpec:
 
 @run_spec_function("medi_qa")
 def get_medi_qa_spec(jury_config_path: Optional[str] = None) -> RunSpec:
+    from helm.common.gpu_utils import get_torch_device_name
+
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.medi_qa_scenario.MediQAScenario", args={})
 
     adapter_spec = get_generation_adapter_spec(
@@ -1174,6 +1197,8 @@ def get_mental_health_spec(data_path: str, jury_config_path: Optional[str] = Non
     This scenario evaluates a model's ability to generate appropriate counseling responses
     in mental health conversations.
     """
+    from helm.common.gpu_utils import get_torch_device_name
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.mental_health_scenario.MentalHealthScenario",
         args={"data_path": data_path},
