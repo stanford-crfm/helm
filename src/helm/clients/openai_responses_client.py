@@ -163,7 +163,7 @@ class OpenAIResponseClient(CachingClient):
                 response = Response.model_validate(helm_raw_response)
             except ValidationError as e:
                 # The Pydantic model for Response in the OpenAI SDK
-                # declares `prompt_cache_retention` as Literal["in-memory", "24h"]
+                # declares `prompt_cache_retention` as `Literal["in-memory", "24h"]``
                 # but the OpenAI API returns responses with "in_memory".
                 # The mismatch between the version with the hyphen and the
                 # string with the underscore causes a validation error.
