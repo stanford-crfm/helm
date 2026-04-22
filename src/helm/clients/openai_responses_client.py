@@ -22,6 +22,7 @@ try:
     import openai
     from openai import OpenAI
     from openai.types.responses.response import Response
+    from pydantic import ValidationError
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["openai"])
 
@@ -158,7 +159,27 @@ class OpenAIResponseClient(CachingClient):
             del helm_raw_response["request_time"]
             request_datetime = helm_raw_response["request_datetime"]
             del helm_raw_response["request_datetime"]
-            response = Response.model_validate(helm_raw_response)
+            try:
+                response = Response.model_validate(helm_raw_response)
+            except ValidationError as e:
+                # The Pydantic model for Response in the OpenAI SDK
+                # declares `prompt_cache_retention` as `Literal["in-memory", "24h"]``
+                # but the OpenAI API returns responses with "in_memory".
+                # The mismatch between the version with the hyphen and the
+                # string with the underscore causes a validation error.
+                # If we see this validation error, we work around it by setting
+                # `prompt_cache_retention` to "in-memory".
+                # See: https://github.com/openai/openai-python/issues/2883
+                if (
+                    e.errors()[0]["type"] == "literal_error"
+                    and e.errors()[0]["loc"] == ("prompt_cache_retention",)
+                    and e.errors()[0]["input"] == "in_memory"
+                    and "'in-memory'" in e.errors()[0]["ctx"]["expected"]
+                ):
+                    helm_raw_response["prompt_cache_retention"] = "in-memory"
+                    response = Response.model_validate(helm_raw_response)
+                else:
+                    raise e
 
             reasoning_output_parts: List[str] = []
             text_output_parts: List[str] = []
