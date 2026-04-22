@@ -22,6 +22,7 @@ try:
     import openai
     from openai import OpenAI
     from openai.types.responses.response import Response
+    from pydantic import ValidationError
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["openai"])
 
@@ -151,6 +152,7 @@ class OpenAIResponseClient(CachingClient):
             try:
                 cache_key = self._get_cache_key(raw_request, request)
                 helm_raw_response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+                print()
             except openai.OpenAIError as e:
                 return OpenAIClientUtils.handle_openai_error(e, request)
 
@@ -158,7 +160,17 @@ class OpenAIResponseClient(CachingClient):
             del helm_raw_response["request_time"]
             request_datetime = helm_raw_response["request_datetime"]
             del helm_raw_response["request_datetime"]
-            response = Response.model_validate(helm_raw_response)
+            try:
+                response = Response.model_validate(helm_raw_response)
+            except ValidationError as e:
+                if (
+                    e.errors()[0]["type"] == "literal_error"
+                    and e.errors()[0]["loc"] == ("prompt_cache_retention",)
+                    and e.errors()[0]["input"] == "in_memory"
+                    and "'in-memory'" in e.errors()[0]["ctx"]["expected"]
+                ):
+                    helm_raw_response["prompt_cache_retention"] = "in-memory"
+                    response = Response.model_validate(helm_raw_response)
 
             reasoning_output_parts: List[str] = []
             text_output_parts: List[str] = []
