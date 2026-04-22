@@ -50,8 +50,11 @@ uv venv --python 3.12 .venv
 # Activate the environment
 source .venv/bin/activate
 
-# Install MedHELM with all extras (standard, summarization, and gated tiers)
-pip install "medhelm[summarization,gated]"
+# If you cloned this repository (recommended for development/contributing)
+uv pip install -e .
+
+# Or: install MedHELM from PyPI (released package)
+# pip install "medhelm[summarization,gated]"
 ```
 
 **Note:** On macOS with Python 3.12, use `pip` for the summarization tier due to build compatibility. The gated tier works with both `uv` and `pip`.
@@ -96,10 +99,10 @@ medhelm-run --run-entries "pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deploy
 
 ```bash
 # Summarize the results
-helm-summarize --suite my-medhelm-suite
+helm-summarize --suite my-medhelm-suite -o ./benchmark_output
 
 # Start the web server
-helm-server --suite my-medhelm-suite
+helm-server --suite my-medhelm-suite -o ./benchmark_output --port 8000
 ```
 
 Then open http://localhost:8000 in your browser.

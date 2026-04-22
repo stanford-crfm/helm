@@ -43,6 +43,14 @@ source .venv/bin/activate
 ```
 
 3. Install MedHELM:
+
+- If you cloned this repository (recommended for development / contributing):
+```sh
+uv pip install -e .
+```
+
+- If you want the released package from PyPI:
+
 ```sh
 uv pip install medhelm
 ```
@@ -55,16 +63,16 @@ Scenarios: **PubMedQA**, **MedCalc-Bench**, **MedicationQA**, **MedHallu**.
 
 ```sh
 medhelm-run --run-entries "pubmed_qa:model=openai/gpt2,model_deployment=huggingface/gpt2" --suite my_med_test --max-eval-instances 2
-helm-summarize --suite my_med_test
-helm-server --suite my_med_test
+helm-summarize --suite my_med_test -o ./benchmark_output
+helm-server --suite my_med_test -o ./benchmark_output --port 8000
 ```
 
 **Full example** (better quality, 10 instances):
 
 ```sh
 medhelm-run --run-entries "pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" --suite my_med_test --max-eval-instances 10
-helm-summarize --suite my_med_test
-helm-server --suite my_med_test
+helm-summarize --suite my_med_test -o ./benchmark_output
+helm-server --suite my_med_test -o ./benchmark_output --port 8000
 ```
 
 Then open http://localhost:8000/ in your browser.
@@ -100,8 +108,8 @@ Example (ACI-Bench; runs without extra data):
 
 ```sh
 medhelm-run --run-entries "aci_bench:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" --suite med_summaries --max-eval-instances 5
-helm-summarize --suite med_summaries
-helm-server --suite med_summaries
+helm-summarize --suite med_summaries -o ./benchmark_output
+helm-server --suite med_summaries -o ./benchmark_output --port 8000
 ```
 
 ### Gated / licensing tier (`[gated]`)
@@ -119,8 +127,8 @@ Example:
 
 ```sh
 medhelm-run --run-entries "med_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" --suite board_exams --max-eval-instances 10
-helm-summarize --suite board_exams
-helm-server --suite board_exams
+helm-summarize --suite board_exams -o ./benchmark_output
+helm-server --suite board_exams -o ./benchmark_output --port 8000
 ```
 
 ### Classic HELM commands
@@ -131,8 +139,8 @@ After activating your environment:
 
 ```sh
 medhelm-run --run-entries mmlu:subject=philosophy,model=openai/gpt2 --suite my-suite --max-eval-instances 10
-helm-summarize --suite my-suite
-helm-server --suite my-suite
+helm-summarize --suite my-suite -o ./benchmark_output
+helm-server --suite my-suite -o ./benchmark_output --port 8000
 ```
 
 ## Quick Start (summary)

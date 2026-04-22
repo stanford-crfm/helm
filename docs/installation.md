@@ -35,6 +35,14 @@ source .venv/bin/activate
 
 Choose one of the following tiers depending on which scenarios you want to run. After activating your environment, use `pip` for installation (it handles legacy packages better than uv).
 
+### Install from this repository (recommended if you cloned the repo)
+
+If you cloned the MedHELM repository and want to run using the checked-out source:
+
+```bash
+uv pip install -e .
+```
+
 ### Standard (recommended to start)
 
 Scenarios: **PubMedQA**, **MedCalc-Bench**, **MedicationQA**, **MedHallu**.

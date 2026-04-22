@@ -10,7 +10,7 @@ Documentation on [medhelm.org](https://medhelm.org) covers the full workflow. Su
 
 | Tier | Install | Scenarios |
 |------|--------|-----------|
-| **Standard** | `pip install medhelm` or `uv pip install medhelm` | PubMedQA, MedCalc-Bench, MedicationQA, MedHallu |
+| **Standard** | `uv pip install -e .` (repo) or `pip install medhelm` / `uv pip install medhelm` (PyPI) | PubMedQA, MedCalc-Bench, MedicationQA, MedHallu |
 | **Summarization** (Clinical NLP tier) | `pip install "medhelm[summarization]"` | DischargeMe, ACI-Bench, Patient-Edu (install may take 2–3 min; adds bert-score, rouge-score, nltk) |
 | **Gated** (licensing tier) | `pip install "medhelm[gated]"` | MedQA, MedMCQA (Google Drive; adds gdown) |
 

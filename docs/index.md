@@ -41,23 +41,27 @@ MedHELM is a public library with fewer dependencies and straightforward installa
 **Standard** (PubMedQA, MedCalc-Bench, MedicationQA, MedHallu):
 
 ```sh
-uv pip install medhelm
+# If you cloned this repository (recommended for development/contributing):
+uv pip install -e .
+
+# Or: from PyPI:
+# uv pip install medhelm
 ```
 
 **Quick test** (small model, 2 instances — runs in seconds):
 
 ```sh
 uv run medhelm-run --run-entries "pubmed_qa:model=openai/gpt2,model_deployment=huggingface/gpt2" --suite my_med_test --max-eval-instances 2
-uv run helm-summarize --suite my_med_test
-uv run helm-server --suite my_med_test
+uv run helm-summarize --suite my_med_test -o ./benchmark_output
+uv run helm-server --suite my_med_test -o ./benchmark_output --port 8000
 ```
 
 **Full example** (better quality, 10 instances):
 
 ```sh
 uv run medhelm-run --run-entries "pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" --suite my_med_test --max-eval-instances 10
-uv run helm-summarize --suite my_med_test
-uv run helm-server --suite my_med_test
+uv run helm-summarize --suite my_med_test -o ./benchmark_output
+uv run helm-server --suite my_med_test -o ./benchmark_output --port 8000
 ```
 
 Then go to <http://localhost:8000/> in your browser.

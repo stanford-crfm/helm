@@ -5,14 +5,20 @@ title: Quick Start
 
 # Quick Start
 
-MedHELM is a public Python library with fewer dependencies and straightforward installation. Install from PyPI and run benchmarks with the **uv** workflow (or use `pip` and `helm-run` if you prefer).
+MedHELM is a public Python library with fewer dependencies and straightforward installation.
+
+If you **cloned this repository**, install it in editable mode (recommended for development/contributing). If you want the **released package**, install from PyPI.
 
 ## Standard (recommended to start)
 
 Scenarios: **PubMedQA**, **MedCalc-Bench**, **MedicationQA**, **MedHallu**.
 
 ```sh
-uv pip install medhelm
+# From this repo (recommended if you cloned the repo)
+uv pip install -e .
+
+# Or: from PyPI
+# uv pip install medhelm
 ```
 
 **Quick test** (small model, 2 instances — runs in seconds):
@@ -22,8 +28,8 @@ uv run medhelm-run \
   --run-entries "pubmed_qa:model=openai/gpt2,model_deployment=huggingface/gpt2" \
   --suite my_med_test \
   --max-eval-instances 2
-uv run helm-summarize --suite my_med_test
-uv run helm-server --suite my_med_test
+uv run helm-summarize --suite my_med_test -o ./benchmark_output
+uv run helm-server --suite my_med_test -o ./benchmark_output --port 8000
 ```
 
 **Full example** (better quality, 10 instances):
@@ -33,8 +39,8 @@ uv run medhelm-run \
   --run-entries "pubmed_qa:model=qwen/qwen2.5-7b-instruct,model_deployment=huggingface/qwen2.5-7b-instruct" \
   --suite my_med_test \
   --max-eval-instances 10
-uv run helm-summarize --suite my_med_test
-uv run helm-server --suite my_med_test
+uv run helm-summarize --suite my_med_test -o ./benchmark_output
+uv run helm-server --suite my_med_test -o ./benchmark_output --port 8000
 ```
 
 Then open <http://localhost:8000/> in your browser.
@@ -85,7 +91,7 @@ uv run helm-server --suite board_exams
 
 | Tier | Install | Scenarios |
 |------|--------|-----------|
-| **Standard** | `uv pip install medhelm` | PubMedQA, MedCalc-Bench, MedicationQA, MedHallu |
+| **Standard** | `uv pip install -e .` (repo) or `uv pip install medhelm` (PyPI) | PubMedQA, MedCalc-Bench, MedicationQA, MedHallu |
 | **Summarization** | `uv pip install "medhelm[summarization]"` | DischargeMe (needs data_path), ACI-Bench, Patient-Edu (2–3 min install) |
 | **Gated** | `uv pip install "medhelm[gated]"` | MedQA, MedMCQA (Drive) |
 
