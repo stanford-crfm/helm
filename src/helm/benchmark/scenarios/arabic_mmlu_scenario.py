@@ -58,7 +58,16 @@ class ArabicMMLUScenario(Scenario):
         for split_name, dataset in dataset_splits.items():
             assert isinstance(dataset, datasets.Dataset)
             for row_index, row in enumerate(dataset):
-                input = Input(text=row["Question"])
+                # Include the Context field (reading passage) when available.
+                # Some subsets (e.g. Arabic Language (General)) and individual
+                # examples across other subsets include a context passage;
+                # rows without context have a null/empty Context field.
+                context = row.get("Context")
+                question = row["Question"]
+                if context and isinstance(context, str) and context.strip():
+                    input = Input(text=f"{context}\n\n{question}")
+                else:
+                    input = Input(text=question)
                 references: List[Reference] = []
                 correct_option_index = ord(row["Answer Key"]) - ord("A") + 1
                 for option_index in range(1, 6):
