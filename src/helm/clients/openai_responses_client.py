@@ -152,7 +152,6 @@ class OpenAIResponseClient(CachingClient):
             try:
                 cache_key = self._get_cache_key(raw_request, request)
                 helm_raw_response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-                print()
             except openai.OpenAIError as e:
                 return OpenAIClientUtils.handle_openai_error(e, request)
 
@@ -163,6 +162,14 @@ class OpenAIResponseClient(CachingClient):
             try:
                 response = Response.model_validate(helm_raw_response)
             except ValidationError as e:
+                # The Pydantic model for Response in the OpenAI SDK
+                # declares `prompt_cache_retention` as Literal["in-memory", "24h"]
+                # but the OpenAI API returns responses with "in_memory".
+                # The mismatch between the version with the hyphen and the
+                # string with the underscore causes a validation error.
+                # If we see this validation error, we work around it by setting
+                # `prompt_cache_retention` to "in-memory".
+                # See: https://github.com/openai/openai-python/issues/2883
                 if (
                     e.errors()[0]["type"] == "literal_error"
                     and e.errors()[0]["loc"] == ("prompt_cache_retention",)
@@ -171,6 +178,8 @@ class OpenAIResponseClient(CachingClient):
                 ):
                     helm_raw_response["prompt_cache_retention"] = "in-memory"
                     response = Response.model_validate(helm_raw_response)
+                else:
+                    raise e
 
             reasoning_output_parts: List[str] = []
             text_output_parts: List[str] = []
