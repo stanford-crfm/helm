@@ -41,7 +41,9 @@ def get_arabic_content_generation_spec(category: str = "all") -> RunSpec:
     metric_specs = get_basic_metric_specs([]) + [
         MetricSpec(class_name="helm.benchmark.metrics.arabic_content_generation_metric.ArabicContentGenerationMetric")
     ]
-    run_spec_name = "arabic_content_generation" if category == "all" else f"arabic_content_generation:category={category}"
+    run_spec_name = (
+        "arabic_content_generation" if category == "all" else f"arabic_content_generation:category={category}"
+    )
 
     return RunSpec(
         name=run_spec_name,
