@@ -33,32 +33,17 @@ def get_arabic_content_generation_spec(category: str, annotator_type: str = "abs
         stop_sequences=[],
     )
 
-    if annotator_type == "absolute":
-        annotator_specs = [
-            AnnotatorSpec(
-                class_name="helm.benchmark.annotation.arabic_content_generation_annotator.ArabicContentGenerationAnnotator"
-            )
-        ]
-    elif annotator_type == "relative":
-        annotator_specs = [
-            AnnotatorSpec(
-                class_name="helm.benchmark.annotation.arabic_content_generation_relative_annotator.ArabicContentGenerationRelativeAnnotator"
-            )
-        ]
-    elif annotator_type == "similarity":
-        annotator_specs = [
-            AnnotatorSpec(
-                class_name="helm.benchmark.annotation.arabic_content_generation_similarity_annotator.ArabicContentGenerationSimilarityAnnotator"
-            )
-        ]
-    else:
-        raise ValueError(f"Unknown annotator_type {annotator_type}")
+    annotator_specs = [
+        AnnotatorSpec(
+            class_name="helm.benchmark.annotation.arabic_content_generation_annotator.ArabicContentGenerationAnnotator"
+        )
+    ]
     metric_specs = get_basic_metric_specs([]) + [
         MetricSpec(class_name="helm.benchmark.metrics.arabic_content_generation_metric.ArabicContentGenerationMetric")
     ]
 
     return RunSpec(
-        name=f"arabic_content_generation:category={category},annotator_type={annotator_type}",
+        name=f"arabic_content_generation:category={category}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         annotators=annotator_specs,
