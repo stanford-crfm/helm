@@ -8,7 +8,7 @@ from helm.common.request import Request
 from helm.proxy.retry import NonRetriableException
 
 
-PROMPT_TEMPLATE = """Here is a user's request to generate a document, followed by the generated output. Grade the generated article based on the following rubric, and give it an integer score between 1 and 5 inclusive, where 1 is the worst and 5 is the best.
+PROMPT_TEMPLATE = """Here is a user's request to generate a document, followed by the model's output. Grade the model's output based on the following rubric, and give it an integer score between 1 and 5 inclusive, where 1 is the worst and 5 is the best.
 
 <rubric>
 {{RUBRIC}}
