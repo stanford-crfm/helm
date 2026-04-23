@@ -7,8 +7,34 @@ import Link from "@/components/Link";
 import Loading from "@/components/Loading";
 import Pagination from "@/components/Pagination";
 import { MagnifyingGlassIcon } from "@heroicons/react/24/solid";
+import type RunSpec from "@/types/RunSpec";
 
 const PAGE_SIZE = 100;
+
+export function filterRunSpecs(
+  runSpecs: RunSpec[],
+  searchQuery: string,
+  useRegex: boolean,
+  groupName: string | null,
+): RunSpec[] {
+  let regex: RegExp | null = null;
+  if (useRegex) {
+    try {
+      regex = new RegExp(searchQuery);
+    } catch {
+      regex = null;
+    }
+  }
+
+  return runSpecs.filter((runSpec) => {
+    const matchesQuery = regex
+      ? regex.test(runSpec.name)
+      : runSpec.name.includes(searchQuery);
+    const matchesGroup =
+      !groupName || runSpec.groups.includes(groupName);
+    return matchesQuery && matchesGroup;
+  });
+}
 
 export default function Runs() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -20,6 +46,7 @@ export default function Runs() {
   const [searchQuery, setSearchQuery] = useState<string>(
     searchParams.get("q") || "",
   );
+  const groupName = searchParams.get("group");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -40,23 +67,22 @@ export default function Runs() {
     };
     const newQuery = target.q.value;
     setSearchQuery(newQuery);
-    setSearchParams({ q: newQuery, page: "1" });
+    const nextParams: Record<string, string> = { q: newQuery, page: "1" };
+    if (groupName) {
+      nextParams.group = groupName;
+    }
+    setSearchParams(nextParams);
   };
 
   if (runSpecs === undefined) {
     return <Loading />;
   }
 
-  let regex: RegExp | null = null;
-  if (useRegex) {
-    try {
-      regex = new RegExp(searchQuery);
-    } catch {
-      regex = null;
-    }
-  }
-  const filteredRunSpecs = runSpecs.filter((runSpec) =>
-    regex ? regex.test(runSpec.name) : runSpec.name.includes(searchQuery),
+  const filteredRunSpecs = filterRunSpecs(
+    runSpecs,
+    searchQuery,
+    useRegex,
+    groupName,
   );
   const pagedRunSpecs = filteredRunSpecs.slice(
     (currentPage - 1) * PAGE_SIZE,
