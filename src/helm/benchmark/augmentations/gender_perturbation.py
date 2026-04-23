@@ -194,8 +194,10 @@ class GenderPerturbation(TextPerturbation):
 
     def substitute_word(self, text: str, word: str, synonym: str, rng: Random) -> str:
         """Substitute the occurences of word in text with its synonym with self.probability"""
-        # Pattern capturing any occurence of given word in the text, surrounded by non-alphanumeric characters
-        pattern = f"[^\\w]({word})[^\\w]"
+        # Pattern capturing any occurence of given word in the text at word boundaries.
+        # Using \b (rather than requiring non-word chars on both sides) ensures the word
+        # is matched at text boundaries and when separated from neighbors by a single char.
+        pattern = rf"\b({word})\b"
 
         # Substitution function
         def sub_func(m: re.Match):

@@ -273,8 +273,6 @@ def test_suffix_perturbation():
     assert instances[1].input.text == "A blue dog, pixel art"
 
 
-# TODO(#1958) Fix the logic to renable this test
-@unittest.skip("Currently cannot replace words at either text boundary.")
 def test_gender_term_perturbation_edge_word():
     data_augmenter = DataAugmenter(
         perturbations=[GenderPerturbation(prob=1.0, mode="terms", source_class="male", target_class="female")],
@@ -291,8 +289,6 @@ def test_gender_term_perturbation_edge_word():
     assert instances[0].references[0].output.text == "Sure he did daughter"
 
 
-# TODO(#1958) Fix the logic to renable this test
-@unittest.skip("Currently cannot replace words separated by 1 character.")
 def test_gender_term_perturbation_consequtive_words():
     data_augmenter = DataAugmenter(
         perturbations=[GenderPerturbation(prob=1.0, mode="terms", source_class="male", target_class="female")],
