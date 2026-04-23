@@ -19,7 +19,7 @@ _ARABIC_OUTPUT_MAPPING_PATTERN = "(أ|ب|ج)"
 
 
 @run_spec_function("arabic_content_generation")
-def get_arabic_content_generation_spec(category: str, annotator_type: str = "absolute") -> RunSpec:
+def get_arabic_content_generation_spec(category: str = "all") -> RunSpec:
     """EXPERIMENTAL: This run spec here may have future reverse incompatible changes."""
 
     scenario_spec = ScenarioSpec(
@@ -41,9 +41,10 @@ def get_arabic_content_generation_spec(category: str, annotator_type: str = "abs
     metric_specs = get_basic_metric_specs([]) + [
         MetricSpec(class_name="helm.benchmark.metrics.arabic_content_generation_metric.ArabicContentGenerationMetric")
     ]
+    run_spec_name = "arabic_content_generation" if category == "all" else f"arabic_content_generation:category={category}"
 
     return RunSpec(
-        name=f"arabic_content_generation:category={category}",
+        name=f"run_spec_name",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         annotators=annotator_specs,
