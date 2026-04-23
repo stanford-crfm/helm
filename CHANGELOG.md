@@ -2,9 +2,44 @@
 
 ## [Upcoming]
 
+## [v0.5.15] - 2026-04-22
+
+### Breaking Changes
+
+- The ArabicMMLU scenario will now include the context field in the inputs; previously, the context field was incorrect omitted, which made some instances unsolvable (#4218)
+
 ### Models
 
 - Add GPT-5.4, GPT-5.4 mini, and GPT-5.4 nano (#4145)
+- Add Llama 4 Maverick on Vertex AI Llama 4 API Service (#4150)
+- Add Qwen3.5 models on Together (#4152)
+- Lazily load model in HuggingFaceClient (#4172)
+- Add Gemini 3 Flash and Gemini 3.1 Flash-Lite (#4204)
+- Work around Pydantic validation error in `OpenAIResponseClient` (#4223)
+
+### Scenarios
+
+- Fix `_apply_output_mapping_pattern` returning wrong match results (#4192)
+- Release Arabic Finance scenario (#4220)
+- Fix missing context in ArabicMMLU scenario (#4218) 
+
+### Frontend
+
+- Add link to `per_instance_stats.json` on frontend (#4166) 
+
+### Framework
+
+- Suppress duplicate warnings from `truncate_sequence` (#4151)
+- Default suite to "default" in `helm-run` and `helm-summarize` (#4155)
+- Don't import PyTorch when registering run spec functions (#4221)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @atulydvv
+- @Chessing234
+- @yifanmai
 
 ## [v0.5.14] - 2026-03-26
 
@@ -1373,7 +1408,8 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.14...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.15...HEAD
+[v0.5.15]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.15
 [v0.5.14]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.14
 [v0.5.13]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.13
 [v0.5.12]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.12
