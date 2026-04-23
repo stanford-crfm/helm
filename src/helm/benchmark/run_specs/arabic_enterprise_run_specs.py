@@ -44,7 +44,7 @@ def get_arabic_content_generation_spec(category: str = "all") -> RunSpec:
     run_spec_name = "arabic_content_generation" if category == "all" else f"arabic_content_generation:category={category}"
 
     return RunSpec(
-        name=f"run_spec_name",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         annotators=annotator_specs,
