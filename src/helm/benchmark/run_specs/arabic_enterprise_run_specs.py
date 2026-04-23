@@ -199,7 +199,7 @@ def get_arabic_legal_qa() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.arabic_legal_scenario.ArabicLegalQAScenario")
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Answer the following question briefly in Modern Standard Arabic in the context of the UAE. Respond only with the answer.",
+        instructions="أجب عن السؤال القانوني التالي بإيجاز باللغة العربية الفصحى في سياق قانون دولة الإمارات العربية المتحدة. أجب بالإجابة فقط.",
         max_tokens=1000,
         stop_sequences=[],
     )
@@ -229,7 +229,7 @@ def get_arabic_legal_rag() -> RunSpec:
     scenario_spec = ScenarioSpec(class_name="helm.benchmark.scenarios.arabic_legal_scenario.ArabicLegalRAGScenario")
 
     adapter_spec = get_generation_adapter_spec(
-        instructions="Answer the following question briefly in Modern Standard Arabic in the context of the UAE. Respond only with the answer.",
+        instructions="أجب عن السؤال القانوني التالي بإيجاز باللغة العربية الفصحى في سياق قانون دولة الإمارات العربية المتحدة. أجب بالإجابة فقط.",
         max_tokens=1000,
         stop_sequences=[],
     )
