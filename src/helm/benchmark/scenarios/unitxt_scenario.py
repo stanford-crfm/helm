@@ -1,5 +1,4 @@
 from typing import List
-from datasets import load_dataset
 
 from helm.benchmark.scenarios.scenario import (
     Output,
@@ -12,10 +11,16 @@ from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     VALID_SPLIT,
 )
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    from unitxt import load_dataset
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, suggestions=["unitxt"])
 
 
 class UnitxtScenario(Scenario):
-    """Integration with Unitxt: https://unitxt.rtfd.io/"""
+    """Integration with Unitxt: https://www.unitxt.ai/"""
 
     name = "unitxt"
     description = "Unitxt Scenarios"
@@ -33,10 +38,19 @@ class UnitxtScenario(Scenario):
 
     def get_instances(self, output_path: str) -> List[Instance]:
         if len(self.kwargs) == 1 and "recipe" in self.kwargs:
-            dataset_name = self.kwargs["recipe"]
+            unitxt_dataset = load_dataset(self.kwargs["recipe"])
         else:
-            dataset_name = ",".join(f"{key}={value}" for key, value in self.kwargs.items())
-        dataset = load_dataset("unitxt/data", dataset_name, trust_remote_code=True)
+            unitxt_dataset = load_dataset(**self.kwargs)
+
+        if isinstance(unitxt_dataset, dict):
+            dataset = unitxt_dataset
+        else:
+            if "split" in self.kwargs:
+                dataset = {self.kwargs["split"]: unitxt_dataset}
+            else:
+                raise Exception(
+                    "Expected Unitxt load_dataset() to return a dict because `split` was not specified, but instead it returned a bare dataset"
+                )
 
         instances: List[Instance] = []
 

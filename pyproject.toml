@@ -120,7 +120,7 @@ mongo = [
 ]
 
 unitxt = [
-    "evaluate~=0.4.1",
+    "unitxt>=1.26.9",
 ]
 
 seahelm = [
