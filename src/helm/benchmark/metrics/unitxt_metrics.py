@@ -22,15 +22,15 @@ class UnitxtMetric(MetricInterface):
     def __init__(self, **kwargs):
         super().__init__()
         if len(kwargs) == 1 and "recipe" in kwargs:
-            dataset = load_dataset(kwargs["recipe"])
+            unitxt_dataset = load_dataset(kwargs["recipe"])
         else:
-            dataset = load_dataset(**kwargs)
+            unitxt_dataset = load_dataset(**kwargs)
 
-        if isinstance(dataset, dict):
-            self.dataset = dataset
+        if isinstance(unitxt_dataset, dict):
+            self.dataset = unitxt_dataset
         else:
             if "split" in kwargs:
-                self.dataset = {kwargs["split"]: dataset}
+                self.dataset = {kwargs["split"]: unitxt_dataset}
             else:
                 raise Exception("Expected Unitxt `load_dataset()` to return a dict because `split` was not specified")
 
