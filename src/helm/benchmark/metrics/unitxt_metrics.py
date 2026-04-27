@@ -2,15 +2,18 @@ import numbers
 import re
 from typing import Dict, List, Set
 
-from datasets import load_dataset
-import evaluate
-
 from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInstanceStats
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 from helm.common.hierarchical_logger import hwarn
+from helm.common.optional_dependencies import handle_module_not_found_error
+
+try:
+    from unitxt import load_dataset, evaluate
+except ModuleNotFoundError as e:
+    handle_module_not_found_error(e, suggestions=["unitxt"])
 
 
 class UnitxtMetric(MetricInterface):
@@ -19,10 +22,17 @@ class UnitxtMetric(MetricInterface):
     def __init__(self, **kwargs):
         super().__init__()
         if len(kwargs) == 1 and "recipe" in kwargs:
-            dataset_name = kwargs["recipe"]
+            unitxt_dataset = load_dataset(kwargs["recipe"])
         else:
-            dataset_name = ",".join(f"{key}={value}" for key, value in kwargs.items())
-        self.dataset = load_dataset("unitxt/data", dataset_name, trust_remote_code=True)
+            unitxt_dataset = load_dataset(**kwargs)
+
+        if isinstance(unitxt_dataset, dict):
+            self.dataset = unitxt_dataset
+        else:
+            if "split" in kwargs:
+                self.dataset = {kwargs["split"]: unitxt_dataset}
+            else:
+                raise Exception("Expected Unitxt `load_dataset()` to return a dict because `split` was not specified")
 
     def evaluate(
         self, scenario_state: ScenarioState, metric_service: MetricService, eval_cache_path: str, parallelism: int
@@ -42,9 +52,7 @@ class UnitxtMetric(MetricInterface):
             predictions.append(request_state.result.completions[0].text)
 
         # Compute metrics
-        evaluate_results: List[Dict] = evaluate.load("unitxt/metric").compute(
-            predictions=predictions, references=references
-        )
+        evaluate_results: List[Dict] = evaluate(predictions, self.dataset.get(unitxt_split_name))
 
         # Extract instance metrics
         non_number_instance_metric_names: Set[str] = set()
