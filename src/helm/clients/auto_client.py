@@ -7,7 +7,6 @@ from retrying import Attempt, RetryError
 from helm.benchmark.model_deployment_registry import ModelDeployment, get_model_deployment
 from helm.benchmark.tokenizer_config_registry import get_tokenizer_config
 from helm.common.file_caches.file_cache import FileCache
-from helm.common.file_caches.local_file_cache import LocalFileCache
 from helm.common.credentials_utils import provide_api_key
 from helm.common.cache_backend_config import CacheBackendConfig, CacheConfig
 from helm.common.hierarchical_logger import hlog
@@ -217,6 +216,8 @@ class AutoClient(Client):
         return self._critique_client
 
     def _get_file_cache(self, host_organization: str) -> FileCache:
+        from helm.common.file_caches.local_file_cache import LocalFileCache
+
         # Initialize `FileCache` for text-to-image model APIs
         local_file_cache_path: str = os.path.join(self.file_storage_path, "output", host_organization)
         return LocalFileCache(local_file_cache_path, file_extension="png")
