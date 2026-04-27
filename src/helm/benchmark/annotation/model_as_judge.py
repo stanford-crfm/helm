@@ -33,9 +33,12 @@ def score_with_reasoning_with_gpt_and_llama(
     # TODO: Make this configurable
     SHORT_NAME_TO_MODEL_INFO: Dict[str, AnnotatorModelInfo] = {
         "gpt": AnnotatorModelInfo(model_name="openai/gpt-4o-2024-05-13", model_deployment="openai/gpt-4o-2024-05-13"),
-        "llama": AnnotatorModelInfo(
-            model_name="meta/llama-3.1-405b-instruct-turbo", model_deployment="together/llama-3.1-405b-instruct-turbo"
-        ),
+        # NOTE: meta/llama-3.1-405b-instruct-turbo was deprecated on March 6, 2026.
+        # See: https://docs.claude.com/en/docs/about-claude/model-deprecations
+        #
+        # "llama": AnnotatorModelInfo(
+        #     model_name="meta/llama-3.1-405b-instruct-turbo", model_deployment="together/llama-3.1-405b-instruct-turbo"
+        # ),
     }
     result: Dict[str, Optional[Union[str, float]]] = {"prompt_text": annotator_prompt}
     for short_name, model_info in SHORT_NAME_TO_MODEL_INFO.items():
