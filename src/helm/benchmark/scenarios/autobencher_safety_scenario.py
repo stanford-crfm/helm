@@ -35,7 +35,8 @@ class AutobencherSafetyScenario(Scenario):
             unpack=False,
         )
 
-        json_data = json.loads(outf_path)
+        with open(outf_path) as f:
+            json_data = json.load(f)
         df = pd.DataFrame(json_data)
 
         # Read all the instances
