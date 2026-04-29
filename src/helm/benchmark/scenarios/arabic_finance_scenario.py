@@ -47,7 +47,7 @@ class ArabicFinanceScenario(Scenario):
             "finance",
             cache_dir=cache_dir,
             split="test",
-            # TODO: Set revision
+            revision="35e114eda2e3450e0e69cf6bda9d3a2f54bf6f26",
         )
         assert isinstance(dataset, datasets.Dataset)
 
