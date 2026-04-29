@@ -160,7 +160,7 @@ run_groups:
 
   - name: arabic_content_generation
     display_name: Content Generation
-    description: Content Generation
+    description: Given summaries of from real news articles, the LLM is prompted to generate new articles in a corporate style. The generated articles are then graded by an LLM-as-judge for faithfulness, completeness, and style adherence.
     metric_groups:
       - accuracy
       - efficiency
@@ -169,15 +169,15 @@ run_groups:
       main_name: arabic_content_generation_score
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "2025"
+      task: content generation
+      what: news articles and press releases
+      who: journalists and communciations professionals
+      when: "before 2026"
       language: Arabic
 
   - name: arabic_finance_calculation
     display_name: Finance Calculation
-    description: Finance Calculation
+    description: Given questions from English language finance textbooks that have been translated to Arabic using machine translation, the LLM is prompted to answer the questions. In the calculation setting, the LLM must perform mathematical calculations to produce a numeric answer.
     metric_groups:
       - accuracy
       - efficiency
@@ -186,15 +186,15 @@ run_groups:
       main_name: calculation_accuracy
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "2025"
-      language: English
+      task: calculation
+      what: finance questions
+      who: finance professionals
+      when: "before 2026"
+      language: Arabic
 
   - name: arabic_finance_mcq
     display_name: Finance MCQ
-    description: Finance MCQ
+    description: Given questions from English language finance textbooks that have been translated to Arabic using machine translation, the LLM is prompted to answer the questions. In the MCQ setting, the LLM must choose between three possible choices.
     metric_groups:
       - accuracy
       - efficiency
@@ -203,15 +203,15 @@ run_groups:
       main_name: exact_match
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "2025"
-      language: English
+      task: multiple-choice question answering
+      what: finance questions
+      who: finance professionals
+      when: "before 2026"
+      language: Arabic
 
   - name: arabic_finance_bool
     display_name: Finance Bool
-    description: Finance Bool
+    description:  Given questions from English language finance textbooks that have been translated to Arabic using machine translation, the LLM is prompted to answer the questions. In the MCQ setting, the LLM must choose between threepossible choices. In the boolean setting, the LLM must decide if a given statement is true or false.
     metric_groups:
       - accuracy
       - efficiency
@@ -220,15 +220,15 @@ run_groups:
       main_name: quasi_exact_match
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "2025"
-      language: English
+      task: boolean question answering
+      what: finance questions
+      who: finance professionals
+      when: "before 2026"
+      language: Arabic
 
   - name: arabic_legal_qa
     display_name: Legal QA
-    description: Legal QA
+    description: Given open-ended questions written by Arabic legal experts, the LLM is prompted to respond with short answers to the questions. In the QA setting, the LLM is not provided with the relevant legal statute, and must answer relying only on its domain knowledge.
     metric_groups:
       - accuracy
       - efficiency
@@ -237,15 +237,15 @@ run_groups:
       main_name: model_judged_score
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "2025"
-      language: English
+      task: context-based question answering
+      what: legal questions
+      who: legal professionals
+      when: "before 2026"
+      language: Arabic
 
   - name: arabic_legal_rag
     display_name: Legal RAG
-    description: Legal RAG
+    description: Given open-ended questions written by Arabic legal experts, the LLM is prompted to respond with short answers to the questions. In the RAG setting, the LLM is also               provided with the relevant legal statute in the prompt.
     metric_groups:
       - accuracy
       - efficiency
@@ -254,8 +254,8 @@ run_groups:
       main_name: model_judged_score
       main_split: test
     taxonomy:
-      task: "?"
-      what: "?"
-      who: "?"
-      when: "2025"
-      language: English
+      task: knowledge-based question answering
+      what: legal questions
+      who: legal professionals
+      when: "before 2026"
+      language: Arabic
