@@ -36,11 +36,11 @@ class ArabicLegalScenario(Scenario):
         cache_dir = os.path.join(output_path, "data")
         ensure_directory_exists(cache_dir)
         dataset = datasets.load_dataset(
-            "yifanmai/arabic-enterprise",
+            "stanford-crfm/arabic-enterprise",
             "legal",
             cache_dir=cache_dir,
             split="test",
-            # TODO: Set revision
+            revision="35e114eda2e3450e0e69cf6bda9d3a2f54bf6f26",
         )
         assert isinstance(dataset, datasets.Dataset)
 
