@@ -2,6 +2,31 @@
 
 ## [Upcoming]
 
+## [v0.5.16] - 2026-04-29
+
+### Breaking Changes
+
+- `meta/llama-3.1-405b-instruct-turbo` will no longer be used as a LLM-as-judge in Omni-MATH, WildBench, HarmBench, XSTest, and Anthropic Red Team scenarios due to deprecation by Together AI (#4233)
+
+### Models
+
+- Deprecate `meta/llama-3.1-405b-instruct-turbo` (#4233)
+
+### Scenarios
+
+- Release Arabic Legal scenario (#4226, #4236, #4237)
+- Release Arabic Content Generation scenario (#4224, #4229, #4236, #4237)
+- Migrate Unitxt integration to use new Unitxt API (#4234)
+- Remove `meta/llama-3.1-405b-instruct-turbo` from annotators (#4233)
+- Fix AutobencherSafetyScenario parsing the file path string as JSON (#4206)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @Chessing234
+- @yifanmai
+
 ## [v0.5.15] - 2026-04-22
 
 ### Breaking Changes
@@ -1408,7 +1433,8 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.15...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.16...HEAD
+[v0.5.15]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.16
 [v0.5.15]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.15
 [v0.5.14]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.14
 [v0.5.13]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.13
