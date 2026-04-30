@@ -29,7 +29,7 @@ def get_arabic_content_generation_spec(category: str = "all") -> RunSpec:
 
     adapter_spec = get_generation_adapter_spec(
         instructions="Given the following lists of facts and style features, generate a professional business article in Modern Standard Arabic. Use all of the provided facts. Use only the provided facts, and do not introduce new facts. Respond only with the article.",
-        max_tokens=1000,
+        max_tokens=2000,
         stop_sequences=[],
     )
 
