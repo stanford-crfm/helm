@@ -421,6 +421,18 @@ metrics:
     description: Comparison based on category. Exact match for categories risk, severity and diagnosis. Check if within range for the other categories.
     lower_is_better: false
 
+  - name: sct_score
+    display_name: SCT Score
+    short_display_name: SCT Score
+    description: Average normalized expert panel weight for the model's chosen rating. Higher means better agreement with clinical experts.
+    lower_is_better: false
+
+  - name: sct_expert_set_membership
+    display_name: Expert Set Membership
+    short_display_name: Expert Set %
+    description: Percentage of model responses that fall within the expert agreement region (non-zero expert weight).
+    lower_is_better: false
+
 ############################################################
 perturbations: []
 
@@ -489,6 +501,7 @@ run_groups:
       - medalign
       - shc_ptbm_med
       - shc_sei_med
+      - sct_bench
 
   - name: clinical_note_generation
     display_name: Clinical Note Generation
@@ -538,6 +551,23 @@ run_groups:
       - shc_sequoia_med
       - shc_cdi_med
       - shc_ent_med
+
+  - name: sct_bench
+    display_name: SCT-Bench
+    description: SCT-Bench evaluates clinical reasoning under uncertainty using Script Concordance Tests (SCTs). Models rate the impact of new clinical information on diagnostic or treatment hypotheses on a -2 to +2 scale and are scored against an expert clinician panel distribution ([SCT-Bench](https://github.com/SCT-Bench/sctpublic)).
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: sct_score
+      main_split: test
+    taxonomy:
+      task: clinical reasoning
+      what: Rate impact of new clinical information on diagnostic/treatment hypotheses
+      who: Clinician
+      when: Any
+      language: English
 
   - name: medcalc_bench
     display_name: MedCalc-Bench

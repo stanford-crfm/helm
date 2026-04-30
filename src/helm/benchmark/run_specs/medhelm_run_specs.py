@@ -91,6 +91,45 @@ def get_medhelm_configurable_benchmark_spec(config_path: str) -> RunSpec:
     )
 
 
+@run_spec_function("sct_bench")
+def get_sct_bench_spec(reason: bool = False, few_shot: bool = False) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.sct_bench_scenario.SCTBenchScenario",
+        args={"reason": reason, "few_shot": few_shot},
+    )
+
+    adapter_spec = get_generation_adapter_spec(
+        instructions="",
+        input_noun=None,
+        output_noun=None,
+        max_tokens=200,
+        max_train_instances=0,
+        stop_sequences=[],
+    )
+
+    metric_specs = [
+        MetricSpec(
+            class_name="helm.benchmark.metrics.sct_bench_metrics.SCTBenchMetric",
+            args={},
+        )
+    ] + get_basic_metric_specs([])
+
+    parts = []
+    if reason:
+        parts.append("reason=True")
+    if few_shot:
+        parts.append("few_shot=True")
+    run_spec_name = "sct_bench" if not parts else f"sct_bench:{','.join(parts)}"
+
+    return RunSpec(
+        name=run_spec_name,
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["sct_bench"],
+    )
+
+
 @run_spec_function("medcalc_bench")
 def get_medcalc_bench_spec(version: Optional[str] = None) -> RunSpec:
 
