@@ -10,7 +10,7 @@
     <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/stanford-crfm/helm">
 </a>
 <a href="https://github.com/stanford-crfm/helm/actions/workflows/test.yml?query=branch%3Amain">
-    <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/stanford-crfm/helm/test.yml">
+    <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/stanford-crfm/helm/test-python.yml">
 </a>
 <a href="https://crfm-helm.readthedocs.io/en/latest/">
     <img alt="Documentation Status" src="https://readthedocs.org/projects/helm/badge/?version=latest">
