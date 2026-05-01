@@ -50,6 +50,7 @@ nav:
     - reproducing_leaderboards.md
     - benchmark.md
     - huggingface_models.md
+    - maintenance_mode.md
   - Papers:
     - heim.md
     - vhelm.md
