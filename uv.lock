@@ -1748,7 +1748,7 @@ requires-dist = [
     { name = "omegaconf", marker = "extra == 'heim'", specifier = "~=2.3" },
     { name = "open-clip-torch", marker = "extra == 'vlm'", specifier = "~=2.24" },
     { name = "openai", marker = "extra == 'openai'", specifier = "~=2.8" },
-    { name = "openai-whisper", marker = "extra == 'audiolm'", specifier = "==20240930" },
+    { name = "openai-whisper", marker = "extra == 'audiolm'", specifier = ">=20240930" },
     { name = "opencc", marker = "extra == 'cleva'", specifier = "~=1.1" },
     { name = "opencv-python", marker = "python_full_version >= '3.10' and extra == 'heim'", specifier = ">=4.7.0.68,<4.8.2.0" },
     { name = "opencv-python-headless", marker = "python_full_version < '3.10' and extra == 'heim'", specifier = ">=4.7.0.68,<=4.11.0.86" },

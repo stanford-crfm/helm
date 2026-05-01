@@ -348,7 +348,7 @@ audiolm = [
     "einops~=0.7.0",
 
     # For LLaMA-Omni
-    "openai-whisper==20240930",
+    "openai-whisper>=20240930",
 
     # For Qwen2.5-Omni
     "transformers_stream_generator~=0.0.4",
