@@ -1439,27 +1439,6 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
 
-  # Gemma 3 tokenizer requires protobuf, which is provided by the google extra
-  - name: together/gemma-3n-e4b-it
-    model_name: google/gemma-3n-e4b-it
-    tokenizer_name: google/gemma-3n-e4b-it
-    max_sequence_length: 8191
-    client_spec:
-      class_name: "helm.clients.together_client.TogetherClient"
-      args:
-        together_model: google/gemma-3n-E4B-it
-
-  # Gemma 4 Tokenizer requires transformers>=5.5
-  # See: https://github.com/huggingface/transformers/issues/45376
-  - name: together/gemma-4-31b-it
-    model_name: google/gemma-4-31b-it
-    tokenizer_name: google/gemma-4-31b-it
-    max_sequence_length: 8191
-    client_spec:
-      class_name: "helm.clients.together_client.TogetherClient"
-      args:
-        together_model: google/gemma-4-31B-it
-
   ## MedLM
   - name: google/medlm-medium
     model_name: google/medlm-medium
@@ -3232,8 +3211,6 @@ model_deployments:
     max_sequence_length: 131072
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
-      args:
-        reasoning_effort: none
 
   - name: together/gpt-oss-120b
     model_name: openai/gpt-oss-120b
@@ -3242,8 +3219,6 @@ model_deployments:
     max_sequence_length: 131072
     client_spec:
       class_name: "helm.clients.together_client.TogetherChatClient"
-      args:
-        reasoning_effort: none
 
   ## Text Similarity Models
   # OpenAI similarity embedding models: https://beta.openai.com/docs/guides/embeddings

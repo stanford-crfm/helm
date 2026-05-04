@@ -452,7 +452,6 @@ class TogetherChatClient(CachingClient):
                 raw_chat_request["reasoning"] = {"enabled": False}
             else:
                 raw_chat_request["reasoning_effort"] = self._reasoning_effort
-        # print(raw_chat_request)
         return raw_chat_request
 
     def make_request(self, request: Request) -> RequestResult:
@@ -475,7 +474,6 @@ class TogetherChatClient(CachingClient):
                 completions=[],
                 embedding=[],
             )
-        # print(raw_response)
 
         generated_outputs: List[GeneratedOutput] = []
         for choice in response.choices:
