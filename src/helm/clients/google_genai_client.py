@@ -238,6 +238,7 @@ class GoogleGenAIClient(CachingClient):
             response: GenerateContentResponse = self.client.models.generate_content(
                 model=model_name, contents=contents, config=generate_content_config  # type: ignore
             )
+            hlog(f"Raw response for model={model_name}: {response}")
             return response.model_dump()
 
         cache_key_contents = (
