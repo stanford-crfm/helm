@@ -368,6 +368,8 @@ class TogetherRawChatRequest(TypedDict):
     echo: bool
     n: int
     response_format: NotRequired[Dict[str, Any]]
+    reasoning: NotRequired[Dict[str, Any]]
+    reasoning_effort: NotRequired[str]
 
 
 class TogetherChatClient(CachingClient):
@@ -381,12 +383,14 @@ class TogetherChatClient(CachingClient):
         disable_logprobs: Optional[bool] = None,
         output_processor: Optional[str] = None,
         parse_thinking: Optional[bool] = None,
+        reasoning_effort: Optional[str] = None,
     ):
         super().__init__(cache_config=cache_config)
         self._client = Together(api_key=api_key)
         self._together_model = together_model
         self._disable_logprobs = bool(disable_logprobs)
         self._parse_thinking = bool(parse_thinking)
+        self._reasoning_effort = reasoning_effort
         # self.output_processor is actually a function, not a class
         self.output_processor: Optional[Callable[[str], str]] = (
             get_class_by_name(output_processor) if output_processor else None
@@ -443,6 +447,12 @@ class TogetherChatClient(CachingClient):
                 "type": "json_object",
                 "schema": request.response_format.json_schema,
             }
+        if self._reasoning_effort:
+            if self._reasoning_effort == "none":
+                raw_chat_request["reasoning"] = {"enabled": False}
+            else:
+                raw_chat_request["reasoning_effort"] = self._reasoning_effort
+        # print(raw_chat_request)
         return raw_chat_request
 
     def make_request(self, request: Request) -> RequestResult:
@@ -465,6 +475,7 @@ class TogetherChatClient(CachingClient):
                 completions=[],
                 embedding=[],
             )
+        # print(raw_response)
 
         generated_outputs: List[GeneratedOutput] = []
         for choice in response.choices:

@@ -3959,9 +3959,27 @@ models:
     release_date: 2026-02-15
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: qwen/qwen3.5-397b-a17b-thinking-disabled
+    display_name: Qwen3.5 397B A17B
+    description: Qwen3.5 397B A17B uses a hybrid architecture that fuses linear attention (via Gated Delta Networks) with a sparse mixture-of-experts. This model was run with thinking disabled. ([blog](https://qwen.ai/blog?id=qwen3.5))
+    creator_organization_name: Qwen
+    access: open
+    num_parameters: 403000000000
+    release_date: 2026-02-15
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: qwen/qwen3.5-9b
     display_name: Qwen3.5 9B
     description: Qwen3.5 9B A17B uses a hybrid architecture that fuses linear attention (via Gated Delta Networks) with a sparse mixture-of-experts. ([blog](https://qwen.ai/blog?id=qwen3.5))
+    creator_organization_name: Qwen
+    access: open
+    num_parameters: 10000000000
+    release_date: 2026-03-02  # Source: https://github.com/QwenLM/Qwen3.5/blob/7e103aebdbff11c98cc1cd6a2a568988cfd38168/README.md
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: qwen/qwen3.5-9b-thinking-disabled
+    display_name: Qwen3.5 9B
+    description: Qwen3.5 9B A17B uses a hybrid architecture that fuses linear attention (via Gated Delta Networks) with a sparse mixture-of-experts. This model was run with thinking disabled. ([blog](https://qwen.ai/blog?id=qwen3.5))
     creator_organization_name: Qwen
     access: open
     num_parameters: 10000000000
