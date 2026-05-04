@@ -5,7 +5,7 @@ from typing import Any, Dict, List, Optional, Union
 
 from helm.clients.openai_client import OpenAIClientUtils
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import hwarn
+from helm.common.hierarchical_logger import hlog, hwarn
 from helm.common.media_object import TEXT_TYPE
 from helm.common.request import (
     Thinking,
@@ -152,6 +152,7 @@ class OpenAIResponseClient(CachingClient):
 
             def do_it() -> Dict[str, Any]:
                 raw_response = self.client.responses.create(**raw_request).model_dump(mode="json")
+                hlog(f"Raw response for model={raw_request.get('model')}: {raw_response}")
                 assert not raw_response.get("error", None), f"Error in response: {raw_response}"
                 return raw_response
 
