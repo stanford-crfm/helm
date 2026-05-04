@@ -1447,6 +1447,14 @@ models:
     release_date: 2025-09-25
     tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
 
+  - name: google/gemini-robotics-er-1.6-preview
+    display_name: Gemini Robotics-ER 1.6
+    description: Gemini Robotics-ER 1.6 is Google DeepMind's next-generation vision-language model (VLM) for embodied reasoning, with improved spatial understanding, task planning, and real-world action grounding for robotics. ([blog post](https://deepmind.google/blog/gemini-robotics-er-1-6/))
+    creator_organization_name: Google
+    access: limited
+    release_date: 2026-04-14
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, GOOGLE_GEMINI_MODEL_TAG, CAN_PROCESS_VIDEO_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
   - name: google/gemma-2b
     display_name: Gemma (2B)
     description: Gemma is a family of lightweight, open models built from the research and technology that Google used to create the Gemini models. ([model card](https://www.kaggle.com/models/google/gemma), [blog post](https://blog.google/technology/developers/gemma-open-models/))

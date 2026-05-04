@@ -1246,6 +1246,15 @@ model_deployments:
       args:
         genai_use_vertexai: False
 
+  - name: google/gemini-robotics-er-1.6-preview
+    model_name: google/gemini-robotics-er-1.6-preview  # Source: https://ai.google.dev/gemini-api/docs/models/gemini-robotics-er-1.6-preview
+    tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
+    max_sequence_length: 1048576  # Source: https://ai.google.dev/gemini-api/docs/models/gemini-robotics-er-1.6-preview
+    client_spec:
+      class_name: "helm.clients.google_genai_client.GoogleGenAIClient"
+      args:
+        genai_use_vertexai: False
+
   - name: google/gemini-1.5-flash-8b-001
     model_name: google/gemini-1.5-flash-8b-001
     tokenizer_name: google/gemma-2b  # Gemini has no tokenizer endpoint, so we approximate by using Gemma's tokenizer.
