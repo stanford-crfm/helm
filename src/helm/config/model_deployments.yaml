@@ -1458,7 +1458,6 @@ model_deployments:
         together_model: google/gemma-3n-E4B-it
         reasoning_effort: none
 
-
   # Gemma 4 tokenizer requires protobuf, which is provided by the google extra
   # Gemma 4 Tokenizer requires transformers>=5.5
   # See: https://github.com/huggingface/transformers/issues/45376
@@ -1471,6 +1470,9 @@ model_deployments:
       args:
         together_model: google/gemma-4-31B-it
 
+  # Gemma 4 tokenizer requires protobuf, which is provided by the google extra
+  # Gemma 4 Tokenizer requires transformers>=5.5
+  # See: https://github.com/huggingface/transformers/issues/45376
   - name: together/gemma-4-31b-it-thinking-disabled
     model_name: google/gemma-4-31b-it-thinking-disabled
     tokenizer_name: google/gemma-4-31b-it
