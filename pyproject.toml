@@ -179,7 +179,7 @@ google = [
 ]
 
 together = [
-    "together~=1.1",
+    "together>=1.1,<3.0",
 ]
 
 yandex = [
