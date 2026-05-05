@@ -1800,7 +1800,7 @@ requires-dist = [
     { name = "tensorflow", marker = "extra == 'heim'", specifier = "~=2.11" },
     { name = "tiktoken", marker = "extra == 'openai'", specifier = "~=0.7" },
     { name = "timm", marker = "extra == 'heim'", specifier = "~=0.6.12" },
-    { name = "together", marker = "extra == 'together'", specifier = "~=1.1" },
+    { name = "together", marker = "extra == 'together'", specifier = ">=1.1,<3.0" },
     { name = "tokenizers", marker = "extra == 'aleph-alpha'", specifier = ">=0.13.3" },
     { name = "torch", specifier = ">=1.13.1,<3.0.0" },
     { name = "torch", marker = "extra == 'vlm'", specifier = "~=2.1" },
