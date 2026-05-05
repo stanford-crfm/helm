@@ -1439,6 +1439,49 @@ model_deployments:
     client_spec:
       class_name: "helm.clients.together_client.TogetherClient"
 
+  - name: together/gemma-3n-e4b-it
+    model_name: google/gemma-3n-e4b-it
+    tokenizer_name: google/gemma-3n-e4b-it
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        together_model: google/gemma-3n-E4B-it
+
+  - name: together/gemma-3n-e4b-it-thinking-disabled
+    model_name: google/gemma-3n-e4b-it-thinking-disabled
+    tokenizer_name: google/gemma-3n-e4b-it
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        together_model: google/gemma-3n-E4B-it
+        reasoning_effort: none
+
+
+  # Gemma 4 tokenizer requires protobuf, which is provided by the google extra
+  # Gemma 4 Tokenizer requires transformers>=5.5
+  # See: https://github.com/huggingface/transformers/issues/45376
+  - name: together/gemma-4-31b-it
+    model_name: google/gemma-4-31b-it
+    tokenizer_name: google/gemma-4-31b-it
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        together_model: google/gemma-4-31B-it
+
+  - name: together/gemma-4-31b-it-thinking-disabled
+    model_name: google/gemma-4-31b-it-thinking-disabled
+    tokenizer_name: google/gemma-4-31b-it
+    max_sequence_length: 8191
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        together_model: google/gemma-4-31B-it
+        reasoning_effort: none
+
+
   ## MedLM
   - name: google/medlm-medium
     model_name: google/medlm-medium

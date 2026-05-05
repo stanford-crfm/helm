@@ -265,6 +265,19 @@ tokenizer_configs:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
     end_of_text_token: "<eos>"
     prefix_token: "<bos>"
+    # Gemma 3 tokenizer requires protobuf, which is provided by the google extra
+  - name: google/gemma-3n-e4b-it
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<eos>"
+    prefix_token: "<bos>"
+    # Gemma 4 Tokenizer requires transformers>=5.5
+    # See: https://github.com/huggingface/transformers/issues/45376
+  - name: google/gemma-4-31b-it
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<turn|>"
+    prefix_token: "<|turn>"
   - name: google/medgemma-4b-it
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
