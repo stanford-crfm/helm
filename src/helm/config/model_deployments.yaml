@@ -993,6 +993,27 @@ model_deployments:
         # The model name is case sensitive on Together AI for this model
         together_model: deepseek-ai/DeepSeek-V3.1
 
+  - name: together/deepseek-v4-pro
+    model_name: deepseek-ai/deepseek-v4-pro
+    tokenizer_name: deepseek-ai/deepseek-v4-pro
+    max_sequence_length: 512000
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        # The model name is case sensitive on Together AI for this model
+        together_model: deepseek-ai/DeepSeek-V4-Pro
+
+  - name: together/deepseek-v4-pro-thinking-disabled
+    model_name: deepseek-ai/deepseek-v4-pro-thinking-disabled
+    tokenizer_name: deepseek-ai/deepseek-v4-pro
+    max_sequence_length: 512000
+    client_spec:
+      class_name: "helm.clients.together_client.TogetherChatClient"
+      args:
+        # The model name is case sensitive on Together AI for this model
+        together_model: deepseek-ai/DeepSeek-V4-Pro
+        reasoning_effort: none
+
   - name: together/deepseek-r1-0528
     model_name: deepseek-ai/deepseek-r1-0528
     tokenizer_name: deepseek-ai/deepseek-r1

@@ -191,6 +191,12 @@ tokenizer_configs:
     end_of_text_token: "<｜end▁of▁sentence｜>"
     prefix_token: "<｜begin▁of▁sentence｜>"
 
+  - name: deepseek-ai/deepseek-v4-pro
+    tokenizer_spec:
+      class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
+    end_of_text_token: "<｜end▁of▁sentence｜>"
+    prefix_token: "<｜begin▁of▁sentence｜>"
+
   - name: deepseek-ai/deepseek-r1
     tokenizer_spec:
       class_name: "helm.tokenizers.huggingface_tokenizer.HuggingFaceTokenizer"
