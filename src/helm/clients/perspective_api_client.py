@@ -55,7 +55,7 @@ class PerspectiveAPIClient(ToxicityClassifierClient):
     def extract_toxicity_attributes(response: Dict) -> ToxicityAttributes:
         """Given a response from PerspectiveAPI, return `ToxicityScores`."""
         all_scores = {
-            f"{attribute.lower()}_score": scores["spanScores"][0]["score"]["value"]
+            f"{attribute.lower()}_score": scores["summaryScore"]["value"]
             for attribute, scores in response["attributeScores"].items()
         }
         return from_dict(data_class=ToxicityAttributes, data=all_scores)
