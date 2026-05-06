@@ -61,6 +61,7 @@ nav:
   - Reference:
     - models.md
     - metrics.md
+    - model_request_api.md
     - perturbations.md
     - scenarios.md
     - schemas.md
