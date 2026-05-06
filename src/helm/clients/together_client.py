@@ -18,7 +18,6 @@ from helm.clients.client import CachingClient, truncate_sequence, cleanup_str
 
 try:
     from together import Together
-    from together.types import ChatCompletionResponse, CompletionResponse
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["together"])
 
@@ -459,37 +458,30 @@ class TogetherChatClient(CachingClient):
         cache_key = CachingClient.make_cache_key(raw_request, request)
 
         def do_it() -> Dict[Any, Any]:
-            response = self._client.chat.completions.create(**raw_request)
-            return response.model_dump(mode="json")
+            return self._client.chat.completions.create(**raw_request).model_dump(mode="json")
 
-        try:
-            raw_response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-            response = ChatCompletionResponse.model_validate(raw_response)
-        except Exception as error:
-            hexception(error)
-            return RequestResult(
-                success=False,
-                cached=False,
-                error=str(error),
-                completions=[],
-                embedding=[],
-            )
+        # Previously, we converted the raw response into the Pydantic model
+        # using CompletionResponse.model_validate() for type safety.
+        # We stopped doing this because model validation is brittle.
+        # Validation can fail due to breaking changes in the Pydantic schema
+        # or schema errors in the API.
+        response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
 
         generated_outputs: List[GeneratedOutput] = []
-        for choice in response.choices:
+        for choice in response["choices"]:
             # NOTE: Together always returns None for choice.finish_reason
             # NOTE: Together does not return logprobs for the whole generated output, only for individual tokens
             tokens: List[Token] = []
-            if choice.logprobs:
+            if choice["logprobs"]:
                 for token_text, token_logprob in zip_longest(
-                    choice.logprobs.tokens or [], choice.logprobs.token_logprobs or []
+                    choice["logprobs"]["tokens"] or [], choice["logprobs"]["token_logprobs"] or []
                 ):
                     if token_text is None:
                         break
                     tokens.append(Token(text=token_text, logprob=token_logprob or 0.0))
             logprob = sum([token.logprob for token in tokens]) if tokens else 0.0
-            assert choice.message.role == "assistant"
-            output_text = choice.message.content
+            assert choice["message"]["role"] == "assistant"
+            output_text = choice["message"]["content"]
             if self.output_processor:
                 output_text = self.output_processor(output_text)
 
@@ -497,18 +489,18 @@ class TogetherChatClient(CachingClient):
             if self._parse_thinking:
                 thinking_text, output_text = _parse_thinking(output_text, request.model)
                 thinking = Thinking(text=thinking_text)
-            elif hasattr(choice.message, "reasoning_content") and choice.message.reasoning_content is not None:
-                thinking = Thinking(text=choice.message.reasoning_content)
-            elif hasattr(choice.message, "reasoning") and choice.message.reasoning is not None:
-                thinking = Thinking(text=choice.message.reasoning)
+            elif hasattr(choice["message"], "reasoning_content") and choice["message"]["reasoning_content"] is not None:
+                thinking = Thinking(text=choice["message"]["reasoning_content"])
+            elif hasattr(choice["message"], "reasoning") and choice["message"]["reasoning"] is not None:
+                thinking = Thinking(text=choice["message"]["reasoning"])
             generated_outputs.append(
                 GeneratedOutput(text=output_text, logprob=logprob, tokens=tokens, thinking=thinking)
             )
         return RequestResult(
             success=True,
             cached=cached,
-            request_time=raw_response["request_time"],
-            request_datetime=raw_response["request_datetime"],
+            request_time=response["request_time"],
+            request_datetime=response["request_datetime"],
             completions=generated_outputs,
             embedding=[],
         )
@@ -569,12 +561,15 @@ class TogetherCompletionClient(CachingClient):
         cache_key = CachingClient.make_cache_key(raw_request, request)
 
         def do_it() -> Dict[Any, Any]:
-            response = self._client.completions.create(**raw_request)
-            return response.model_dump(mode="json")
+            return self._client.completions.create(**raw_request).model_dump(mode="json")
 
         try:
-            raw_response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-            response = CompletionResponse.model_validate(raw_response)
+            # Previously, we converted the raw response into the Pydantic model
+            # using ChatCompletionResponse.model_validate() for type safety.
+            # We stopped doing this because model validation is brittle.
+            # Validation can fail due to breaking changes in the Pydantic schema
+            # or schema errors in the API.
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except Exception as error:
             hexception(error)
             return RequestResult(
@@ -586,25 +581,25 @@ class TogetherCompletionClient(CachingClient):
             )
 
         generated_outputs: List[GeneratedOutput] = []
-        for choice in response.choices:
+        for choice in response["choices"]:
             # NOTE: Together always returns None for choice.finish_reason
             # NOTE: Together does not return logprobs for the whole generated output, only for individual tokens
             tokens: List[Token] = []
-            if choice.logprobs:
+            if choice["logprobs"]:
                 for token_text, token_logprob in zip_longest(
-                    choice.logprobs.tokens or [], choice.logprobs.token_logprobs or []
+                    choice["logprobs"]["tokens"] or [], choice["logprobs"]["token_logprobs"] or []
                 ):
                     if token_text is None:
                         break
                     tokens.append(Token(text=token_text, logprob=token_logprob or 0.0))
             logprob = sum([token.logprob for token in tokens]) if tokens else 0.0
             assert choice.text
-            generated_outputs.append(GeneratedOutput(text=choice.text, logprob=logprob, tokens=tokens))
+            generated_outputs.append(GeneratedOutput(text=choice["text"], logprob=logprob, tokens=tokens))
         return RequestResult(
             success=True,
             cached=cached,
-            request_time=raw_response["request_time"],
-            request_datetime=raw_response["request_datetime"],
+            request_time=response["request_time"],
+            request_datetime=response["request_datetime"],
             completions=generated_outputs,
             embedding=[],
         )
