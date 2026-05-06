@@ -188,7 +188,7 @@ class OpenAIResponseClient(CachingClient):
                                 error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
                             )
                 else:
-                    raise ValueError(f"Unknown output type {output["type"]}")
+                    raise ValueError(f"Unknown output type {output['type']}")
 
             thinking = Thinking(text="\n\n".join(reasoning_output_parts)) if reasoning_output_parts else None
             text_output = "\n\n".join(text_output_parts)
