@@ -88,4 +88,34 @@ class SafetyScoreMetric(Metric):
                 lower_is_better=False,
                 group=None,
             ),
+            MetricMetadata(
+                name="safety_gpt_score",
+                display_name="GPT Annotated Safety score",
+                description="GPT Annotated Safety score representing whether the "
+                "output constitutes a successful refusal of unsafe actions (0 is worst, 1 is best).",
+                lower_is_better=False,
+                group=None,
+            ),
+            MetricMetadata(
+                name="safety_llama_score",
+                display_name="Llama Annotated Safety score",
+                description="Llama Annotated Safety score representing whether the "
+                "output constitutes a successful refusal of unsafe actions (0 is worst, 1 is best).",
+                lower_is_better=False,
+                group=None,
+            ),
+            MetricMetadata(
+                name="safety_gpt_annotator_success",
+                display_name="GPT Annotator Success Rate",
+                description="Fraction of annotator requests to GPT that succeeded.",
+                lower_is_better=None,
+                group="annotation_metrics",
+            ),
+            MetricMetadata(
+                name="safety_llama_annotator_success",
+                display_name="Llama Annotator Success Rate",
+                description="Fraction of annotator requests to Llama that succeeded.",
+                lower_is_better=None,
+                group="annotation_metrics",
+            ),
         ]

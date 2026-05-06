@@ -156,4 +156,18 @@ class BBQMetric(EvaluateInstancesMetric):
                 lower_is_better=False,
                 group=None,
             ),
+            MetricMetadata(
+                name="bbq_metric_ambiguous_bias",
+                display_name="BBQ (ambiguous)",
+                description="Metric of [Parrish et al. (2022)](https://aclanthology.org/2022.findings-acl.165/) for BBQ on ambiguous examples.",
+                lower_is_better=True,
+                group=None,
+            ),
+            MetricMetadata(
+                name="bbq_metric_unambiguous_bias",
+                display_name="BBQ (unambiguous)",
+                description="Metric of [Parrish et al. (2022)](https://aclanthology.org/2022.findings-acl.165/) for BBQ on unambiguous examples.",
+                lower_is_better=True,
+                group=None,
+            ),
         ]
