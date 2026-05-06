@@ -21,8 +21,6 @@ from helm.clients.client import (
 try:
     import openai
     from openai import OpenAI
-    from openai.types.responses.response import Response
-    from pydantic import ValidationError
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["openai"])
 
@@ -151,54 +149,36 @@ class OpenAIResponseClient(CachingClient):
 
             try:
                 cache_key = self._get_cache_key(raw_request, request)
-                helm_raw_response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
+                response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             except openai.OpenAIError as e:
                 return OpenAIClientUtils.handle_openai_error(e, request)
 
-            request_time = helm_raw_response["request_time"]
-            del helm_raw_response["request_time"]
-            request_datetime = helm_raw_response["request_datetime"]
-            del helm_raw_response["request_datetime"]
-            try:
-                response = Response.model_validate(helm_raw_response)
-            except ValidationError as e:
-                # The Pydantic model for Response in the OpenAI SDK
-                # declares `prompt_cache_retention` as `Literal["in-memory", "24h"]``
-                # but the OpenAI API returns responses with "in_memory".
-                # The mismatch between the version with the hyphen and the
-                # string with the underscore causes a validation error.
-                # If we see this validation error, we work around it by setting
-                # `prompt_cache_retention` to "in-memory".
-                # See: https://github.com/openai/openai-python/issues/2883
-                if (
-                    e.errors()[0]["type"] == "literal_error"
-                    and e.errors()[0]["loc"] == ("prompt_cache_retention",)
-                    and e.errors()[0]["input"] == "in_memory"
-                    and "'in-memory'" in e.errors()[0]["ctx"]["expected"]
-                ):
-                    helm_raw_response["prompt_cache_retention"] = "in-memory"
-                    response = Response.model_validate(helm_raw_response)
-                else:
-                    raise e
+            # Previously, we converted the raw response into the Pydantic model
+            # using Response.model_validate() for type safety.
+            # We stopped doing this because model validation is brittle.
+            # Validation can fail due to breaking changes in the Pydantic schema
+            # or schema errors in the API.
+            # See: https://github.com/openai/openai-python/issues/2883
+            # for an example of a schema error in the official OpenAI API.
 
             reasoning_output_parts: List[str] = []
             text_output_parts: List[str] = []
 
             if request.echo_prompt:
                 text_output_parts.append(request.prompt)
-            for output in response.output:
+            for output in response["output"]:
 
-                if output.type == "reasoning":
-                    for summary in output.summary:
-                        reasoning_output_parts.append(summary.text)
-                    if output.content:
-                        for reasoning_content in output.content:
-                            reasoning_output_parts.append(reasoning_content.text)
-                elif output.type == "message":
-                    for content in output.content:
-                        if content.type == "output_text":
-                            text_output_parts.append(content.text)
-                        elif content.type == "refusal":
+                if output["type"] == "reasoning":
+                    for summary in output["summary"]:
+                        reasoning_output_parts.append(summary["text"])
+                    if output["content"]:
+                        for reasoning_content in output["content"]:
+                            reasoning_output_parts.append(reasoning_content["text"])
+                elif output["type"] == "message":
+                    for content in output["content"]:
+                        if content["type"] == "output_text":
+                            text_output_parts.append(content["text"])
+                        elif content["type"] == "refusal":
                             return RequestResult(
                                 success=False,
                                 cached=False,
@@ -208,7 +188,7 @@ class OpenAIResponseClient(CachingClient):
                                 error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
                             )
                 else:
-                    raise ValueError(f"Unknown output type {output.type}")
+                    raise ValueError(f"Unknown output type {output["type"]}")
 
             thinking = Thinking(text="\n\n".join(reasoning_output_parts)) if reasoning_output_parts else None
             text_output = "\n\n".join(text_output_parts)
@@ -225,8 +205,8 @@ class OpenAIResponseClient(CachingClient):
         return RequestResult(
             success=True,
             cached=cached,
-            request_time=request_time,
-            request_datetime=request_datetime,
+            request_time=response["request_time"],
+            request_datetime=response["request_datetime"],
             completions=completions,
             embedding=[],
         )
