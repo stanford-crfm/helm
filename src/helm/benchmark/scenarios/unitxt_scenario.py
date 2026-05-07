@@ -1,5 +1,6 @@
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
@@ -10,11 +11,15 @@ from helm.benchmark.scenarios.scenario import (
     TRAIN_SPLIT,
     TEST_SPLIT,
     VALID_SPLIT,
+    ScenarioMetadata,
 )
 from helm.common.optional_dependencies import handle_module_not_found_error
 
 try:
     from unitxt import load_dataset
+    from unitxt.api import load_recipe
+    from unitxt.artifact import fetch_artifact
+    from unitxt.base_metric import Metric
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, suggestions=["unitxt"])
 
@@ -74,3 +79,35 @@ class UnitxtScenario(Scenario):
                 )
                 instances.append(instance)
         return instances
+
+    def get_metadata(self):
+        if len(self.kwargs) == 1 and "recipe" in self.kwargs:
+            recipe = load_recipe(self.kwargs["recipe"])
+        else:
+            recipe = load_recipe(**self.kwargs)
+        description = recipe.__description__
+        metric_names = recipe.task.metrics
+        assert metric_names
+        metric, _ = fetch_artifact(metric_names[0])
+        assert isinstance(metric, Metric)
+        main_metric_name = metric.main_score
+        scenario_name = f'unitxt_{self.kwargs.get("card") or self.kwargs.get("recipe")}'
+        if "split" in self.kwargs:
+            self.UNITXT_SPLIT_NAME_TO_HELM_SPLIT_NAME[self.kwargs["split"]]
+        else:
+            split = TEST_SPLIT
+        return ScenarioMetadata(
+            name=scenario_name,
+            display_name=scenario_name,
+            short_display_name=scenario_name,
+            description=description,
+            taxonomy=TaxonomyInfo(
+                task="?",
+                what="?",
+                when="?",
+                who="?",
+                language="?",
+            ),
+            main_metric=main_metric_name,
+            main_split=split,
+        )
