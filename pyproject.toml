@@ -461,9 +461,6 @@ override-dependencies = [
     "numpy>=1.26,<3",
 ]
 
-[tool.uv.extra-build-dependencies]
-openai-whisper = ["setuptools==80.10.2"]
-
 [tool.setuptools]
 package-dir = { "" = "src" }
 zip-safe = false
