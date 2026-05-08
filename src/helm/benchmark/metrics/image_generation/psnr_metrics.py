@@ -10,7 +10,7 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.multimodal_request_utils import gather_generated_image_locations, get_gold_image_location
@@ -76,3 +76,15 @@ class PeakSignalToNoiseRatioMetric(Metric):
         img2: torch.Tensor = torch.stack(reference_images).to(self._device)
         score: float = self._metric(img1, img2).detach().item()
         return score
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="expected_psnr_score",
+                display_name="Expected Peak Signal-to-Noise Ratio (PSNR)",
+                short_display_name="Expected PSNR",
+                description="Peak signal-to-noise ratio (PSNR) is the ratio between the maximum possible power of a signal and the power of corrupting noise that affects the fidelity of its representation.",
+                lower_is_better=False,
+                group="heim_fidelity",
+            )
+        ]

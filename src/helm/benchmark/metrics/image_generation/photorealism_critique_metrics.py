@@ -5,7 +5,7 @@ import numpy as np
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInstanceStats, add_context
+from helm.benchmark.metrics.metric import MetricInterface, MetricMetadata, MetricResult, PerInstanceStats, add_context
 from helm.benchmark.metrics.metric_name import MetricContext, MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat, merge_stat
@@ -151,3 +151,23 @@ class PhotorealismCritiqueMetric(MetricInterface):
                 stat.add(score)
 
         return [generated_stat, real_stat]
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="photorealism_generated_human",
+                display_name="Photorealism w/ generated images (human)",
+                short_display_name="Photorealism - generated (human)",
+                description="Determine if the following image is AI-generated or real according to human raters.",
+                lower_is_better=False,
+                group="heim_photorealism",
+            ),
+            MetricMetadata(
+                name="photorealism_real_human",
+                display_name="Photorealism w/ real images (human)",
+                short_display_name="Photorealism - real (human)",
+                description="Determine if the following image is AI-generated or real according to human raters.",
+                lower_is_better=False,
+                group="heim_photorealism",
+            ),
+        ]

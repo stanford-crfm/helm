@@ -7,7 +7,7 @@ from helm.common.clip_score_request import DEFAULT_CLIP_SCORE_MODEL, CLIPScoreRe
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.window_services.image_generation.clip_window_service import CLIPWindowService
@@ -82,3 +82,23 @@ class CLIPScoreMetric(Metric):
             Stat(MetricName(get_metric_name("max_clip_score"))).add(max(scores) if len(scores) > 0 else 0),
         ]
         return stats
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="max_clip_score",
+                display_name="Maximum CLIP score",
+                short_display_name="Max CLIP score",
+                description="CLIPscore measures how well an image is aligned with a corresponding natural language description, using the pre-trained CLIP model.",
+                lower_is_better=False,
+                group="heim_alignment_clip_metrics",
+            ),
+            MetricMetadata(
+                name="expected_clip_score",
+                display_name="Expected CLIP score",
+                short_display_name="Expected CLIP score",
+                description="CLIPscore measures how well an image is aligned with a corresponding natural language description, using the pre-trained CLIP model.",
+                lower_is_better=False,
+                group="heim_alignment_clip_metrics",
+            ),
+        ]

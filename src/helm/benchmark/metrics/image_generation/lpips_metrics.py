@@ -10,7 +10,7 @@ from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.multimodal_request_utils import gather_generated_image_locations, get_gold_image_location
@@ -80,3 +80,15 @@ class LearnedPerceptualImagePatchSimilarityMetric(Metric):
         img2: torch.Tensor = torch.stack(reference_images).to(self._device)
         score: float = self._metric(img1, img2).detach().item()
         return score
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="expected_lpips_score",
+                display_name="Expected Learned Perceptual Image Patch Similarity (LPIPS) score",
+                short_display_name="Expected LPIPS score",
+                description="The Learned Perceptual Image Patch Similarity (LPIPS) is used to judge the perceptual similarity between two images. LPIPS computes the similarity between the activations of two image patches for some pre-defined network.",
+                lower_is_better=True,
+                group="heim_fidelity",
+            )
+        ]

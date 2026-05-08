@@ -6,7 +6,7 @@ from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.image_generation.aesthetics_scorer import AestheticsScorer
@@ -52,3 +52,23 @@ class AestheticsMetric(Metric):
             Stat(MetricName("max_aesthetics_score")).add(max(scores) if len(scores) > 0 else 0),
         ]
         return stats
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="expected_aesthetics_score",
+                display_name="Expected aesthetics score",
+                short_display_name="Expected aesthetics score",
+                description="Following LAION-Aesthetics for determining the aesthetic score of a generated image.",
+                lower_is_better=False,
+                group="heim_aesthetics_automated_metrics",
+            ),
+            MetricMetadata(
+                name="max_aesthetics_score",
+                display_name="Maximum aesthetics score",
+                short_display_name="Max aesthetics score",
+                description="Following LAION-Aesthetics for determining the aesthetic score of a generated image.",
+                lower_is_better=False,
+                group="heim_aesthetics_automated_metrics",
+            ),
+        ]

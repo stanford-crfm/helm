@@ -13,7 +13,7 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric import MetricResult
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
@@ -90,3 +90,15 @@ class UniversalImageQualityIndexMetric(Metric):
         img2: torch.Tensor = torch.stack(reference_images).to(self._device)
         score: float = self._metric(img1, img2).detach().item()
         return score
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="expected_uiqi_score",
+                display_name="Expected Universal Image Quality Index (UIQI)",
+                short_display_name="Expected UIQI",
+                description="The Universal Image Quality Index (UIQI) is a full-reference image quality assessment method that measures the similarity between two images by comparing their luminance, contrast, and structure.",
+                lower_is_better=False,
+                group="heim_fidelity",
+            )
+        ]

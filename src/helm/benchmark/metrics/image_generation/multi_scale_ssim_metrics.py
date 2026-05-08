@@ -10,7 +10,7 @@ from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.multimodal_request_utils import gather_generated_image_locations, get_gold_image_location
@@ -80,3 +80,15 @@ class MultiScaleStructuralSimilarityIndexMeasureMetric(Metric):
         img2: torch.Tensor = torch.stack(reference_images).to(self._device)
         score: float = self._metric(img1, img2).detach().item()
         return score
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="expected_multi_scale_ssim_score",
+                display_name="Expected Multi-scale Structural Similarity Index Measure (SSIM)",
+                short_display_name="Expected Multi-Scale SSIM",
+                description="The Multi-scale Structural Similarity Index Measure (MS-SSIM) is measure of image quality and a generalization of Structural Similarity Index Measure (SSIM) by incorporating image details at different resolution scores.",
+                lower_is_better=False,
+                group="heim_fidelity",
+            )
+        ]
