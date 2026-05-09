@@ -34,9 +34,9 @@ dependencies = [
     "retrying~=1.3",
     "spacy~=3.5",
     "tqdm~=4.64",
-    "zstandard~=0.18.0",
+    "zstandard>=0.18,<0.26",
     "sqlitedict>=2.1.0,<3.0",
-    "bottle~=0.12.23",
+    "bottle>=0.12.23,<0.14.0",
     # Basic Scenarios
     "datasets~=3.1",
     "pyarrow>=11.0.0", # Pinned transitive dependency for datasets; workaround for #1026
@@ -95,16 +95,16 @@ plots = [
 ]
 
 decodingtrust = [
-    "fairlearn~=0.9.0",
+    "fairlearn>=0.9,<0.14",
 ]
 
 slurm = [
-    "simple-slurm~=0.2.6",
+    "simple-slurm>=0.2.6,<0.4.0",
 ]
 
 cleva = [
     "unidecode~=1.3",
-    "pypinyin~=0.49.0",
+    "pypinyin>=0.49,<0.56",
     "jieba~=0.42.1",
     "opencc~=1.1",
     "langdetect~=1.0",
@@ -124,8 +124,8 @@ unitxt = [
 ]
 
 seahelm = [
-    "pythainlp==5.0.0",
-    "pyonmttok==1.37.0",
+    "pythainlp==5.3.4",
+    "pyonmttok==1.38.1",
     "sacrebleu~=2.2",
     "python-crfsuite~=0.9.11",
 ]
@@ -211,7 +211,7 @@ vlm = [
     "crfm-helm[openai]",
 
     # For OpenFlamingo
-    "einops~=0.7.0",
+    "einops>=0.7,<0.9",
     "einops-exts~=0.0.4",
     "open-clip-torch~=2.24",
 
@@ -261,7 +261,7 @@ image2struct = [
     "html2text~=2024.2.26",
 
     # Metrics
-    "opencv-python-headless>=4.7.0.68,<=4.11.0.86",
+    "opencv-python-headless>=4.7.0.68,<=4.13.0.92",
     "lpips~=0.1.4",
     "imagehash~=4.3"  # for caching
 ]
@@ -280,7 +280,7 @@ heim = [
     "crfm-helm[openai]",
 
     # For model, kakaobrain/mindall-e
-    "einops~=0.7.0",
+    "einops>=0.7,<0.9",
     "omegaconf~=2.3",
     "pytorch-lightning~=2.0",
 
@@ -302,12 +302,12 @@ heim = [
     "multilingual-clip~=1.0",
     "NudeNet~=2.0",
     "numpy>=1.26",
-    "opencv-python>=4.7.0.68,<4.8.2.0; python_version >= '3.10'",
-    "opencv-python-headless>=4.7.0.68,<=4.11.0.86; python_version < '3.10'",
+    "opencv-python>=4.7.0.68,<4.13.1.0; python_version >= '3.10'",
+    "opencv-python-headless>=4.7.0.68,<=4.13.0.92; python_version < '3.10'",
     "pytorch-fid~=0.3.0",
     "tensorflow~=2.11",
-    "timm~=0.6.12",
-    "torch-fidelity~=0.3.0",
+    "timm>=0.6.12,<0.10.0",
+    "torch-fidelity>=0.3,<0.5",
     "torchmetrics~=0.11.1",
 
     # Transitive dependency of NudeNet
@@ -345,7 +345,7 @@ audiolm = [
     # For HuggingFace audio datasets
     "soundfile~=0.12",
     "librosa~=0.10",
-    "einops~=0.7.0",
+    "einops>=0.7,<0.9",
 
     # For LLaMA-Omni
     "openai-whisper>=20240930",
@@ -412,22 +412,22 @@ litellm = [
 
 dev = [
     "pytest>=7.2,<9.1",
-    "xdoctest~=1.2.0",
-    "pre-commit~=2.20.0",
+    "xdoctest>=1.2,<1.4",
+    "pre-commit>=2.20,<2.22",
     # Errors produced by type checkers and linters are very version-specific
     # so they are pinned to an exact version.
-    "black==24.3.0",
-    "mypy==1.16.0",
+    "black==24.10.0",
+    "mypy==1.20.2",
     "flake8==7.3.0",
     "en_core_web_sm@https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl",
 ]
 
 docs = [
-  "mkdocs==1.6.0",
+  "mkdocs==1.6.1",
   "mkdocstrings==0.30.1",
-  "mkdocstrings-python==1.3.0",
+  "mkdocstrings-python==1.19.0",
   "mkdocs-macros-plugin==1.5.0",
-  "mkdocs-include-markdown-plugin==7.1.8",
+  "mkdocs-include-markdown-plugin==7.2.2",
 ]
 
 types = [
