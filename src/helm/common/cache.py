@@ -189,7 +189,7 @@ class Cache(object):
         # TODO: Initialize key_value_store in constructor
         with create_key_value_store(self.config) as key_value_store:
             response = key_value_store.get(request)
-            if response:
+            if response is not None:
                 cached = True
             else:
                 cached = False
