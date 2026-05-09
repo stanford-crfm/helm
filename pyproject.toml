@@ -348,7 +348,7 @@ audiolm = [
     "einops~=0.7.0",
 
     # For LLaMA-Omni
-    "openai-whisper>=20240930",
+    "openai-whisper>=20250625",
 
     # For Qwen2.5-Omni
     "transformers_stream_generator~=0.0.4",
@@ -452,11 +452,11 @@ default-groups = ["dev", "types"]
 
 override-dependencies = [
     # override torch dependency for summ-eval in "summarization" extra:
-    # - summ-eval depends on blanc 
+    # - summ-eval depends on blanc
     # - blanc depends on torch<2.0
     "torch~=2.1",
     # override torch dependency for summ-eval in "summarization" extra:
-    # - summ-eval depends on blanc 
+    # - summ-eval depends on blanc
     # - blanc depends on numpy<2.0
     "numpy>=1.26,<3",
 ]
@@ -497,8 +497,8 @@ exclude = "dalle_mini|mindalle|open_flamingo|llama_omni|qwen_omni"
 # - https://docs.pytest.org/en/latest/how-to/mark.html#mark
 # - https://docs.pytest.org/en/latest/example/markers.html#mark-examples
 addopts = """
--m 'not models and not scenarios' 
---xdoctest-modules 
+-m 'not models and not scenarios'
+--xdoctest-modules
 --xdoctest-style=google
 """
 
