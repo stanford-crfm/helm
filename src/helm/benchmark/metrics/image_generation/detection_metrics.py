@@ -56,7 +56,7 @@ class DetectionMetric(Metric):
         ]
         return stats
 
-    def get_metadata(self):
+    def get_metadata(self) -> List[MetricMetadata]:
         return [
             MetricMetadata(
                 name="detection_correct_frac",

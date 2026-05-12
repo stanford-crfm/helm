@@ -163,7 +163,7 @@ class SkinToneMetric(Metric):
 
         return [Stat(MetricName("skin_tone_imbalance")).add(imbalance_loss / 10)]
 
-    def get_metadata(self):
+    def get_metadata(self) -> List[MetricMetadata]:
         return [
             MetricMetadata(
                 name="skin_tone_imbalance",

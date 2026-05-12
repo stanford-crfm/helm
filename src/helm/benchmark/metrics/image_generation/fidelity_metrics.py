@@ -167,7 +167,7 @@ class FidelityMetric(MetricInterface):
 
         return MetricResult(aggregated_stats=stats, per_instance_stats=[])
 
-    def get_metadata(self):
+    def get_metadata(self) -> List[MetricMetadata]:
         return [
             MetricMetadata(
                 name="fid",
