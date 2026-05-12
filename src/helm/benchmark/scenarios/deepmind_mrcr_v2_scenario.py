@@ -28,8 +28,6 @@ class DeepMindMRCRV2Scenario(Scenario):
     description = "MRCR (multi-round coreference resolution) is a minimally simple long-context reasoning evaluation testing the length generalization capabilities of the model to follow a simple reasoning task with a fixed complexity: count instances of a body of text and reproduce the correct instance. ([paper](https://arxiv.org/abs/2409.12640v2))"  # noqa: E501
     tags = ["long_context", "mrcr"]
 
-    NEEDLES_OPTIONS = [2, 4, 8]
-
     def __init__(self, needles: int, tokens: str):
         super().__init__()
         self.needles = needles
