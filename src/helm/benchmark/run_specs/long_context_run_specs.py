@@ -188,7 +188,10 @@ def get_openai_mrcr_spec(needles: int, max_num_words: int = 131072) -> RunSpec:
     )
 
 
-DEEPMIND_MRCR_V2_GROUPS = [
+DEEPMIND_MRCR_V2_NEEDLES_OPTIONS = [2, 4, 8]
+
+
+DEEPMIND_MRCR_V2_TOKENS_OPTIONS = [
     "upto_128K",
     "in_4096_8192",
     "in_8192_16384",
@@ -206,9 +209,11 @@ DEEPMIND_MRCR_V2_GROUPS = [
 
 @run_spec_function("deepmind_mrcr_v2")
 def get_deepmind_mrcr_v2_spec(needles: int = 8, tokens: str = "upto_128K") -> RunSpec:
+    if needles not in DEEPMIND_MRCR_V2_NEEDLES_OPTIONS:
+        raise ValueError(f"deepmind_mrcr_v2 needles must be one of the following: {DEEPMIND_MRCR_V2_NEEDLES_OPTIONS}")
 
-    if tokens not in DEEPMIND_MRCR_V2_GROUPS:
-        raise ValueError(f"deepmind_mrcr_v2 tokens must be one of the following: {DEEPMIND_MRCR_V2_GROUPS}")
+    if tokens not in DEEPMIND_MRCR_V2_TOKENS_OPTIONS:
+        raise ValueError(f"deepmind_mrcr_v2 tokens must be one of the following: {DEEPMIND_MRCR_V2_TOKENS_OPTIONS}")
 
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.deepmind_mrcr_v2_scenario.DeepMindMRCRV2Scenario",
