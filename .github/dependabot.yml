@@ -4,6 +4,8 @@ updates:
     directory: "/"
     schedule:
       interval: "monthly"
+    cooldown:
+      default-days: 30
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
@@ -15,6 +17,8 @@ updates:
     directory: "/helm-frontend/"
     schedule:
       interval: "monthly"
+    cooldown:
+      default-days: 30
     ignore:
       - dependency-name: "*"
         update-types: ["version-update:semver-major"]
