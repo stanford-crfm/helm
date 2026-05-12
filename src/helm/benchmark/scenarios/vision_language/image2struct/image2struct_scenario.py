@@ -5,7 +5,6 @@ from abc import abstractmethod
 from datasets import load_dataset
 from tqdm import tqdm
 
-from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     ASSET_NAME_TAG,
@@ -17,7 +16,6 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
-    ScenarioMetadata,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_directory_exists
