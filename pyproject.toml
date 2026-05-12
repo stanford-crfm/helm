@@ -449,7 +449,7 @@ crfm-proxy-cli = "helm.proxy.cli:main"
 
 [tool.uv]
 default-groups = ["dev", "types"]
-exclude-newer = "30 days"
+exclude-newer = "7 days"
 
 override-dependencies = [
     # override torch dependency for summ-eval in "summarization" extra:
