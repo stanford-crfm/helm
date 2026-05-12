@@ -4,18 +4,18 @@ from typing import List
 
 import pandas as pd
 
+from helm.common.general import ensure_directory_exists, ensure_file_downloaded
 from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
+    Input,
+    Instance,
     Output,
     Reference,
     Scenario,
-    Instance,
-    TEST_SPLIT,
-    Input,
     ScenarioMetadata,
+    TEST_SPLIT,
 )
-from helm.common.general import ensure_directory_exists, ensure_file_downloaded
 
 
 class DeepMindMRCRV2Scenario(Scenario):
@@ -40,7 +40,6 @@ class DeepMindMRCRV2Scenario(Scenario):
             tokens_fragment = f"in_({match.group(1)},{match.group(2)})"
         else:
             tokens_fragment = self.tokens
-        print(tokens_fragment)
 
         filename = f"mrcr_v2p1_{self.needles}needle_{tokens_fragment}_dynamic_fewshot_text_style_fast.csv"
         cache_dir = os.path.join(output_path, "data")
@@ -50,9 +49,6 @@ class DeepMindMRCRV2Scenario(Scenario):
         ensure_file_downloaded(source_url, file_path)
 
         df = pd.read_csv(file_path)
-        print(f"Loaded {len(df)} samples. Starting evaluation...")
-
-        # --- Main Eval Loop ---
         instances: List[Instance] = []
         for index, row in df.iterrows():
             input = Input(text=row["queries"])
