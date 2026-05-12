@@ -1,3 +1,5 @@
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
+from helm.benchmark.scenarios.scenario import ScenarioMetadata
 from helm.benchmark.scenarios.vision_language.image2struct.utils_latex import (
     latex_to_image,
     strip_unnecessary_latex_parts,
@@ -19,3 +21,20 @@ class LatexScenario(Image2StructureScenario):
         assert "latex_code" in infos
         text: str = strip_unnecessary_latex_parts(infos["latex_code"])
         return text
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="image2latex",
+            display_name="Image2LaTeX",
+            description="The Image2LaTeX benchmark for converting images of mathematical equations, "
+            "tables. algorithms and tikz to LaTeX.",
+            taxonomy=TaxonomyInfo(
+                task="image-to-text",
+                what="mathematical equations, tables, algorithms, tikz",
+                when="2024",
+                who="dataset authors",
+                language="English",
+            ),
+            main_metric="earth_mover_similarity",
+            main_split="valid",
+        )

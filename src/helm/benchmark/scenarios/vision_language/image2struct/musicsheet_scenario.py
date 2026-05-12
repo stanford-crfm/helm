@@ -1,3 +1,5 @@
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
+from helm.benchmark.scenarios.scenario import ScenarioMetadata
 from helm.benchmark.scenarios.vision_language.image2struct.image2struct_scenario import Image2StructureScenario
 
 
@@ -14,3 +16,15 @@ class MusicSheetScenario(Image2StructureScenario):
 
     def compile_and_save(self, structure: str, assets_path: str, destination_path: str) -> str:
         raise Exception("Music sheets have no ground truth, compilation is not possible")
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="image2musicsheet",
+            display_name="Image2musicsheet",
+            description="The Image2musicsheet benchmark for converting images of music sheets to " "LilyPond.",
+            taxonomy=TaxonomyInfo(
+                task="image-to-text", what="music sheets", when="2024", who="dataset authors", language="English"
+            ),
+            main_metric="earth_mover_similarity",
+            main_split="valid",
+        )
