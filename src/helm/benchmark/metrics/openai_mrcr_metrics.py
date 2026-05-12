@@ -49,12 +49,12 @@ class OpenAIMRCRMetric(Metric):
             gold_sequence = gold_text.removeprefix(random_string_to_prepend)
             score = float(SequenceMatcher(None, response_sequence, gold_sequence).ratio())
 
-        return [Stat(MetricName("deepmind_mrcr_v2_score")).add(score)]
+        return [Stat(MetricName("openai_mrcr_accuracy")).add(score)]
 
     def get_metadata(self) -> List[MetricMetadata]:
         return [
             MetricMetadata(
-                name="deepmind_mrcr_v2_score",
+                name="openai_mrcr_accuracy",
                 display_name="MRCR Accuracy",
                 description="MRCR Accuracy",
                 lower_is_better=False,
