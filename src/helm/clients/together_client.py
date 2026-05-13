@@ -284,7 +284,9 @@ class TogetherClient(CachingClient):
 
         # Expect the result to be structured the same way as a response from OpenAI API.
         completions: List[GeneratedOutput] = []
+
         for raw_completion in response["choices"]:
+            print(raw_completion)
             sequence_logprob = 0
             tokens: List[Token] = []
 
@@ -489,9 +491,9 @@ class TogetherChatClient(CachingClient):
             if self._parse_thinking:
                 thinking_text, output_text = _parse_thinking(output_text, request.model)
                 thinking = Thinking(text=thinking_text)
-            elif hasattr(choice["message"], "reasoning_content") and choice["message"]["reasoning_content"] is not None:
+            elif choice["message"].get("reasoning_content") is not None:
                 thinking = Thinking(text=choice["message"]["reasoning_content"])
-            elif hasattr(choice["message"], "reasoning") and choice["message"]["reasoning"] is not None:
+            elif choice["message"].get("reasoning") is not None:
                 thinking = Thinking(text=choice["message"]["reasoning"])
             generated_outputs.append(
                 GeneratedOutput(text=output_text, logprob=logprob, tokens=tokens, thinking=thinking)
