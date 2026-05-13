@@ -1,41 +1,9 @@
 import type DisplayPrediction from "@/types/DisplayPrediction";
 import { EncryptionDataMap } from "@/types/EncryptionDataMap";
+import decryptField from "@/utils/decryptField";
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
 import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
 import isScenarioEncrypted from "@/utils/isScenarioEncrypted";
-
-async function decryptField(
-  ciphertext: string,
-  key: string,
-  iv: string,
-  tag: string,
-): Promise<string> {
-  const decodeBase64 = (str: string) =>
-    Uint8Array.from(atob(str), (c) => c.charCodeAt(0));
-
-  const cryptoKey = await window.crypto.subtle.importKey(
-    "raw",
-    decodeBase64(key),
-    "AES-GCM",
-    true,
-    ["decrypt"],
-  );
-
-  const combinedCiphertext = new Uint8Array([
-    ...decodeBase64(ciphertext),
-    ...decodeBase64(tag),
-  ]);
-
-  const ivArray = decodeBase64(iv);
-
-  const decrypted = await window.crypto.subtle.decrypt(
-    { name: "AES-GCM", iv: ivArray },
-    cryptoKey,
-    combinedCiphertext,
-  );
-
-  return new TextDecoder().decode(decrypted);
-}
 
 export default async function getDisplayPredictionsByName(
   runName: string,
@@ -67,23 +35,16 @@ export default async function getDisplayPredictionsByName(
         (await encryptionResponse.json()) as EncryptionDataMap;
 
       for (const prediction of displayPredictions) {
-        const encryptedText = prediction.predicted_text;
-        const encryptionDetails = encryptionData[encryptedText];
+        prediction.predicted_text = await decryptField(
+          prediction.predicted_text,
+          encryptionData,
+        );
 
-        if (encryptionDetails) {
-          try {
-            prediction.predicted_text = await decryptField(
-              encryptionDetails.ciphertext,
-              encryptionDetails.key,
-              encryptionDetails.iv,
-              encryptionDetails.tag,
-            );
-          } catch (error) {
-            console.error(
-              `Failed to decrypt predicted_text for instance_id: ${prediction.instance_id}`,
-              error,
-            );
-          }
+        if (prediction.thinking_text !== undefined) {
+          prediction.thinking_text = await decryptField(
+            prediction.thinking_text,
+            encryptionData,
+          );
         }
       }
     }

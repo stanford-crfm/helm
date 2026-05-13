@@ -1,43 +1,9 @@
 import Instance from "@/types/Instance";
 import { EncryptionDataMap } from "@/types/EncryptionDataMap";
+import decryptField from "@/utils/decryptField";
 import getBenchmarkEndpoint from "@/utils/getBenchmarkEndpoint";
 import getBenchmarkSuite from "@/utils/getBenchmarkSuite";
 import isScenarioEncrypted from "@/utils/isScenarioEncrypted";
-
-// Helper function for decryption
-async function decryptField(
-  ciphertext: string,
-  key: string,
-  iv: string,
-  tag: string,
-): Promise<string> {
-  // Convert Base64 strings to Uint8Array
-  const decodeBase64 = (str: string) =>
-    Uint8Array.from(atob(str), (c) => c.charCodeAt(0));
-
-  const cryptoKey = await window.crypto.subtle.importKey(
-    "raw",
-    decodeBase64(key),
-    "AES-GCM",
-    true,
-    ["decrypt"],
-  );
-
-  const combinedCiphertext = new Uint8Array([
-    ...decodeBase64(ciphertext),
-    ...decodeBase64(tag),
-  ]);
-
-  const ivArray = decodeBase64(iv);
-
-  const decrypted = await window.crypto.subtle.decrypt(
-    { name: "AES-GCM", iv: ivArray },
-    cryptoKey,
-    combinedCiphertext,
-  );
-
-  return new TextDecoder().decode(decrypted);
-}
 
 export default async function getInstancesByRunName(
   runName: string,
@@ -67,27 +33,16 @@ export default async function getInstancesByRunName(
         (await encryptionResponse.json()) as EncryptionDataMap;
 
       for (const instance of instances) {
-        const inputEncryption = encryptionData[instance.input.text];
-        if (inputEncryption) {
-          instance.input.text = "encrypted";
-          instance.input.text = await decryptField(
-            inputEncryption.ciphertext,
-            inputEncryption.key,
-            inputEncryption.iv,
-            inputEncryption.tag,
-          );
-        }
+        instance.input.text = await decryptField(
+          instance.input.text,
+          encryptionData,
+        );
 
         for (const reference of instance.references) {
-          const referenceEncryption = encryptionData[reference.output.text];
-          if (referenceEncryption) {
-            reference.output.text = await decryptField(
-              referenceEncryption.ciphertext,
-              referenceEncryption.key,
-              referenceEncryption.iv,
-              referenceEncryption.tag,
-            );
-          }
+          reference.output.text = await decryptField(
+            reference.output.text,
+            encryptionData,
+          );
         }
       }
     }
