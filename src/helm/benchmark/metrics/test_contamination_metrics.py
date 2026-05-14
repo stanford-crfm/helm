@@ -1,14 +1,24 @@
-import pytest
+from helm.benchmark.metrics.ts_guessing_contamination_metrics import TSGuessingMetric
 
-from helm.benchmark.metrics.contamination_metrics import TSGuessingMetric
+from helm.benchmark.scenarios.ts_guessing_contamination.prompt_translations import (
+    TS_GUESSING_BASE,
+    TS_GUESSING_MULTICHOICE,
+)
+
+PROMPT_CONFIGS = {
+    "ts_guessing_question_base": TS_GUESSING_BASE,
+    "ts_guessing_question_multichoice": TS_GUESSING_MULTICHOICE,
+}
 
 
 def test_ts_guessing_metric_clean_processing_english():
-    metric = TSGuessingMetric(language="en")
+    language = "en"
+    strategy = "ts_guessing_question_base"
+    metric = TSGuessingMetric(language, strategy)
 
     # Test removing English prefixes
-    assert metric._process_response("Answer: Rio") == "rio"
-    assert metric._process_response("The answer is: Brasilia") == "brasilia"
+    prefix = PROMPT_CONFIGS[strategy][language]["answer_prefix"]
+    assert metric._process_response(f"{prefix} Rio") == "rio"
 
     # Test removing quotes
     assert metric._process_response('"Rio"') == "rio"
@@ -22,12 +32,13 @@ def test_ts_guessing_metric_clean_processing_english():
 
 
 def test_ts_guessing_metric_clean_processing_portuguese():
-    metric = TSGuessingMetric(language="pt")
+    language = "pt"
+    strategy = "ts_guessing_question_base"
+    metric = TSGuessingMetric(language, strategy)
 
-    # Test removing Portuguese prefixes (A GRANDE SACADA)
-    assert metric._process_response("Resposta: Recife") == "recife"
-    assert metric._process_response("A resposta é: São Paulo") == "são paulo"
-    assert metric._process_response("resposta: salvador") == "salvador"
+    # Test removing Portuguese prefixes
+    prefix = PROMPT_CONFIGS[strategy][language]["answer_prefix"]
+    assert metric._process_response(f"{prefix} Recife") == "recife"
 
     # Ensure normal stripping and lowering works
     assert metric._process_response("  Curitiba  ") == "curitiba"

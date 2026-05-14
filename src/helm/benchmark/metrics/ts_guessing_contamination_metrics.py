@@ -10,6 +10,16 @@ from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
 from helm.common.hierarchical_logger import hlog
 
+from helm.benchmark.scenarios.ts_guessing_contamination.prompt_translations import (
+    TS_GUESSING_BASE,
+    TS_GUESSING_MULTICHOICE,
+)
+
+PROMPT_CONFIGS = {
+    "ts_guessing_question_base": TS_GUESSING_BASE,
+    "ts_guessing_question_multichoice": TS_GUESSING_MULTICHOICE,
+}
+
 
 class TSGuessingMetric(MetricInterface):
     """
@@ -18,8 +28,9 @@ class TSGuessingMetric(MetricInterface):
     and choice letters (A:, B-), before calculating Exact Match and ROUGE-L F1.
     """
 
-    def __init__(self, language: str = "en"):
+    def __init__(self, language: str = "en", strategy: str = "ts_guessing_question_base"):
         self.language = language.lower().split("_")[0].split("-")[0]
+        self.strategy = strategy
         self._ensure_nltk_resources()
 
     def _ensure_nltk_resources(self):
@@ -35,11 +46,16 @@ class TSGuessingMetric(MetricInterface):
         """Cleans the raw model response using enhanced TS-Guessing rules."""
         if not text:
             return ""
+        if self.strategy not in PROMPT_CONFIGS:
+            raise ValueError(f"Unknown strategy '{self.strategy}' for TSGuessingMetric.")
+        if self.language not in PROMPT_CONFIGS[self.strategy]:
+            raise ValueError(f"Language '{self.language}' not supported for strategy '{self.strategy}'.")
 
         processed_text = str(text).strip()
 
         # Layer 1: Remove verbal prefixes (Answer:, Resposta:, etc.)
-        verbal_prefix_pattern = r"^(answer|resposta|the answer is|a resposta é|a resposta e)s?\s*[:\-]*\s*"
+        answer_prefix = PROMPT_CONFIGS[self.strategy][self.language].get("answer_prefix")
+        verbal_prefix_pattern = rf"^{re.escape(answer_prefix.strip())}\s*"
         processed_text = re.sub(verbal_prefix_pattern, "", processed_text, flags=re.IGNORECASE).strip()
 
         # Layer 2: Remove choice letter prefixes (A:, A., A -, B) etc.)

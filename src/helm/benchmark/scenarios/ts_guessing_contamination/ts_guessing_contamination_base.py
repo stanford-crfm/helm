@@ -4,7 +4,7 @@ from typing import List
 from helm.benchmark.scenarios.scenario import Instance
 
 
-class ContaminationStrategy(ABC):
+class TSGuessingContaminationStrategy(ABC):
     """
     Base class for contamination strategies.
     Each strategy knows how to transform original instances into contaminated instances.
@@ -13,8 +13,8 @@ class ContaminationStrategy(ABC):
     STRATEGY_NAME: str
     STRATEGY_DISPLAY_NAME: str
 
-    def __init__(self):
-        self.language = "en"
+    def __init__(self, language: str):
+        self.language = language
 
     @abstractmethod
     def transform_instances(self, instances: List[Instance]) -> List[Instance]:

@@ -1,14 +1,19 @@
 from typing import List
-from helm.benchmark.scenarios.contamination.contamination_strategy import get_contamination_strategy
+from helm.benchmark.scenarios.ts_guessing_contamination.ts_guessing_contamination_strategy import (
+    get_contamination_strategy,
+)
 from helm.benchmark.scenarios.scenario import Scenario, Instance, create_scenario, get_scenario_cache_path
 from helm.benchmark.run_spec import get_run_spec_function
 from helm.common.hierarchical_logger import hlog
 
 
-class ContaminationScenario(Scenario):
+class TSGuessingContaminationScenario(Scenario):
     """
     Meta-scenario that applies contamination strategies to existing datasets.
     Loads the original instances and applies masking based on the chosen strategy.
+
+    The contamination strategies implemented are based on the methodology proposed in:
+    https://aclanthology.org/2024.naacl-long.482/
     """
 
     name = "contamination"
@@ -85,15 +90,12 @@ class ContaminationScenario(Scenario):
         """
 
         # Retrieve the contamination strategy
-        strategy = get_contamination_strategy(self.strategy)
+        strategy = get_contamination_strategy(self.strategy, self.language)
 
         if strategy is None:
             error_msg = f"Unknown contamination strategy '{self.strategy}'"
             hlog(f"[ContaminationScenario] ERROR: {error_msg}")
             raise ValueError(error_msg)
-
-        # Pass the language configuration to the strategy
-        strategy.language = self.language
 
         # Apply the transformation to instances
         contaminated_instances = strategy.transform_instances(instances)

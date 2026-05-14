@@ -2,13 +2,17 @@ from typing import List, Optional
 import random
 from dataclasses import replace
 
-from helm.benchmark.scenarios.contamination.contamination_base import ContaminationStrategy
+from helm.benchmark.scenarios.ts_guessing_contamination.ts_guessing_contamination_base import (
+    TSGuessingContaminationStrategy,
+)
 from helm.benchmark.scenarios.scenario import Instance, Reference, Output
 from helm.common.hierarchical_logger import hlog
-from helm.benchmark.scenarios.contamination.contamination_utils import ContaminationUtils
+from helm.benchmark.scenarios.ts_guessing_contamination.ts_guessing_contamination_utils import (
+    TSGuessingContaminationUtils,
+)
 
 
-class TSGuessingQuestionBaseStrategy(ContaminationStrategy):
+class TSGuessingQuestionBaseStrategy(TSGuessingContaminationStrategy):
     """
     Implementation of the 'base' TS-Guessing strategy.
     Masks an important word (NOUN, ADJ, VERB) in a sentence and asks the model
@@ -30,7 +34,7 @@ class TSGuessingQuestionBaseStrategy(ContaminationStrategy):
         """
 
         # Load the spaCy tagger for the specified language.
-        tagger = ContaminationUtils.get_spacy_tagger(self.language)
+        tagger = TSGuessingContaminationUtils.get_spacy_tagger(self.language)
         if not tagger:
             hlog(
                 f"WARNING: Could not load spaCy tagger for '{self.language}'. "
@@ -39,10 +43,7 @@ class TSGuessingQuestionBaseStrategy(ContaminationStrategy):
             return instances
 
         # Load prompt components for the current language.
-        prompt_components = ContaminationUtils.get_prompt_fragments(self.STRATEGY_NAME, self.language)
-        if not prompt_components:
-            hlog(f"WARNING: Could not load prompt components for '{self.language}'. " f"Returning original instances.")
-            return instances
+        prompt_components = TSGuessingContaminationUtils.get_prompt_fragments(self.STRATEGY_NAME, self.language)
 
         # Transform each instance by applying the masking procedure.
         transformed_instances = []
@@ -56,8 +57,7 @@ class TSGuessingQuestionBaseStrategy(ContaminationStrategy):
                 else:
                     skipped += 1
             except Exception as e:
-                hlog(f"ERROR while transforming instance {instance.id}: {e}")
-                skipped += 1
+                raise RuntimeError(f"ERROR while transforming instance {instance.id}: {e}")
 
         return transformed_instances
 
@@ -68,7 +68,7 @@ class TSGuessingQuestionBaseStrategy(ContaminationStrategy):
         """
 
         # Extract text content from the question.
-        text = ContaminationUtils.get_question_text(instance)
+        text = TSGuessingContaminationUtils.get_question_text(instance)
         if not text or len(text.split()) < 5:
             return None
 

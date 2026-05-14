@@ -2,13 +2,17 @@ from typing import List, Optional
 import numpy as np
 from dataclasses import replace
 
-from helm.benchmark.scenarios.contamination.contamination_base import ContaminationStrategy
+from helm.benchmark.scenarios.ts_guessing_contamination.ts_guessing_contamination_base import (
+    TSGuessingContaminationStrategy,
+)
 from helm.benchmark.scenarios.scenario import Instance, Reference, Output
 from helm.common.hierarchical_logger import hlog
-from helm.benchmark.scenarios.contamination.contamination_utils import ContaminationUtils
+from helm.benchmark.scenarios.ts_guessing_contamination.ts_guessing_contamination_utils import (
+    TSGuessingContaminationUtils,
+)
 
 
-class TSGuessingQuestionMultiChoiceStrategy(ContaminationStrategy):
+class TSGuessingQuestionMultiChoiceStrategy(TSGuessingContaminationStrategy):
     """
     Implements a question-based multi-choice guessing test for contamination detection.
     Prompts are constructed with a randomly masked incorrect option. The model is asked
@@ -38,7 +42,7 @@ class TSGuessingQuestionMultiChoiceStrategy(ContaminationStrategy):
         """
 
         # Load prompt components based on language configuration
-        prompt_components = ContaminationUtils.get_prompt_fragments(self.STRATEGY_NAME, self.language)
+        prompt_components = TSGuessingContaminationUtils.get_prompt_fragments(self.STRATEGY_NAME, self.language)
         if not prompt_components:
             hlog("WARNING: Could not load prompt components. Returning original instances.")
             return instances
@@ -55,8 +59,7 @@ class TSGuessingQuestionMultiChoiceStrategy(ContaminationStrategy):
                 else:
                     skipped += 1
             except Exception as e:
-                hlog(f"ERROR while transforming instance {instance.id}: {e}")
-                skipped += 1
+                raise RuntimeError(f"ERROR while transforming instance {instance.id}: {e}")
 
         return transformed_instances
 
@@ -68,9 +71,9 @@ class TSGuessingQuestionMultiChoiceStrategy(ContaminationStrategy):
         """
 
         # Extract necessary information from the instance
-        question_text = ContaminationUtils.get_question_text(instance)
-        choices = ContaminationUtils.get_choices(instance)
-        correct_idx = ContaminationUtils.get_answer_index(instance)
+        question_text = TSGuessingContaminationUtils.get_question_text(instance)
+        choices = TSGuessingContaminationUtils.get_choices(instance)
+        correct_idx = TSGuessingContaminationUtils.get_answer_index(instance)
 
         # Validate instance data
         if not question_text or not choices or len(choices) <= 1 or correct_idx < 0 or correct_idx >= len(choices):

@@ -12,7 +12,7 @@ def get_contamination_spec(dataset: str, strategy: str, language: str) -> RunSpe
         raise ValueError(f"Unknown strategy '{strategy}'. Valid: {sorted(valid_strategies)}")
 
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.contamination.contamination_scenario.ContaminationScenario",
+        class_name="helm.benchmark.scenarios.ts_guessing_contamination.ts_guessing_contamination_scenario.TSGuessingContaminationScenario",
         args={"dataset": dataset, "strategy": strategy, "language": language},
     )
 
@@ -25,14 +25,15 @@ def get_contamination_spec(dataset: str, strategy: str, language: str) -> RunSpe
         stop_sequences=["\n"],
     )
 
-    # 1. Aplica a métrica customizada (com a limpeza oficial) para TODAS as estratégias TS-Guessing
+    # 1. Apply the custom metric (with official cleaning) to ALL TS-Guessing strategies
     metric_specs = [
         MetricSpec(
-            class_name="helm.benchmark.metrics.contamination_metrics.TSGuessingMetric", args={"language": language}
+            class_name="helm.benchmark.metrics.ts_guessing_contamination_metrics.TSGuessingMetric",
+            args={"language": language},
         )
     ]
 
-    # 2. Adiciona as genéricas como baseline de comparação
+    # 2. Add the generic ones as a comparison baseline
     metric_specs.extend(
         get_basic_metric_specs(
             [

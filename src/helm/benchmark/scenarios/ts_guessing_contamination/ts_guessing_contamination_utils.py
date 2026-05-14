@@ -1,11 +1,14 @@
 import spacy
 import spacy.cli
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Optional
 import spacy.language
 
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.scenarios.scenario import Instance
-from .prompt_translations import TS_GUESSING_BASE, TS_GUESSING_MULTICHOICE
+from helm.benchmark.scenarios.ts_guessing_contamination.prompt_translations import (
+    TS_GUESSING_BASE,
+    TS_GUESSING_MULTICHOICE,
+)
 
 PROMPT_CONFIGS_MASTER = {
     "ts_guessing_question_base": TS_GUESSING_BASE,
@@ -13,7 +16,7 @@ PROMPT_CONFIGS_MASTER = {
 }
 
 
-class ContaminationUtils:
+class TSGuessingContaminationUtils:
     """
     Utilities for contamination detection strategies. Provides common functionalities for
     handling HELM objects, parsing instances, and managing NLP models (spaCy).
@@ -31,13 +34,13 @@ class ContaminationUtils:
     def get_spacy_tagger(language: str) -> Optional[spacy.language.Language]:
         """Loads and returns a cached spaCy language model for POS tagging."""
         normalized_lang = language.lower().split("_")[0].split("-")[0]
-        if normalized_lang in ContaminationUtils._spacy_models_cache:
-            return ContaminationUtils._spacy_models_cache[normalized_lang]
+        if normalized_lang in TSGuessingContaminationUtils._spacy_models_cache:
+            return TSGuessingContaminationUtils._spacy_models_cache[normalized_lang]
 
-        model_name = ContaminationUtils.SPACY_MODEL_MAP.get(normalized_lang)
+        model_name = TSGuessingContaminationUtils.SPACY_MODEL_MAP.get(normalized_lang)
         if not model_name:
             hlog(f"WARNING: No spaCy model in SPACY_MODEL_MAP for language '{language}'.")
-            ContaminationUtils._spacy_models_cache[normalized_lang] = None
+            TSGuessingContaminationUtils._spacy_models_cache[normalized_lang] = None
             return None
 
         try:
@@ -53,7 +56,7 @@ class ContaminationUtils:
                 hlog(f"CRITICAL: Failed to download or load spaCy model '{model_name}': {e}")
                 nlp = None
 
-        ContaminationUtils._spacy_models_cache[normalized_lang] = nlp
+        TSGuessingContaminationUtils._spacy_models_cache[normalized_lang] = nlp
         return nlp
 
     @staticmethod
@@ -92,8 +95,11 @@ class ContaminationUtils:
     def get_prompt_fragments(strategy_key: str, language: str) -> Dict[str, str]:
         """Loads prompt fragments for a given strategy and language, with fallback to English."""
         if strategy_key not in PROMPT_CONFIGS_MASTER:
-            hlog(f"ERROR: Prompt configuration for '{strategy_key}' not found.")
-            return {}
+            raise ValueError(
+                f"No prompt configuration found for strategy '{strategy_key}'. "
+                f"Available prompt configurations: {list(PROMPT_CONFIGS_MASTER.keys())}"
+            )
+
         lang_prompts = PROMPT_CONFIGS_MASTER[strategy_key]
         normalized_lang = language.lower().split("_")[0].split("-")[0]
         if normalized_lang in lang_prompts:
@@ -101,8 +107,8 @@ class ContaminationUtils:
         if "en" in lang_prompts:
             hlog(f"WARNING: Prompts for language '{language}' not found. Falling back to English.")
             return lang_prompts["en"]
-        hlog(f"ERROR: No prompts for '{language}' and no English fallback for strategy '{strategy_key}'.")
-        return {}
+
+        raise ValueError(f"No prompts for '{language}' and no English fallback for strategy '{strategy_key}'.")
 
     @classmethod
     def clear_caches(cls) -> None:
