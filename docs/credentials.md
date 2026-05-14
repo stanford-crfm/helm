@@ -23,6 +23,31 @@ Here are the keys that must be set for to access these platforms:
 - Perspective: `perspectiveApiKey`
 - Writer: `writerApiKey`
 
+## MongoDB cache credentials
+
+If you use MongoDB for caching, you can avoid putting credentials in the
+`--mongo-uri` command-line argument by storing the URI and credentials in
+`credentials.conf`:
+
+```
+mongoUri: "mongodb://host:27017/cache"
+mongoUsername: "username"
+mongoPassword: "password"
+```
+
+You can also provide the same values with environment variables:
+
+```
+HELM_MONGODB_URI="mongodb://host:27017/cache"
+HELM_MONGODB_USERNAME="username"
+HELM_MONGODB_PASSWORD="password"
+```
+
+For backwards compatibility, `--mongo-uri` still accepts a full MongoDB URI.
+However, using `credentials.conf` or environment variables avoids exposing
+secrets in shell history. HELM redacts MongoDB credentials when logging cache
+configuration.
+
 ## Additional setup
 
 ### Google
