@@ -60,7 +60,9 @@ class TSGuessingMetric(MetricInterface):
 
         # Layer 2: Remove choice letter prefixes (A:, A., A -, B) etc.)
         choice_prefix_pattern = r"^[a-z][\s\.\:\)\-]+\s*"
+        choice_suffix_pattern = r"\s+[a-z]\s*[\.\:\)\-]+\s*$"
         processed_text = re.sub(choice_prefix_pattern, "", processed_text, flags=re.IGNORECASE).strip()
+        processed_text = re.sub(choice_suffix_pattern, "", processed_text, flags=re.IGNORECASE).strip()
 
         # Layer 3: Extract only the first sentence to ignore model chatter
         try:
