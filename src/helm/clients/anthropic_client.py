@@ -387,6 +387,13 @@ class AnthropicMessagesClient(CachingClient):
             # `temperature` and `top_p` cannot both be specified for this model. Please use only one.
             del raw_request["top_p"]
 
+        if re.match(r"^claude-[^-]+-4-7", raw_request["model"]):
+            # Avoid these errors:
+            # `top_k` is deprecated for this model.
+            # `top_p` is deprecated for this model.
+            del raw_request["top_k"]
+            del raw_request["top_p"]
+
         completions: List[GeneratedOutput] = []
 
         # `num_completions` is not supported, so instead make `num_completions` separate requests.
