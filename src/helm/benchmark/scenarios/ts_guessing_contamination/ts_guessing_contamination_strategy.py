@@ -14,7 +14,7 @@ REGISTERED_STRATEGIES = {
 }
 
 
-def get_contamination_strategy(strategy_name: str, language: str) -> TSGuessingContaminationStrategy:
+def get_contamination_strategy(strategy_name: str, language: str) -> TSGuessingContaminationStrategy | None:
     """
     Returns an instance of the requested contamination strategy.
     """

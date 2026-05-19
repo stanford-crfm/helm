@@ -54,7 +54,7 @@ class TSGuessingMetric(MetricInterface):
         processed_text = str(text).strip()
 
         # Layer 1: Remove verbal prefixes (Answer:, Resposta:, etc.)
-        answer_prefix = PROMPT_CONFIGS[self.strategy][self.language].get("answer_prefix")
+        answer_prefix = PROMPT_CONFIGS[self.strategy][self.language].get("answer_prefix") or ""
         verbal_prefix_pattern = rf"^{re.escape(answer_prefix.strip())}\s*"
         processed_text = re.sub(verbal_prefix_pattern, "", processed_text, flags=re.IGNORECASE).strip()
 
