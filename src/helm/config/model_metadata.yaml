@@ -604,7 +604,7 @@ models:
 
   - name: anthropic/claude-opus-4-5-20251124
     display_name: Claude 4.5 Opus (20251124)
-    description: Claude 4.5 Opus is Anthropic's most intelligent model to date and sets a new standard across coding, agents, computer use, and enterprise workflows. ([blog](https://www.anthropic.com/claude/opus))
+    description: Claude 4.5 Opus is Anthropic's most intelligent model to date and sets a new standard across coding, agents, computer use, and enterprise workflows. ([blog](https://www.anthropic.com/news/claude-opus-4-5))
     creator_organization_name: Anthropic
     access: limited
     release_date: 2025-11-24
@@ -621,6 +621,14 @@ models:
   - name: anthropic/claude-opus-4-6
     display_name: Claude 4.6 Opus
     description: Claude 4.6 Opus is a large language model from Anthropic with strong capabilities in software engineering, agentic tasks, and long context reasoning, as well as in knowledge work. ([blog](https://www.anthropic.com/news/claude-opus-4-6), [system card](https://www-cdn.anthropic.com/c788cbc0a3da9135112f97cdf6dcd06f2c16cee2.pdf))
+    creator_organization_name: Anthropic
+    access: limited
+    release_date: 2026-02-05
+    tags: [TEXT_MODEL_TAG, VISION_LANGUAGE_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: anthropic/claude-opus-4-7
+    display_name: Claude 4.7 Opus
+    description: Claude 4.7 Opus is a large language model with particular skills in areas such as software engineering, knowledge work, agentic tool use, and computer use. ([blog](https://www.anthropic.com/news/claude-opus-4-7), [system card](https://anthropic.com/claude-opus-4-7-system-card))
     creator_organization_name: Anthropic
     access: limited
     release_date: 2026-02-05

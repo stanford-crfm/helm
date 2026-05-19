@@ -842,7 +842,7 @@ model_deployments:
   - name: anthropic/claude-sonnet-4-6
     model_name: anthropic/claude-sonnet-4-6
     tokenizer_name: anthropic/claude
-    max_sequence_length: 200000
+    max_sequence_length: 1000000
     client_spec:
       class_name: "helm.clients.anthropic_client.AnthropicMessagesClient"
 
@@ -850,6 +850,13 @@ model_deployments:
     model_name: anthropic/claude-opus-4-6
     tokenizer_name: anthropic/claude
     max_sequence_length: 200000
+    client_spec:
+      class_name: "helm.clients.anthropic_client.AnthropicMessagesClient"
+
+  - name: anthropic/claude-opus-4-7
+    model_name: anthropic/claude-opus-4-7
+    tokenizer_name: anthropic/claude
+    max_sequence_length: 1000000
     client_spec:
       class_name: "helm.clients.anthropic_client.AnthropicMessagesClient"
 
