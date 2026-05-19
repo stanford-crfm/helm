@@ -388,9 +388,11 @@ class AnthropicMessagesClient(CachingClient):
             del raw_request["top_p"]
 
         if re.match(r"^claude-[^-]+-4-7", raw_request["model"]):
-            # Avoid these errors:
+            # Avoid errors from the ClaudeAPI:
+            # `temperature` is deprecated for this model.
             # `top_k` is deprecated for this model.
             # `top_p` is deprecated for this model.
+            del raw_request["temperature"]
             del raw_request["top_k"]
             del raw_request["top_p"]
 
