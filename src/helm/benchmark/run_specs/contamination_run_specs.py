@@ -5,7 +5,7 @@ from helm.benchmark.metrics.common_metric_specs import get_basic_metric_specs
 from helm.benchmark.metrics.metric import MetricSpec
 
 
-@run_spec_function("contamination")
+@run_spec_function("ts_guessing_contamination")
 def get_contamination_spec(dataset: str, strategy: str, language: str) -> RunSpec:
     valid_strategies = {"ts_guessing_question_base", "ts_guessing_question_multichoice"}
     if strategy not in valid_strategies:
@@ -47,9 +47,9 @@ def get_contamination_spec(dataset: str, strategy: str, language: str) -> RunSpe
     )
 
     return RunSpec(
-        name=f"contamination:dataset={dataset},strategy={strategy},language={language}",
+        name=f"ts_guessing_contamination:dataset={dataset},strategy={strategy},language={language}",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
-        groups=["contamination"],
+        groups=["ts_guessing_contamination"],
     )
