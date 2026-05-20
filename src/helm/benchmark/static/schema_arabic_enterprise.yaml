@@ -230,7 +230,7 @@ run_groups:
 
   - name: arabic_legal_rag
     display_name: Legal Open-book Question Answering
-    short_display_name: Legal Open-book
+    short_display_name: Legal Openbook
     description: Given open-ended questions written by Arabic legal experts, the LLM is prompted to respond with short answers to the questions. In the RAG setting, the LLM is also               provided with the relevant legal statute in the prompt.
     metric_groups:
       - accuracy
@@ -248,7 +248,7 @@ run_groups:
 
   - name: arabic_legal_qa
     display_name: Legal Closed-book Question Answering
-    short_display_name: Legal Closed-book
+    short_display_name: Legal Closedbook
     description: Given open-ended questions written by Arabic legal experts, the LLM is prompted to respond with short answers to the questions. In the QA setting, the LLM is not provided with the relevant legal statute, and must answer relying only on its domain knowledge.
     metric_groups:
       - accuracy
