@@ -24,11 +24,11 @@ class TSGuessingQuestionMultiChoiceStrategy(TSGuessingContaminationStrategy):
     STRATEGY_NAME = "ts_guessing_question_multichoice"
     STRATEGY_DISPLAY_NAME = "TS-Guessing Multichoice"
 
-    def __init__(self):
+    def __init__(self, language="en"):
         """
         Initializes the TS-Guessing multichoice contamination strategy.
         """
-        super().__init__()
+        super().__init__(language=language)
         self.alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
     def transform_instances(

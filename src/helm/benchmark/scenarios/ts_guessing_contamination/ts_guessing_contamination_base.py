@@ -13,7 +13,7 @@ class TSGuessingContaminationStrategy(ABC):
     STRATEGY_NAME: str
     STRATEGY_DISPLAY_NAME: str
 
-    def __init__(self, language="str"):
+    def __init__(self, language="en"):
         self.language = language
 
     @abstractmethod
