@@ -9,7 +9,7 @@
 <a href="https://github.com/stanford-crfm/helm/graphs/contributors">
     <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/stanford-crfm/helm">
 </a>
-<a href="https://github.com/stanford-crfm/helm/actions/workflows/test.yml?query=branch%3Amain">
+<a href="https://github.com/stanford-crfm/helm/actions/workflows/test-python.yml?query=branch%3Amain">
     <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/stanford-crfm/helm/test-python.yml">
 </a>
 <a href="https://crfm-helm.readthedocs.io/en/latest/">
@@ -22,7 +22,7 @@
     <img alt="PyPI" src="https://img.shields.io/pypi/v/crfm-helm?color=blue" />
 </a>
 
-> HELM will enter maintenance mode on June 1, 2026. After this date, [Maintenace Mode Policy](https://crfm-helm.readthedocs.io/en/latest/maintenance_mode/) will take effect.
+> HELM will enter maintenance mode on June 1, 2026. After this date, [Maintenance Mode Policy](https://crfm-helm.readthedocs.io/en/latest/maintenance_mode/) will take effect.
 
 **Holistic Evaluation of Language Models (HELM)** is an open source Python framework created by the [Center for Research on Foundation Models (CRFM) at Stanford](https://crfm.stanford.edu/) for holistic, reproducible and transparent evaluation of foundation models, including large language models (LLMs) and multimodal models. This framework includes the following features:
 
@@ -65,7 +65,7 @@ Then go to http://localhost:8000/ in your browser.
 
 ## Leaderboards
 
-We maintain offical leaderboards with results from evaluating recent models on notable benchmarks using this framework. Our current flagship leaderboards are:
+We maintain official leaderboards with results from evaluating recent models on notable benchmarks using this framework. Our current flagship leaderboards are:
 
 - [HELM Capabilities](https://crfm.stanford.edu/helm/capabilities/latest/)
 - [HELM Safety](https://crfm.stanford.edu/helm/safety/latest/)
