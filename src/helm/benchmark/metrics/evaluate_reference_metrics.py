@@ -510,7 +510,19 @@ def compute_reference_metrics(
     if request_state.output_mapping is not None:
         if adapter_spec.output_mapping_pattern:
             preds = [_apply_output_mapping_pattern(adapter_spec.output_mapping_pattern, pred) for pred in preds]
-        preds = [request_state.output_mapping.get(pred) for pred in preds]  # type: ignore
+        
+        def clean_and_get(pred: str) -> Optional[str]:
+            if pred in request_state.output_mapping:
+                return request_state.output_mapping[pred]
+            cleaned = "".join(char for char in pred if char.isalnum())
+            if cleaned in request_state.output_mapping:
+                return request_state.output_mapping[cleaned]
+            for char in pred:
+                if char.isalnum() and char in request_state.output_mapping:
+                    return request_state.output_mapping[char]
+            return None
+
+        preds = [clean_and_get(pred) for pred in preds]  # type: ignore
 
     # Compute max_prob, the probability that the model assigns to its generated text.
     # Use the log prob of sorted_completions[0], which is the completion with the highest
