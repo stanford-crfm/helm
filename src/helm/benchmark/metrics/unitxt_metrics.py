@@ -151,11 +151,12 @@ class UnitxtMetric(MetricInterface):
             metric, _ = fetch_artifact(metric_names[0])
             assert isinstance(metric, Metric)
             metric_name = metric.main_score
+            display_name = metric_name.replace("_", " ").title()
             description = inspect.getdoc(metric) or metric_name
             metric_metadata.append(
                 MetricMetadata(
                     name=metric_name,
-                    display_name=metric_name,
+                    display_name=display_name,
                     description=description,
                     group="unitxt",
                 ),
