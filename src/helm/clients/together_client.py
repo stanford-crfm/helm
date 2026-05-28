@@ -286,7 +286,6 @@ class TogetherClient(CachingClient):
         completions: List[GeneratedOutput] = []
 
         for raw_completion in response["choices"]:
-            print(raw_completion)
             sequence_logprob = 0
             tokens: List[Token] = []
 
