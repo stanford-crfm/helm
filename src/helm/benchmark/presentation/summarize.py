@@ -972,6 +972,7 @@ class Summarizer:
         header: List[HeaderCell] = []
         matchers: List[MetricNameMatcher] = []
         group_names: List[str] = []  # for each column
+        seen_columns: Set[Tuple[str, str, Optional[str], Optional[str]]] = set()
         num_groups = len(set(run_group.name for run_group, _ in columns))  # number of unique groups, determines headers
 
         # Column headers
@@ -985,10 +986,19 @@ class Summarizer:
                 matcher = metric.substitute(run_group.environment)
                 if sub_split is not None:
                     matcher = replace(matcher, sub_split=sub_split)
+                column_key = (
+                    run_group.name,
+                    matcher.name,
+                    matcher.split,
+                    matcher.perturbation_name,
+                )
+                if column_key in seen_columns:
+                    continue
                 header_field = self.schema.name_to_metric.get(matcher.name)
                 if header_field is None:
                     hwarn(f"metric name {matcher.name} undefined in {self.schema_path}, skipping")
                     continue
+                seen_columns.add(column_key)
                 metadata = {
                     "metric": header_field.get_short_display_name(),
                     "run_group": run_group.get_short_display_name(),
