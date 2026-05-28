@@ -85,28 +85,31 @@ class UnitxtScenario(Scenario):
             recipe = load_recipe(self.kwargs["recipe"])
         else:
             recipe = load_recipe(**self.kwargs)
-        description = recipe.__description__
+        card = recipe.card
+        description = card.__description__
+        task = card.__tags__.get("task_categories", "?").replace("-", " ")
+        language = card.__tags__.get("language", "?")
         metric_names = recipe.task.metrics
         assert metric_names
         metric, _ = fetch_artifact(metric_names[0])
         assert isinstance(metric, Metric)
         main_metric_name = metric.main_score
         scenario_name = f'unitxt_{self.kwargs.get("card") or self.kwargs.get("recipe")}'
+        display_name = " ".join(scenario_name.split(".")[1:]).replace("_", " ").title()
         if "split" in self.kwargs:
             self.UNITXT_SPLIT_NAME_TO_HELM_SPLIT_NAME[self.kwargs["split"]]
         else:
             split = TEST_SPLIT
         return ScenarioMetadata(
             name=scenario_name,
-            display_name=scenario_name,
-            short_display_name=scenario_name,
+            display_name=display_name,
             description=description,
             taxonomy=TaxonomyInfo(
-                task="?",
+                task=task,
                 what="?",
                 when="?",
                 who="?",
-                language="?",
+                language=language,
             ),
             main_metric=main_metric_name,
             main_split=split,

@@ -1,3 +1,4 @@
+import inspect
 import numbers
 import re
 from typing import Any, Dict, List, Optional, Set, Union
@@ -159,11 +160,12 @@ class UnitxtMetric(MetricInterface):
             metric, _ = fetch_artifact(metric_names[0])
             assert isinstance(metric, Metric)
             metric_name = metric.main_score
+            description = inspect.getdoc(metric) or metric_name
             metric_metadata.append(
                 MetricMetadata(
                     name=metric_name,
                     display_name=metric_name,
-                    description=f"{metric_name} (Unitxt)",
+                    description=description,
                     group="unitxt",
                 ),
             )
