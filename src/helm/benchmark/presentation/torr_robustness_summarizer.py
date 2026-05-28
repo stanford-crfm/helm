@@ -101,7 +101,7 @@ class ToRRRobustnessSummarizer(Summarizer):
 
     def write_groups(self):
         for run_group in self.schema.run_groups:
-            if self.ROBUSTNESS_METRIC_GROUP_NAME and self.PERFORMANCE_METRIC_GROUP_NAME in run_group.metric_groups:
+            if self.ROBUSTNESS_METRIC_GROUP_NAME in run_group.metric_groups and self.PERFORMANCE_METRIC_GROUP_NAME in run_group.metric_groups:
                 self.run_group_to_model_name_to_robustness[run_group.name] = self._compute_robustness_for_run_group(
                     run_group
                 )
