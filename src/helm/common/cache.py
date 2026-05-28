@@ -1,6 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass
-from typing import Dict, Callable, Generator, Mapping, Tuple
+from typing import Dict, Callable, Generator, Mapping, Optional, Tuple
 import json
 import threading
 
@@ -79,9 +79,26 @@ class MongoCacheConfig(KeyValueStoreCacheConfig):
     # Name of the MongoDB collection.
     collection_name: str
 
+    # Optional credentials supplied separately from the URI.
+    username: Optional[str] = None
+    password: Optional[str] = None
+
+    def __repr__(self) -> str:
+        from helm.common.cache_backend_config import redact_mongo_uri
+
+        username = "<set>" if self.username else None
+        password = "<redacted>" if self.password else None
+        return (
+            f"MongoCacheConfig(uri={redact_mongo_uri(self.uri)!r}, "
+            f"collection_name={self.collection_name!r}, "
+            f"username={username!r}, password={password!r})"
+        )
+
     @property
     def cache_stats_key(self) -> str:
-        return f"{self.uri}/{self.collection_name}"
+        from helm.common.cache_backend_config import redact_mongo_uri
+
+        return f"{redact_mongo_uri(self.uri)}/{self.collection_name}"
 
 
 def get_all_from_sqlite(path: str) -> Generator[Tuple[Dict, Dict], None, None]:
@@ -108,7 +125,7 @@ def create_key_value_store(config: KeyValueStoreCacheConfig) -> KeyValueStore:
     if isinstance(config, MongoCacheConfig):
         from helm.common.mongo_key_value_store import MongoKeyValueStore
 
-        return MongoKeyValueStore(config.uri, config.collection_name)
+        return MongoKeyValueStore(config.uri, config.collection_name, config.username, config.password)
     elif isinstance(config, SqliteCacheConfig):
         return SqliteKeyValueStore(config.path)
     elif isinstance(config, BlackHoleCacheConfig):

@@ -21,7 +21,8 @@ from helm.benchmark.config_registry import (
 )
 from helm.benchmark.model_deployment_registry import get_default_model_deployment_for_model
 from helm.common.authentication import Authentication
-from helm.common.cache_backend_config import CacheBackendConfig, MongoCacheBackendConfig, SqliteCacheBackendConfig
+from helm.common.cache_backend_config import CacheBackendConfig, SqliteCacheBackendConfig
+from helm.common.cache_backend_config import get_mongo_cache_backend_config
 from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import hlog, setup_default_logging
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -279,8 +280,9 @@ def main():
     register_configs_from_directory(args.base_path)
 
     cache_backend_config: CacheBackendConfig
-    if args.mongo_uri:
-        cache_backend_config = MongoCacheBackendConfig(args.mongo_uri)
+    resolved_mongo_cache_backend_config = get_mongo_cache_backend_config(args.mongo_uri, args.base_path)
+    if resolved_mongo_cache_backend_config:
+        cache_backend_config = resolved_mongo_cache_backend_config
     else:
         sqlite_cache_path = os.path.join(args.base_path, CACHE_DIR)
         ensure_directory_exists(sqlite_cache_path)
