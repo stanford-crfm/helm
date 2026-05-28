@@ -61,8 +61,11 @@ export default function ArabicEnterpriseLanding() {
           </p>
 
           <div className="flex flex-row justify-center mt-4">
-            <a className="px-10 btn rounded-md mx-4" href="#">
-              Blog Post (Upcoming)
+            <a
+              className="px-10 btn rounded-md mx-4"
+              href="https://crfm.stanford.edu/2026/05/26/helm-arabic-enterprise.html"
+            >
+              Blog Post
             </a>
             <a className="px-10 btn rounded-md mx-4" href="#/leaderboard">
               Full Leaderboard
