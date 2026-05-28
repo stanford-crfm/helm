@@ -52,7 +52,7 @@ class UnitxtMetric(MetricInterface):
             predictions.append(request_state.result.completions[0].text)
 
         # Compute metrics
-        evaluate_results: List[Dict] = evaluate(predictions, self.dataset.get(unitxt_split_name))
+        evaluate_results: List[Dict] = evaluate(predictions=predictions, dataset=references)
 
         # Extract instance metrics
         non_number_instance_metric_names: Set[str] = set()
