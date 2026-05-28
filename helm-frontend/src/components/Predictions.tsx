@@ -4,7 +4,6 @@ import type MetricFieldMap from "@/types/MetricFieldMap";
 import Indicator from "@/components/Indicator";
 import Request from "@/components/Request";
 import Preview from "@/components/Preview";
-import { List, ListItem } from "@tremor/react";
 import AnnotationsDisplay from "./AnnotationsDisplay";
 
 type Props = {
@@ -72,22 +71,30 @@ export default function Predictions({
             <AnnotationsDisplay
               predictionAnnotations={prediction.annotations}
             />
-            <div className="mx-1">
+            <div className="mx-1 max-w-3xl" data-testid="prediction-metrics">
               <h3>Metrics</h3>
-              <List>
+              <ul className="divide-y divide-gray-200 rounded-md border border-gray-200 bg-white">
                 {Object.keys(prediction.stats).map((statKey, idx) => (
-                  <ListItem key={idx}>
+                  <li
+                    className="grid grid-cols-[minmax(0,1fr)_auto] gap-4 px-4 py-2"
+                    key={idx}
+                  >
                     {metricFieldMap[statKey] ? (
-                      <span title={metricFieldMap[statKey].description}>
+                      <span
+                        className="min-w-0 break-words"
+                        title={metricFieldMap[statKey].description}
+                      >
                         {metricFieldMap[statKey].display_name}
                       </span>
                     ) : (
-                      <span>{statKey}</span>
+                      <span className="min-w-0 break-words">{statKey}</span>
                     )}
-                    <span>{String(prediction.stats[statKey])}</span>
-                  </ListItem>
+                    <span className="whitespace-nowrap text-right font-medium">
+                      {String(prediction.stats[statKey])}
+                    </span>
+                  </li>
                 ))}
-              </List>
+              </ul>
             </div>
             <details className="collapse collapse-arrow border rounded-md bg-white">
               <summary className="collapse-title">Request details</summary>
