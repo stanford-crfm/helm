@@ -1,8 +1,7 @@
 import inspect
 import numbers
 import re
-from typing import Any, Dict, List, Optional, Set, Union
-from threading import Lock
+from typing import Any, Dict, List, Set, Union
 
 from datasets import Dataset, IterableDataset
 
@@ -31,28 +30,20 @@ class UnitxtMetric(MetricInterface):
     def __init__(self, **kwargs):
         super().__init__()
         self.kwargs = kwargs
-        self._lock = Lock()
-        self._dataset_dict: Optional[Dict[str, Union[Dataset, IterableDataset]]] = None
 
     def get_dataset_dict(self) -> Dict[str, Union[Dataset, IterableDataset]]:
-        if not self._dataset_dict:
-            with self._lock:
-                if len(self.kwargs) == 1 and "recipe" in self.kwargs:
-                    unitxt_dataset = load_dataset(self.kwargs["recipe"])
-                else:
-                    unitxt_dataset = load_dataset(**self.kwargs)
+        if len(self.kwargs) == 1 and "recipe" in self.kwargs:
+            unitxt_dataset = load_dataset(self.kwargs["recipe"])
+        else:
+            unitxt_dataset = load_dataset(**self.kwargs)
 
-                if isinstance(unitxt_dataset, dict):
-                    self._dataset_dict = unitxt_dataset
-                else:
-                    if "split" in self.kwargs:
-                        self._dataset_dict = {self.kwargs["split"]: unitxt_dataset}
-                    else:
-                        raise Exception(
-                            "Expected Unitxt `load_dataset()` to return a dict because `split` was not specified"
-                        )
-
-        return self._dataset_dict
+        if isinstance(unitxt_dataset, dict):
+            return unitxt_dataset
+        else:
+            if "split" in self.kwargs:
+                return {self.kwargs["split"]: unitxt_dataset}
+            else:
+                raise Exception("Expected Unitxt `load_dataset()` to return a dict because `split` was not specified")
 
     def get_split_to_request_states(self, scenario_state: ScenarioState) -> Dict[str, List[RequestState]]:
         split_to_request_states: Dict[str, List[RequestState]] = {}
