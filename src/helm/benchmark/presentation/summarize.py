@@ -600,14 +600,14 @@ class Summarizer:
         scenario_specs = list(set(scenario_specs))
         scenario_name_to_metadata: Dict[str, ScenarioMetadata] = {}
         for scenario_spec in scenario_specs:
-            # try:
-            scenario: Scenario = create_scenario(scenario_spec)
-            scenario_metadata = scenario.get_metadata()
-            scenario_name_to_metadata[scenario_metadata.name] = scenario_metadata
-            # except NotImplementedError:
-            #     pass
-            # except (ModuleNotFoundError, AttributeError, TypeError):
-            #     pass
+            try:
+                scenario: Scenario = create_scenario(scenario_spec)
+                scenario_metadata = scenario.get_metadata()
+                scenario_name_to_metadata[scenario_metadata.name] = scenario_metadata
+            except NotImplementedError:
+                pass
+            except (ModuleNotFoundError, AttributeError, TypeError):
+                pass
 
         run_groups: Set[str] = set()
         for run in self.runs:
