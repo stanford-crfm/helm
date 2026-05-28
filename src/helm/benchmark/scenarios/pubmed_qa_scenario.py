@@ -205,6 +205,6 @@ class PubMedQAScenario(Scenario):
                 who="Researcher",
                 language="English",
             ),
-            main_metric="exact_match",
+            main_metric="quasi_exact_match",
             main_split="test",
         )
