@@ -240,7 +240,7 @@ run_groups:
       main_name: model_judged_score
       main_split: test
     taxonomy:
-      task: knowledge-based question answering
+      task: context-based question answering
       what: legal questions
       who: legal professionals
       when: "before 2026"
@@ -258,7 +258,7 @@ run_groups:
       main_name: model_judged_score
       main_split: test
     taxonomy:
-      task: context-based question answering
+      task: knowledge-based question answering
       what: legal questions
       who: legal professionals
       when: "before 2026"
