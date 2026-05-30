@@ -22,6 +22,7 @@ from helm.common.tokenization_request import (
 )
 from helm.common.request import Request, RequestResult
 from dacite import from_dict
+from helm.benchmark.model_metadata_registry import DACITE_CONFIG
 from helm.proxy.accounts import Account
 from helm.proxy.query import Query, QueryResult
 from helm.proxy.services.service import Service, GeneralInfo
@@ -48,7 +49,9 @@ class RemoteService(Service):
 
     def get_general_info(self) -> GeneralInfo:
         response = requests.get(f"{self.base_url}/api/general_info").json()
-        return from_dict(GeneralInfo, response)
+        # GeneralInfo contains ModelMetadata, which has a `release_date` date field
+        # that dacite needs the DACITE_CONFIG type hook to reconstruct from a string.
+        return from_dict(GeneralInfo, response, config=DACITE_CONFIG)
 
     def expand_query(self, query: Query) -> QueryResult:
         params = asdict(query)

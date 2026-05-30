@@ -6,6 +6,12 @@ import dacite
 import yaml
 
 
+# dacite cannot reconstruct a `date` from an ISO format string on its own, so
+# provide a type hook that parses the string back into a `date`. Use this config
+# whenever deserializing a dataclass that contains a `ModelMetadata`.
+DACITE_CONFIG = dacite.Config(type_hooks={date: date.fromisoformat})
+
+
 # Different modalities
 TEXT_MODEL_TAG: str = "TEXT_MODEL_TAG"
 IMAGE_MODEL_TAG: str = "IMAGE_MODEL_TAG"
