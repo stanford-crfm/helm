@@ -1,6 +1,6 @@
 # Maintenance Mode Policy
 
-HELM will enter maintenance mode on June 1, 2026. After this date, the following policy will take effect.
+_HELM entered maintenance mode on June 1, 2026._
 
 HELM will continue to be maintained by volunteer maintainers on a best-effort basis. The HELM code and leaderboards will continue to be available as open-source resources for the community. However, no new features will be added to HELM, and no new evaluations will be added to the HELM leaderboards.
 
