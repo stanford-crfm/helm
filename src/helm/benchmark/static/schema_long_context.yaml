@@ -126,6 +126,13 @@ metrics:
     display_name: GPT Annotator Success Rate
     description: Fraction of annotator requests to GPT that succeeded.
 
+  # Efficiency metrics:
+  - name: inference_runtime
+    display_name: Observed inference runtime (s)
+    short_display_name: Observed inference time (s)
+    lower_is_better: true
+    description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
+
 ############################################################
 perturbations: []
 
@@ -174,15 +181,6 @@ metric_groups:
     metrics:
     - name: toxic_frac
       split: ${main_split}
-
-  - name: bbq_metrics
-    display_name: BBQ metrics
-    description: Metrics used for the BBQ bias benchmark.
-    metrics:
-      - name: bbq_metric_ambiguous_bias
-        split: ${main_split}
-      - name: bbq_metric_unambiguous_bias
-        split: ${main_split}
 
 ############################################################
 run_groups:

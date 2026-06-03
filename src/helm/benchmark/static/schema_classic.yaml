@@ -645,7 +645,7 @@ metric_groups:
         perturbation_name: typos
       - name: ${main_name}
         split: ${main_split}
-        perturbation_name: synonyms
+        perturbation_name: synonym
 
   - name: fairness
     display_name: Fairness
@@ -806,7 +806,7 @@ metric_groups:
   - name: cleva_translation_metrics
     display_name: CLEVA (Chinese) translation metrics
     metrics:
-      - name: bleu
+      - name: chinese_bleu_1
         split: ${main_split}
 
   - name: cleva_summarization_metrics

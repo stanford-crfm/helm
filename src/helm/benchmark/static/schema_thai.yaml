@@ -71,6 +71,13 @@ metrics:
     description: Fraction of instances that the predicted output matches a correct reference exactly.
     lower_is_better: false
 
+  # Efficiency metrics:
+  - name: inference_runtime
+    display_name: Observed inference runtime (s)
+    short_display_name: Observed inference time (s)
+    lower_is_better: true
+    description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
+
 ############################################################
 perturbations: []
 

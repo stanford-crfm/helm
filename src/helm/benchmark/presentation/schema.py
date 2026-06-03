@@ -536,10 +536,16 @@ def validate_schema(
                     location=f"{location}.split",
                 )
 
-            pert_name = metric_matcher.perturbation_name
-            if pert_name is not None and pert_name:
-                if not is_template_variable(pert_name) and pert_name not in defined_perturbation_names:
-                    add_error(f"Perturbation '{pert_name}' is not defined", location=f"{location}.perturbation_name")
+            perturbation_name = metric_matcher.perturbation_name
+            if (
+                perturbation_name is not None
+                and not perturbation_name.startswith("__")
+                and not is_template_variable(perturbation_name)
+                and perturbation_name not in defined_perturbation_names
+            ):
+                add_error(
+                    f"Perturbation '{perturbation_name}' is not defined", location=f"{location}.perturbation_name"
+                )
 
     # Detect circular references
     cycles = _detect_cycles_in_subgroups(run_groups, schema.name_to_run_group)
