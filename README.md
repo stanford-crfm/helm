@@ -77,16 +77,16 @@ We also maintain leaderboards for a diverse range of domains (e.g. medicine, fin
 
 The HELM framework was used in the following papers for evaluating models.
 
-- **Holistic Evaluation of Language Models** - [paper](https://openreview.net/forum?id=iO4LZibEqW), [leaderboard](https://crfm.stanford.edu/helm/classic/latest/)
-- **Holistic Evaluation of Vision-Language Models (VHELM)** - [paper](https://arxiv.org/abs/2410.07112), [leaderboard](https://crfm.stanford.edu/helm/vhelm/latest/), [documentation](https://crfm-helm.readthedocs.io/en/latest/vhelm/)
-- **Holistic Evaluation of Text-To-Image Models (HEIM)** - [paper](https://arxiv.org/abs/2311.04287), [leaderboard](https://crfm.stanford.edu/helm/heim/latest/), [documentation](https://crfm-helm.readthedocs.io/en/latest/heim/)
-- **Image2Struct: Benchmarking Structure Extraction for Vision-Language Models** - [paper](https://arxiv.org/abs/2410.22456)
-- **Enterprise Benchmarks for Large Language Model Evaluation** - [paper](https://arxiv.org/abs/2410.12857), [documentation](https://crfm-helm.readthedocs.io/en/latest/enterprise_benchmark/)
-- **The Mighty ToRR: A Benchmark for Table Reasoning and Robustness** - [paper](https://arxiv.org/abs/2502.19412), [leaderboard](https://crfm.stanford.edu/helm/torr/latest/)
-- **Efficient Benchmarking of Language Models** - [paper](https://arxiv.org/abs/2308.11696), [documentation](https://crfm-helm.readthedocs.io/en/latest/efficient_benchmarking/)
-- **Reliable and Efficient Amortized Model-based Evaluation** - [paper](https://arxiv.org/abs/2503.13335), [documentation](https://crfm-helm.readthedocs.io/en/latest/reeval/)
-- **Holistic evaluation of large language models for medical tasks with MedHELM** - [paper](https://www.nature.com/articles/s41591-025-04151-2), [leaderboard](https://crfm.stanford.edu/helm/medhelm/latest/)
-- **Holistic Evaluation of Audio-Language Models** - [paper](https://arxiv.org/abs/2508.21376), [leaderboard](https://crfm.stanford.edu/helm/audio/latest/)
+- Holistic Evaluation of Language Models - [paper](https://openreview.net/forum?id=iO4LZibEqW), [leaderboard](https://crfm.stanford.edu/helm/classic/latest/)
+- Holistic Evaluation of Vision-Language Models (VHELM) - [paper](https://arxiv.org/abs/2410.07112), [leaderboard](https://crfm.stanford.edu/helm/vhelm/latest/), [documentation](https://crfm-helm.readthedocs.io/en/latest/vhelm/)
+- Holistic Evaluation of Text-To-Image Models (HEIM) - [paper](https://arxiv.org/abs/2311.04287), [leaderboard](https://crfm.stanford.edu/helm/heim/latest/), [documentation](https://crfm-helm.readthedocs.io/en/latest/heim/)
+- Image2Struct: Benchmarking Structure Extraction for Vision-Language Models - [paper](https://arxiv.org/abs/2410.22456)
+- Enterprise Benchmarks for Large Language Model Evaluation - [paper](https://arxiv.org/abs/2410.12857), [documentation](https://crfm-helm.readthedocs.io/en/latest/enterprise_benchmark/)
+- The Mighty ToRR: A Benchmark for Table Reasoning and Robustness - [paper](https://arxiv.org/abs/2502.19412), [leaderboard](https://crfm.stanford.edu/helm/torr/latest/)
+- Efficient Benchmarking of Language Models - [paper](https://arxiv.org/abs/2308.11696), [documentation](https://crfm-helm.readthedocs.io/en/latest/efficient_benchmarking/)
+- Reliable and Efficient Amortized Model-based Evaluation - [paper](https://arxiv.org/abs/2503.13335), [documentation](https://crfm-helm.readthedocs.io/en/latest/reeval/)
+- Holistic evaluation of large language models for medical tasks with MedHELM - [paper](https://www.nature.com/articles/s41591-025-04151-2), [leaderboard](https://crfm.stanford.edu/helm/medhelm/latest/)
+- Holistic Evaluation of Audio-Language Models - [paper](https://arxiv.org/abs/2508.21376), [leaderboard](https://crfm.stanford.edu/helm/audio/latest/)
 
 The HELM framework can be used to reproduce the published model evaluation results from these papers. To get started, refer to the documentation links above for the corresponding paper, or the [main Reproducing Leaderboards documentation](https://crfm-helm.readthedocs.io/en/latest/reproducing_leaderboards/).
 
