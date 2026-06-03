@@ -22,7 +22,7 @@
     <img alt="PyPI" src="https://img.shields.io/pypi/v/crfm-helm?color=blue" />
 </a>
 
-> HELM will enter maintenance mode on June 1, 2026. After this date, [Maintenance Mode Policy](https://crfm-helm.readthedocs.io/en/latest/maintenance_mode/) will take effect.
+_Note: HELM entered maintenance mode on June 1, 2026. For more information, refer to the [Maintenance Mode Policy](https://crfm-helm.readthedocs.io/en/latest/maintenance_mode/)._
 
 **Holistic Evaluation of Language Models (HELM)** is an open source Python framework created by the [Center for Research on Foundation Models (CRFM) at Stanford](https://crfm.stanford.edu/) for holistic, reproducible and transparent evaluation of foundation models, including large language models (LLMs) and multimodal models. This framework includes the following features:
 
