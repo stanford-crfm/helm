@@ -105,13 +105,6 @@ metrics:
   lower_is_better: true
   description: Estimate of the amount of energy used to train the model.
 
-- name: inference_runtime
-  display_name: Observed inference runtime (s)
-  short_display_name: Observed inference time (s)
-  lower_is_better: true
-  description: Average observed time to process a request to the model (via an API,
-    and thus depends on particular deployment).
-
 - name: inference_idealized_runtime
   display_name: Idealized inference runtime (s)
   short_display_name: Idealized inference time (s)

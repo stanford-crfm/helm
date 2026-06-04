@@ -80,6 +80,12 @@ metrics:
     display_name: Adjusted Macro F1 Score
     short_display_name: Adjusted Macro F1 Score
     description: Entity type classification F1 score, adjusted for partial matches following the KPI-Edgar paper, macro-averaged across entity types
+  # Efficiency metrics:
+  - name: inference_runtime
+    display_name: Observed inference runtime (s)
+    short_display_name: Observed inference time (s)
+    lower_is_better: true
+    description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
 
 ############################################################
 perturbations: []
