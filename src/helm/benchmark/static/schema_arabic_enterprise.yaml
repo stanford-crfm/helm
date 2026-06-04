@@ -100,7 +100,7 @@ metrics:
   - name: arabic_content_generation_score
     display_name: Model Judged Score
     short_display_name: Score
-    description: Model-judged score.
+    description: Model-judged score based on faithfulness, completeness and style adherence.
     lower_is_better: false
   - name: model_judged_score
     display_name: Model Judged Score
