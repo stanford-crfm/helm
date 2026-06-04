@@ -115,7 +115,7 @@ perturbations: []
 metric_groups:
   - name: accuracy
     display_name: Accuracy
-    aggregation_strategies: 
+    aggregation_strategies:
       - mean
     metrics:
       - name: ${main_name}
@@ -123,7 +123,7 @@ metric_groups:
 
   - name: efficiency
     display_name: Efficiency
-    aggregation_strategies: 
+    aggregation_strategies:
       - mean
     metrics:
     - name: inference_runtime
@@ -151,15 +151,15 @@ run_groups:
     description: Arabic Scenarios
     category: Scenarios
     subgroups:
-      - arabic_legal_qa
-      - arabic_legal_rag
       - arabic_content_generation
-      - arabic_finance_calculation
       - arabic_finance_mcq
       - arabic_finance_bool
+      - arabic_finance_calculation
+      - arabic_legal_rag
+      - arabic_legal_qa
 
   - name: arabic_content_generation
-    display_name: Content Generation
+    display_name: Article Generation
     description: Given summaries of from real news articles, the LLM is prompted to generate new articles in a corporate style. The generated articles are then graded by an LLM-as-judge for faithfulness, completeness, and style adherence.
     metric_groups:
       - accuracy
@@ -172,6 +172,42 @@ run_groups:
       task: content generation
       what: news articles and press releases
       who: journalists and communciations professionals
+      when: "before 2026"
+      language: Arabic
+
+  - name: arabic_finance_mcq
+    display_name: Finance Multiple Choice Question Answering
+    short_display_name: Finance MCQA
+    description: Given questions from English language finance textbooks that have been translated to Arabic using machine translation, the LLM is prompted to answer the questions. In the MCQA setting, the LLM must choose between three possible choices.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: finance questions
+      who: finance professionals
+      when: "before 2026"
+      language: Arabic
+
+  - name: arabic_finance_bool
+    display_name: Finance Boolean Verification
+    short_display_name: Finance Bool
+    description:  Given questions from English language finance textbooks that have been translated to Arabic using machine translation, the LLM is prompted to answer the questions. In the boolean verification setting, the LLM must decide if a given statement is true or false.
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: quasi_exact_match
+      main_split: test
+    taxonomy:
+      task: boolean question answering
+      what: finance questions
+      who: finance professionals
       when: "before 2026"
       language: Arabic
 
@@ -192,43 +228,10 @@ run_groups:
       when: "before 2026"
       language: Arabic
 
-  - name: arabic_finance_mcq
-    display_name: Finance MCQ
-    description: Given questions from English language finance textbooks that have been translated to Arabic using machine translation, the LLM is prompted to answer the questions. In the MCQ setting, the LLM must choose between three possible choices.
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: exact_match
-      main_split: test
-    taxonomy:
-      task: multiple-choice question answering
-      what: finance questions
-      who: finance professionals
-      when: "before 2026"
-      language: Arabic
-
-  - name: arabic_finance_bool
-    display_name: Finance Bool
-    description:  Given questions from English language finance textbooks that have been translated to Arabic using machine translation, the LLM is prompted to answer the questions. In the MCQ setting, the LLM must choose between threepossible choices. In the boolean setting, the LLM must decide if a given statement is true or false.
-    metric_groups:
-      - accuracy
-      - efficiency
-      - general_information
-    environment:
-      main_name: quasi_exact_match
-      main_split: test
-    taxonomy:
-      task: boolean question answering
-      what: finance questions
-      who: finance professionals
-      when: "before 2026"
-      language: Arabic
-
-  - name: arabic_legal_qa
-    display_name: Legal QA
-    description: Given open-ended questions written by Arabic legal experts, the LLM is prompted to respond with short answers to the questions. In the QA setting, the LLM is not provided with the relevant legal statute, and must answer relying only on its domain knowledge.
+  - name: arabic_legal_rag
+    display_name: Legal Open-book Question Answering
+    short_display_name: Legal Openbook QA
+    description: Given open-ended questions written by Arabic legal experts, the LLM is prompted to respond with short answers to the questions. In the open-book setting, the LLM is also provided with the relevant legal statute in the prompt.
     metric_groups:
       - accuracy
       - efficiency
@@ -243,9 +246,10 @@ run_groups:
       when: "before 2026"
       language: Arabic
 
-  - name: arabic_legal_rag
-    display_name: Legal RAG
-    description: Given open-ended questions written by Arabic legal experts, the LLM is prompted to respond with short answers to the questions. In the RAG setting, the LLM is also               provided with the relevant legal statute in the prompt.
+  - name: arabic_legal_qa
+    display_name: Legal Closed-book Question Answering
+    short_display_name: Legal Closedbook QA
+    description: Given open-ended questions written by Arabic legal experts, the LLM is prompted to respond with short answers to the questions. In the closed-book setting, the LLM is not provided with the relevant legal statute, and must answer relying only on its domain knowledge.
     metric_groups:
       - accuracy
       - efficiency
