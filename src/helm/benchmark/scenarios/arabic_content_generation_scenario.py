@@ -57,16 +57,20 @@ class ArabicContentGenerationScenario(Scenario):
 
     def get_metadata(self) -> ScenarioMetadata:
         return ScenarioMetadata(
-            name=self.name,
-            display_name="Arabic Content Generation",
-            description=self.description,
-            main_metric="exact_match",
+            name="arabic_content_generation",
+            main_metric="arabic_content_generation_score",
             main_split="test",
+            display_name="Article Generation",
+            short_display_name=None,
+            description="Given summaries of from real news articles, the LLM is prompted to generate "
+            "new articles in a corporate style. The generated articles are then graded by "
+            "an LLM-as-judge for faithfulness, completeness, and style adherence.",
+            short_description=None,
             taxonomy=TaxonomyInfo(
                 task="content generation",
-                what="news articles",
-                who="journalists",
+                what="news articles and press releases",
                 when="before 2026",
+                who="journalists and communciations professionals",
                 language="Arabic",
             ),
         )
