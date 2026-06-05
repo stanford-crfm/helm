@@ -3,6 +3,7 @@ from typing import List
 
 import datasets
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -75,6 +76,27 @@ class ArabicLegalQAScenario(ArabicLegalScenario):
     def __init__(self):
         super().__init__(task="qa")
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="arabic_legal_qa",
+            main_metric="model_judged_score",
+            main_split="test",
+            display_name="Legal Closed-book Question Answering",
+            short_display_name="Legal Closedbook QA",
+            description="Given open-ended questions written by Arabic legal experts, the LLM is "
+            "prompted to respond with short answers to the questions. In the closed-book "
+            "setting, the LLM is not provided with the relevant legal statute, and must "
+            "answer relying only on its domain knowledge.",
+            short_description=None,
+            taxonomy=TaxonomyInfo(
+                task="knowledge-based question answering",
+                what="legal questions",
+                when="before 2026",
+                who="legal professionals",
+                language="Arabic",
+            ),
+        )
+
 
 class ArabicLegalRAGScenario(ArabicLegalScenario):
     name = "arabic_legal_rag"
@@ -83,3 +105,24 @@ class ArabicLegalRAGScenario(ArabicLegalScenario):
 
     def __init__(self):
         super().__init__(task="rag")
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="arabic_legal_rag",
+            main_metric="model_judged_score",
+            main_split="test",
+            display_name="Legal Open-book Question Answering",
+            short_display_name="Legal Openbook QA",
+            description="Given open-ended questions written by Arabic legal experts, the LLM is "
+            "prompted to respond with short answers to the questions. In the open-book "
+            "setting, the LLM is also provided with the relevant legal statute in the "
+            "prompt.",
+            short_description=None,
+            taxonomy=TaxonomyInfo(
+                task="context-based question answering",
+                what="legal questions",
+                when="before 2026",
+                who="legal professionals",
+                language="Arabic",
+            ),
+        )

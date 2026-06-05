@@ -3,6 +3,7 @@ from typing import Dict, List
 
 import datasets
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_directory_exists
 
@@ -85,6 +87,27 @@ class ArabicFinanceBoolScenario(ArabicFinanceScenario):
         else:
             raise ValueError(f"Unknown ground truth value {row[self.ground_truth_key]}")
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="arabic_finance_bool",
+            main_metric="quasi_exact_match",
+            main_split="test",
+            display_name="Finance Boolean Verification",
+            short_display_name="Finance Bool",
+            description="Given questions from English language finance textbooks that have been "
+            "translated to Arabic using machine translation, the LLM is prompted to answer "
+            "the questions. In the boolean verification setting, the LLM must decide if a "
+            "given statement is true or false.",
+            short_description=None,
+            taxonomy=TaxonomyInfo(
+                task="boolean question answering",
+                what="finance questions",
+                when="before 2026",
+                who="finance professionals",
+                language="Arabic",
+            ),
+        )
+
 
 class ArabicFinanceMCQScenario(ArabicFinanceScenario):
     name = "arabic_finance_mcq"
@@ -112,6 +135,27 @@ class ArabicFinanceMCQScenario(ArabicFinanceScenario):
         assert len(references) == 3
         return references
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="arabic_finance_mcq",
+            main_metric="exact_match",
+            main_split="test",
+            display_name="Finance Multiple Choice Question Answering",
+            short_display_name="Finance MCQA",
+            description="Given questions from English language finance textbooks that have been "
+            "translated to Arabic using machine translation, the LLM is prompted to answer "
+            "the questions. In the MCQA setting, the LLM must choose between three possible "
+            "choices.",
+            short_description=None,
+            taxonomy=TaxonomyInfo(
+                task="multiple-choice question answering",
+                what="finance questions",
+                when="before 2026",
+                who="finance professionals",
+                language="Arabic",
+            ),
+        )
+
 
 class ArabicFinanceCalculationScenario(ArabicFinanceScenario):
     name = "arabic_finance_calculation"
@@ -123,3 +167,24 @@ class ArabicFinanceCalculationScenario(ArabicFinanceScenario):
 
     def get_references(self, row: Dict[str, str]) -> List[Reference]:
         return [Reference(output=Output(text=row[self.ground_truth_key]), tags=[CORRECT_TAG])]
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="arabic_finance_calculation",
+            main_metric="calculation_accuracy",
+            main_split="test",
+            display_name="Finance Calculation",
+            short_display_name=None,
+            description="Given questions from English language finance textbooks that have been "
+            "translated to Arabic using machine translation, the LLM is prompted to answer "
+            "the questions. In the calculation setting, the LLM must perform mathematical "
+            "calculations to produce a numeric answer.",
+            short_description=None,
+            taxonomy=TaxonomyInfo(
+                task="calculation",
+                what="finance questions",
+                when="before 2026",
+                who="finance professionals",
+                language="Arabic",
+            ),
+        )
