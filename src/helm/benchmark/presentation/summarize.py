@@ -31,7 +31,7 @@ from helm.common.general import (
     unique_simplification,
 )
 from helm.common.codec import from_json
-from helm.common.hierarchical_logger import hlog, htrack, htrack_block, hwarn, setup_default_logging
+from helm.common.hierarchical_logger import hlog, htrack, htrack_block, hwarn, herror, setup_default_logging
 from helm.benchmark.scenarios.scenario import Scenario, ScenarioMetadata, ScenarioSpec, create_scenario
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.metric_name import MetricName
@@ -1377,10 +1377,16 @@ class Summarizer:
             hwarn(f"Schema validation warning: {msg}")
 
         for msg in errors:
-            hlog(f"Schema validation error: {msg}")
+            herror(f"Schema validation error: {msg}")
 
         if messages:
-            hlog(f"Schema validation complete: {len(errors)} error(s), {len(warnings)} warning(s)")
+            schema_validation_message = (
+                f"Schema validation complete: {len(errors)} error(s), {len(warnings)} warning(s)"
+            )
+            if errors:
+                herror(schema_validation_message)
+            elif warnings:
+                hwarn(schema_validation_message)
 
         # Raise error if in "error" mode and there are errors
         if self.schema_validation == "error" and errors:

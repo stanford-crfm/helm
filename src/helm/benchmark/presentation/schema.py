@@ -382,7 +382,7 @@ def validate_schema(
     schema_path: Optional[str] = None,
     strict: bool = True,
     check_parent_child_partition: bool = False,
-    check_orphan_children: bool = False,
+    check_orphan_children: bool = True,
 ) -> List[SchemaValidationMessage]:
     """Validate a Schema object and return a list of validation messages.
 
@@ -589,6 +589,29 @@ def validate_schema(
                 add_warning(
                     f"Child run_group '{run_group.name}' is not referenced by any parent",
                     location=f"run_groups[{run_group.name}]",
+                )
+
+        referenced_metric_groups: Set[str] = set()
+        for run_group in run_groups:
+            referenced_metric_groups |= set(run_group.metric_groups)
+        for metric_group in metric_groups:
+            if metric_group.name not in referenced_metric_groups:
+                add_warning(
+                    f"Metric group '{metric_group.name}' is not referenced by any run group",
+                    location=f"metric_groups[{metric_group.name}]",
+                )
+
+        referenced_metrics: Set[str] = set()
+        for metric_group in metric_groups:
+            for metric_matcher in metric_group.metrics:
+                referenced_metrics.add(metric_matcher.name)
+        for run_group in run_groups:
+            referenced_metrics |= set(run_group.environment.values())
+        for metric in metrics:
+            if metric.name not in referenced_metrics:
+                add_warning(
+                    f"Metric '{metric.name}' is not referenced by any metric group",
+                    location=f"metrics[{metric.name}]",
                 )
 
     if strict:
