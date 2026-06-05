@@ -34,10 +34,10 @@ class ArabicContentGenerationMetric(Metric):
         return [
             MetricMetadata(
                 name="arabic_content_generation_score",
-                display_name="Arabic Content Generation Score",
+                display_name="Model Judged Score",
                 short_display_name="Score",
-                description="LLM-judged quality score",
+                description="Model-judged score based on faithfulness, completeness and style adherence.",
                 lower_is_better=False,
-                group="accuracy",
+                group=None,
             ),
         ]

@@ -2,7 +2,7 @@ from typing import List
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
@@ -20,3 +20,15 @@ class ArabicLegalMetric(Metric):
         assert "arabic_legal" in request_state.annotations
         score = request_state.annotations["arabic_legal"]["score"]
         return [Stat(MetricName("model_judged_score")).add(score)]
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="model_judged_score",
+                display_name="Model Judged Score",
+                short_display_name="Score",
+                description="Model-judged score.",
+                lower_is_better=False,
+                group=None,
+            )
+        ]
