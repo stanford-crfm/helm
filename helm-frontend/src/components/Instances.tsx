@@ -10,6 +10,11 @@ import DisplayRequest from "@/types/DisplayRequest";
 import getInstances from "@/services/getInstances";
 import getDisplayPredictionsByName from "@/services/getDisplayPredictionsByName";
 import getDisplayRequestsByName from "@/services/getDisplayRequestsByName";
+import {
+  filterInstancesByMetric,
+  getFilterableMetricKeys,
+  type MetricOutcomeFilter,
+} from "@/components/instanceMetricFilters";
 
 const INSTANCES_PAGE_SIZE = 10;
 
@@ -41,6 +46,9 @@ export default function Instances({
     undefined | Record<string, Record<string, DisplayRequest[]>>
   >();
   const [currentInstancesPage, setCurrentInstancesPage] = useState<number>(1);
+  const [selectedMetric, setSelectedMetric] = useState<string>("");
+  const [selectedMetricOutcome, setSelectedMetricOutcome] =
+    useState<MetricOutcomeFilter>("all");
 
   useEffect(() => {
     const controller = new AbortController();
@@ -101,11 +109,49 @@ export default function Instances({
     return () => controller.abort();
   }, [runName, suite, userAgreed]);
 
-  const pagedInstances = instances.slice(
+  const filterableMetricKeys =
+    displayPredictionsMap === undefined
+      ? []
+      : getFilterableMetricKeys(displayPredictionsMap);
+
+  useEffect(() => {
+    if (selectedMetric && !filterableMetricKeys.includes(selectedMetric)) {
+      setSelectedMetric("");
+      setSelectedMetricOutcome("all");
+    }
+  }, [filterableMetricKeys, selectedMetric]);
+
+  const filteredInstances =
+    displayPredictionsMap === undefined
+      ? instances
+      : filterInstancesByMetric(
+          instances,
+          displayPredictionsMap,
+          selectedMetric,
+          selectedMetricOutcome,
+        );
+
+  const pagedInstances = filteredInstances.slice(
     (currentInstancesPage - 1) * INSTANCES_PAGE_SIZE,
     (currentInstancesPage - 1) * INSTANCES_PAGE_SIZE + INSTANCES_PAGE_SIZE,
   );
-  const totalInstancesPages = Math.ceil(instances.length / INSTANCES_PAGE_SIZE);
+  const totalInstancesPages = Math.max(
+    1,
+    Math.ceil(filteredInstances.length / INSTANCES_PAGE_SIZE),
+  );
+
+  useEffect(() => {
+    if (currentInstancesPage > totalInstancesPages) {
+      setCurrentInstancesPage(1);
+      searchParams.set("instancesPage", "1");
+      setSearchParams(searchParams);
+    }
+  }, [
+    currentInstancesPage,
+    searchParams,
+    setSearchParams,
+    totalInstancesPages,
+  ]);
 
   // Handle scrolling to anchored instance
   useEffect(() => {
@@ -145,6 +191,51 @@ export default function Instances({
 
   return (
     <>
+      {filterableMetricKeys.length > 0 ? (
+        <div className="mb-6 flex flex-wrap items-end gap-4 rounded-md border border-gray-200 bg-white p-4">
+          <label className="form-control w-full max-w-xs">
+            <span className="label-text mb-2 font-medium">Filter metric</span>
+            <select
+              className="select select-bordered"
+              value={selectedMetric}
+              onChange={(event) => {
+                const nextMetric = event.target.value;
+                setSelectedMetric(nextMetric);
+                setCurrentInstancesPage(1);
+                searchParams.set("instancesPage", "1");
+                setSearchParams(searchParams);
+              }}
+            >
+              <option value="">All instances</option>
+              {filterableMetricKeys.map((metricKey) => (
+                <option key={metricKey} value={metricKey}>
+                  {metricFieldMap[metricKey]?.display_name ?? metricKey}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="form-control w-full max-w-xs">
+            <span className="label-text mb-2 font-medium">Show</span>
+            <select
+              className="select select-bordered"
+              disabled={!selectedMetric}
+              value={selectedMetricOutcome}
+              onChange={(event) => {
+                setSelectedMetricOutcome(
+                  event.target.value as MetricOutcomeFilter,
+                );
+                setCurrentInstancesPage(1);
+                searchParams.set("instancesPage", "1");
+                setSearchParams(searchParams);
+              }}
+            >
+              <option value="all">All values</option>
+              <option value="correct">Correct only</option>
+              <option value="incorrect">Incorrect only</option>
+            </select>
+          </label>
+        </div>
+      ) : null}
       <div className="grid gap-8">
         {pagedInstances.map((instance, idx) => (
           <div id={"instance-" + instance.id} className="border p-4">
@@ -183,6 +274,11 @@ export default function Instances({
           </div>
         ))}
       </div>
+      {filteredInstances.length === 0 ? (
+        <div className="rounded-md border border-dashed border-gray-300 p-6 text-center text-gray-600">
+          No instances match the selected metric filter.
+        </div>
+      ) : null}
       <Pagination
         className="flex justify-center my-8"
         onNextPage={() => {
