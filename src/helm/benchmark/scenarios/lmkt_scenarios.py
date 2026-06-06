@@ -26,7 +26,7 @@ class CulturalValueUnderstandingWVSScenario(Scenario):
 
     name = "cultural_value_understanding_wvs"
     description = "Evaluates model understanding of cultural values from WVS Wave 7"
-    tags = ["cultural_value_understanding"]
+    tags = ["lmkt", "cultural_value_understanding"]
 
     def __init__(
         self,
@@ -206,8 +206,8 @@ class SocialNormApplicationNormADScenario(Scenario):
     """Social norms application evaluation based on Vietnam World Values Survey responses."""
 
     name = "social_norm_application_normad"
-    description = "Evaluates model understanding of social norms from WVS Wave 7"
-    tags = ["social_norm_application"]
+    description = "Evaluates model understanding of social norms from NormAD dataset"
+    tags = ["lmkt", "social_norm_application"]
 
     def __init__(
         self,
@@ -243,12 +243,12 @@ class SocialNormApplicationNormADScenario(Scenario):
         return instances
 
 
-class SocialNormExplanationNormADScenario(Scenario):
-    """Social norms explanation evaluation based on Vietnam World Values Survey responses."""
+class SocialNormReasoningNormADScenario(Scenario):
+    """Social norms reasoning evaluation based on Vietnam World Values Survey responses."""
 
-    name = "social_norm_explanation_normad"
-    description = "Evaluates model understanding of social norms from WVS Wave 7"
-    tags = ["social_norm_explanation"]
+    name = "social_norm_reasoning_normad"
+    description = "Evaluates model understanding of social norms from NormAD dataset"
+    tags = ["lmkt", "social_norm_reasoning"]
 
     def __init__(
         self,
@@ -281,6 +281,64 @@ class SocialNormExplanationNormADScenario(Scenario):
             instance = Instance(
                 input=Input(text=input_text),
                 references=[Reference(Output(text=item["Explanation"]), tags=[CORRECT_TAG])],
+                split=TEST_SPLIT,
+            )
+            instances.append(instance)
+
+        return instances
+
+
+class CulturalEvolutionUnderstandingCultureBankScenario(Scenario):
+    """
+    Cultural evolution understanding evaluation based on CultureBank dataset.
+    """
+
+    name = "cultural_evolution_understanding_culturebank"
+    description = "Evaluates model understanding of cultural evolution from CultureBank dataset"
+    tags = ["cultural_evolution_understanding"]
+
+    def __init__(self, language: str, datasplit: str = "reddit"):
+        super().__init__()
+        self.language = language
+        self.datasplit = datasplit
+
+        if datasplit not in ["reddit", "tiktok"]:
+            raise ValueError(f"Unsupported split: {datasplit}. Supported languages are `reddit` and `tiktok`.")
+
+        if self.language not in ["en"]:
+            raise ValueError(f"Unsupported language: {self.language}. Supported languages are: {SUPPORTED_LANGUAGES}")
+
+    def get_instances(self, output_path: str) -> List[Instance]:
+        dataset = load_dataset(
+            "SALT-NLP/CultureBank",
+            split=self.datasplit,
+            revision="f806940c0c0c0a7807a36642dd05672eb74e8729",
+        )
+
+        instances: List[Instance] = []
+
+        for item in dataset:
+            list_years = list(str(x) for x in item["time_range"].keys())
+            if len(list_years) == 0 or not item["eval_whole_desc"]:
+                continue
+            elif len(list_years) == 1:
+                time_range = f"year of {list_years[0]}"
+            elif len(list_years) == 2:
+                time_range = f"years of {list_years[0]} and {list_years[1]}"
+            elif len(list_years) >= 3:
+                time_range = f"years of " + ", ".join(list_years[:-1]) + f", and {list_years[-1]}"
+
+            input_text = (
+                f"{item['eval_whole_desc']}\n"
+                f"This situation occurs during {time_range}.\n"
+                "On a scale from 0.0 (strongly disagree) to 1.0 (strongly agree), "
+                "how much do you agree with the behaviors described above?\n"
+                "Respond with a single floating-point number only. Do not return anything else.\n\n"
+            )
+
+            instance = Instance(
+                input=Input(text=input_text),
+                references=[Reference(Output(text=str(item["agreement"])), tags=[CORRECT_TAG])],
                 split=TEST_SPLIT,
             )
             instances.append(instance)
