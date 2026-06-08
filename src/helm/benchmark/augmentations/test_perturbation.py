@@ -3,6 +3,7 @@ from typing import List
 import unittest
 
 from helm.common.media_object import MediaObject, MultimediaObject
+from helm.common.general import match_case
 from helm.benchmark.scenarios.scenario import Input, Instance, Output, Reference
 from helm.benchmark.augmentations.data_augmenter import DataAugmenter
 from helm.benchmark.augmentations.extra_space_perturbation import ExtraSpacePerturbation
@@ -292,6 +293,39 @@ def test_gender_term_perturbation_edge_word():
 
 
 # TODO(#1958) Fix the logic to renable this test
+def test_match_case_all_caps_with_apostrophe():
+    """Regression: all-caps contractions like AIN'T must be detected as all-caps, not capitalized."""
+    assert match_case("AIN'T", "is not") == "IS NOT"
+    assert match_case("DON'T", "do not") == "DO NOT"
+    assert match_case("CAN'T", "cannot") == "CANNOT"
+    assert match_case("WON'T", "will not") == "WILL NOT"
+
+
+def test_match_case_lowercase_with_apostrophe():
+    """Lowercase contractions with apostrophes must stay lowercase."""
+    assert match_case("ain't", "is not") == "is not"
+    assert match_case("don't", "do not") == "do not"
+
+
+def test_match_case_capitalized_with_apostrophe():
+    """Capitalized contractions must capitalize the target."""
+    assert match_case("Don't", "do not") == "Do not"
+    assert match_case("Ain't", "is not") == "Is not"
+
+
+def test_match_case_no_alpha_chars():
+    """Source words with no alphabetic characters return target unchanged."""
+    assert match_case("123", "hello") == "hello"
+    assert match_case("", "hello") == "hello"
+
+
+def test_match_case_regular_words():
+    """Regular words (no apostrophe) still work correctly."""
+    assert match_case("HELLO", "world") == "WORLD"
+    assert match_case("hello", "WORLD") == "world"
+    assert match_case("Hello", "world") == "World"
+
+
 @unittest.skip("Currently cannot replace words separated by 1 character.")
 def test_gender_term_perturbation_consequtive_words():
     data_augmenter = DataAugmenter(
