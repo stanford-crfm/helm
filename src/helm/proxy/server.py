@@ -22,7 +22,7 @@ from helm.benchmark.config_registry import (
 from helm.benchmark.model_deployment_registry import get_default_model_deployment_for_model
 from helm.common.authentication import Authentication
 from helm.common.cache_backend_config import CacheBackendConfig, MongoCacheBackendConfig, SqliteCacheBackendConfig
-from helm.common.general import ensure_directory_exists
+from helm.common.general import ensure_directory_exists, serialize_dates
 from helm.common.hierarchical_logger import hlog, setup_default_logging
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request
@@ -67,7 +67,9 @@ def safe_call(func, to_json=True):
         start_time = time.time()
         result = func(params)
         end_time = time.time()
-        result = json.dumps(result) if to_json else result
+        # `result` may contain dates (e.g. ModelMetadata.release_date), which the
+        # json standard library cannot serialize without a custom default.
+        result = json.dumps(result, default=serialize_dates) if to_json else result
         hlog("REQUEST {}: {} seconds, {} bytes".format(bottle.request, end_time - start_time, len(result)))
         return result
     except Exception as e:
