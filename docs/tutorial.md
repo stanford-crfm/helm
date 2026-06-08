@@ -57,7 +57,7 @@ Additionally, for each group and group-relavent metric, it will output a pair of
 
 ## Using `helm-server`
 
-Finally, the `helm-server` command launches a web server to visualize the output files of `helm-run` and `helm-benchmark`. Run:
+Finally, the `helm-server` command launches a web server to visualize the output files of `helm-run` and `helm-summarize`. Run:
 
 ```sh
 helm-server --suite my-suite
