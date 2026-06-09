@@ -121,7 +121,22 @@ def quasi_prefix_exact_match(gold: str, pred: str) -> float:
 
 
 def f1_score(gold: str, pred: str) -> float:
-    ret = f_measure(set(normalize_text(gold).split()), set(normalize_text(pred).split()))
+    gold_tokens = set(normalize_text(gold).split())
+    pred_tokens = set(normalize_text(pred).split())
+
+    # normalize_text removes English articles ("a", "an", "the").  When the
+    # entire gold or pred string consists of one of those words (e.g. the gold
+    # answer is the letter "A" in a multiple-choice benchmark, or a short
+    # phrase like "An apple"), article removal empties the token set and
+    # f_measure returns None, producing a silently wrong score of 0.0 for a
+    # correct prediction.  Fall back to article-preserving normalization
+    # whenever either token set would otherwise be empty.
+    if not gold_tokens:
+        gold_tokens = set(normalize_text(gold, should_remove_articles=False).split())
+    if not pred_tokens:
+        pred_tokens = set(normalize_text(pred, should_remove_articles=False).split())
+
+    ret = f_measure(gold_tokens, pred_tokens)
     if ret is None:  # answer is the empty string after normalizing
         return 0.0
 
