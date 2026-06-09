@@ -1,3 +1,4 @@
+import dataclasses
 import threading
 from typing import Callable, Dict, Optional, List, TypeVar
 from dataclasses import dataclass
@@ -101,6 +102,30 @@ DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT: Dict[str, ModelDeployment] = {
 
 
 def register_model_deployment(model_deployment: ModelDeployment) -> None:
+    existing = DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT.get(model_deployment.name)
+    if existing is not None:
+        # A deployment with this name was already registered (typically from the
+        # built-in helm.config package).  Merge: the new entry's non-None fields
+        # take precedence, but any field that is None in the new entry falls back
+        # to the existing value so that a sparse prod_env override cannot
+        # accidentally wipe fields like tokenizer_name that were set in the
+        # built-in config.  See GitHub issue #3709.
+        hwarn(
+            f"Model deployment '{model_deployment.name}' is defined in multiple sources; "
+            "merging — later (prod_env) values override earlier (built-in) values for "
+            "non-None fields."
+        )
+        override_fields = {
+            field.name: getattr(model_deployment, field.name)
+            for field in dataclasses.fields(model_deployment)
+            if getattr(model_deployment, field.name) is not None
+        }
+        # name, client_spec, and deprecated are always taken from the new entry.
+        override_fields["name"] = model_deployment.name
+        override_fields["client_spec"] = model_deployment.client_spec
+        override_fields["deprecated"] = model_deployment.deprecated
+        model_deployment = dataclasses.replace(existing, **override_fields)
+
     DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[model_deployment.name] = model_deployment
     ALL_MODEL_DEPLOYMENTS.append(model_deployment)
 
