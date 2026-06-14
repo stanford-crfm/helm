@@ -88,7 +88,11 @@ class ASTAnalyzer:
             nodes1: List[str] = self._extract_ast_features(tu1.cursor)
             nodes2: List[str] = self._extract_ast_features(tu2.cursor)
 
-            return levenshtein_distance_ratio(nodes1, nodes2)
+            # `Levenshtein.ratio` is a similarity in [0, 1] (1.0 = identical),
+            # while the docstring, the public stat name "ast_distance", and the
+            # error-fallback `return 1.0` below all assume *distance* semantics
+            # (0 = identical, 1 = completely different). Convert to a distance.
+            return 1.0 - levenshtein_distance_ratio(nodes1, nodes2)
 
         except Exception:
             # any parse error or clang error → max distance
@@ -232,7 +236,10 @@ class CodeInsightsCodeEvaluationMetric(Metric):
         if gen_asm == "" or truth_asm == "":
             asm_distance = 1.0
         else:
-            asm_distance = levenshtein_distance_ratio(gen_asm, truth_asm)
+            # `Levenshtein.ratio` returns a similarity in [0, 1]; convert to
+            # distance so the value matches the "asm_distance" stat name and
+            # the compile-failure fallback above (1.0 = max distance).
+            asm_distance = 1.0 - levenshtein_distance_ratio(gen_asm, truth_asm)
 
         # Create assembly-based statistics
         stats.extend(self._create_asm_stats(asm_distance))
