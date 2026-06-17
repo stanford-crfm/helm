@@ -21,9 +21,15 @@ class MongoKeyValueStore(KeyValueStore):
     _REQUEST_KEY = "request"
     _RESPONSE_KEY = "response"
 
-    def __init__(self, uri: str, collection_name: str):
+    def __init__(
+        self,
+        uri: str,
+        collection_name: str,
+        username: Optional[str] = None,
+        password: Optional[str] = None,
+    ):
         # TODO: Create client in __enter__ and clean up client in __exit__
-        self._mongodb_client: MongoClient = MongoClient(uri)
+        self._mongodb_client: MongoClient = MongoClient(uri, username=username, password=password)
         self._database = self._mongodb_client.get_default_database()
         self._collection = self._database.get_collection(collection_name)
         self._collection.create_index(self._REQUEST_KEY, unique=True)

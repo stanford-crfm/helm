@@ -9,6 +9,7 @@ import ubelt
 from helm.benchmark import model_metadata_registry
 from helm.benchmark.presentation.run_entry import RunEntry, read_run_entries
 from helm.common.cache_backend_config import MongoCacheBackendConfig, SqliteCacheBackendConfig
+from helm.common.cache_backend_config import get_mongo_cache_backend_config
 from helm.common.general import ensure_directory_exists
 from helm.common.hierarchical_logger import hlog, htrack, htrack_block, setup_default_logging, hwarn, hdebug
 from helm.common.authentication import Authentication
@@ -173,8 +174,9 @@ def run_benchmarking(
     mongo_cache_backend_config: Optional[MongoCacheBackendConfig] = None
 
     if not disable_cache:
-        if mongo_uri:
-            mongo_cache_backend_config = MongoCacheBackendConfig(mongo_uri)
+        resolved_mongo_cache_backend_config = get_mongo_cache_backend_config(mongo_uri, local_path)
+        if resolved_mongo_cache_backend_config:
+            mongo_cache_backend_config = resolved_mongo_cache_backend_config
         else:
             sqlite_cache_path = os.path.join(local_path, CACHE_DIR)
             ensure_directory_exists(sqlite_cache_path)
