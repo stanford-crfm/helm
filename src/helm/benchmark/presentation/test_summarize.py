@@ -1,9 +1,16 @@
 import os
 import tempfile
 
+from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.metrics.metric_name import MetricName
+from helm.benchmark.metrics.statistic import Stat
+from helm.benchmark.presentation.schema import Field, MetricGroup, MetricNameMatcher, RunGroup, Schema
 from helm.benchmark.presentation.summarize import Summarizer, compute_aggregate_row_win_rates
+from helm.benchmark.presentation.summarize import Run
 from helm.benchmark.presentation.schema import get_default_schema_path
 from helm.benchmark.presentation.table import Cell, HeaderCell, Table
+from helm.benchmark.run_spec import RunSpec
+from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.common.general import ensure_directory_exists
 
 
@@ -181,3 +188,68 @@ def test_compute_win_rates_lower_is_better():
     rows = [[Cell(value) for value in row_values] for row_values in values]
     table = Table(title="Test Table", header=header, rows=rows)
     assert compute_aggregate_row_win_rates(table) == [1, 0.75, 0.5, 0.25, 0]
+
+
+def test_create_group_table_deduplicates_main_metric_columns():
+    with tempfile.TemporaryDirectory() as output_path:
+        summarizer = Summarizer(
+            release=None,
+            suites=None,
+            suite="test_suite",
+            schema_path=get_default_schema_path(),
+            output_path=output_path,
+            verbose=False,
+            num_threads=1,
+            allow_unknown_models=True,
+        )
+        summarizer.schema = Schema(
+            metrics=[Field(name="accuracy", display_name="Accuracy", short_display_name="Accuracy")],
+            metric_groups=[
+                MetricGroup(
+                    name="main_metric",
+                    display_name="Main Metric",
+                    metrics=[MetricNameMatcher(name="${main_name}", split="${main_split}")],
+                ),
+                MetricGroup(
+                    name="accuracy_group",
+                    display_name="Accuracy Group",
+                    metrics=[MetricNameMatcher(name="accuracy", split="test")],
+                ),
+            ],
+            run_groups=[
+                RunGroup(
+                    name="scenario_a",
+                    display_name="Scenario A",
+                    metric_groups=["main_metric", "accuracy_group"],
+                    environment={"main_name": "accuracy", "main_split": "test"},
+                )
+            ],
+        )
+
+        adapter_spec = AdapterSpec(model="openai/gpt-4")
+        run = Run(
+            run_path="runs/test_suite/run_1",
+            run_spec=RunSpec(
+                name="run_1",
+                scenario_spec=ScenarioSpec(class_name="test.scenario"),
+                adapter_spec=adapter_spec,
+                metric_specs=[],
+                groups=["scenario_a"],
+            ),
+            stats=[Stat(MetricName(name="accuracy", split="test")).add(0.75)],
+        )
+        adapter_to_runs = {adapter_spec: [run]}
+
+        table = summarizer.create_group_table(
+            name="scenario_a",
+            title="Scenario A",
+            adapter_to_runs=adapter_to_runs,
+            is_scenario_table=True,
+            columns=[
+                (summarizer.schema.run_groups[0], "main_metric"),
+                (summarizer.schema.run_groups[0], "accuracy_group"),
+            ],
+            aggregation_strategies=[],
+        )
+
+        assert [cell.value for cell in table.header] == ["Model", "Accuracy"]
