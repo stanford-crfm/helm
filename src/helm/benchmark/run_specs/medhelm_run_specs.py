@@ -1273,7 +1273,9 @@ def get_pubmed_qa_spec() -> RunSpec:
         name="pubmed_qa",
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
-        metric_specs=get_exact_match_metric_specs(),
+        metric_specs=get_basic_metric_specs(
+            ["exact_match", "prefix_exact_match", "quasi_leave_articles_exact_match"]
+        ),
         groups=["pubmed_qa"],
     )
 
