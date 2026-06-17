@@ -153,7 +153,7 @@ def final_number_exact_match(gold: str, pred: str) -> float:
     """
 
     def get_final_number(x: str) -> str:
-        matches = re.findall(r"-?[\d,]+(?:.\d+)?", x)
+        matches = re.findall(r"-?[\d,]+(?:\.\d+)?", x)
         if not matches:
             return ""
         return matches[-1].replace(",", "")

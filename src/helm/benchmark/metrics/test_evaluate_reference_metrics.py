@@ -31,6 +31,9 @@ def test_final_number_exact_match():
     assert final_number_exact_match("34.2", "2") == 0
     assert final_number_exact_match("342", "342.") == 1
     assert final_number_exact_match("3,420", "3420") == 1
+    # A non-digit, non-dot character between digits must not be treated as part of a number.
+    assert final_number_exact_match("30", "the meeting is at 7:30") == 1
+    assert final_number_exact_match("3", "the grid is 2x3") == 1
 
 
 def test_bleu_1():
