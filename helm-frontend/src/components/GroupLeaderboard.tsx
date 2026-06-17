@@ -68,6 +68,7 @@ export default function GroupLeaderboard({
           key={`${runGroupName}-${tableIndex}`}
           schema={schema}
           groupTable={groupTables[tableIndex]}
+          runGroupName={runGroupName}
           numRowsToDisplay={numRowsToDisplay}
           sortColumnIndex={1}
         />
@@ -76,6 +77,7 @@ export default function GroupLeaderboard({
           key={`${runGroupName}-${tableIndex}`}
           schema={schema}
           groupTable={groupTables[tableIndex]}
+          runGroupName={runGroupName}
           numRowsToDisplay={numRowsToDisplay}
           sortColumnIndex={1}
         />
