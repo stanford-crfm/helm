@@ -43,6 +43,13 @@ export default function Instances({
   const [currentInstancesPage, setCurrentInstancesPage] = useState<number>(1);
 
   useEffect(() => {
+    const instancesPage = Number(searchParams.get("instancesPage") || 1);
+    if (Number.isFinite(instancesPage) && instancesPage >= 1) {
+      setCurrentInstancesPage(instancesPage);
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
     const controller = new AbortController();
     async function fetchData() {
       const signal = controller.signal;
