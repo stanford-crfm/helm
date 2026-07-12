@@ -25,6 +25,25 @@ def test_ensure_file_downloaded():
     shutil.rmtree("test-zip")
 
 
+def test_ensure_file_downloaded_logs_url(monkeypatch, tmp_path):
+    source_url = "https://example.invalid/path/file.txt"
+    target_path = str(tmp_path / "file.txt")
+    messages = []
+
+    def fake_urlretrieve(url, filename):
+        with open(filename, "w") as f:
+            f.write("contents")
+
+    monkeypatch.setattr("helm.common.general.hlog", messages.append)
+    monkeypatch.setattr("urllib.request.urlretrieve", fake_urlretrieve)
+
+    ensure_file_downloaded(source_url, target_path)
+
+    assert os.path.exists(target_path)
+    assert messages[0] == f"Downloading {source_url}"
+    assert len(messages) == 2
+
+
 def test_format_tags():
     tags = ["tag_1", "tag_2", "tag_3"]
     assert format_tags(tags) == "[tag_1,tag_2,tag_3]"
