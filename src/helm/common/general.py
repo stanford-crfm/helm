@@ -107,7 +107,7 @@ def ensure_file_downloaded(
             shell([downloader_executable, source_url, "-O", tmp_path])
         else:
             try:
-                print("Downloading source_url")
+                hlog(f"Downloading {source_url}")
                 urllib.request.urlretrieve(source_url, tmp_path)
             except Exception as e:
                 if os.path.isfile(tmp_path):
