@@ -17,6 +17,15 @@ class Stat:
     max: Optional[float] = None
     mean: Optional[float] = None
     variance: Optional[float] = None
+    none_count: int = 0
+    """Number of values that were None and silently skipped by add().
+
+    Non-zero values indicate the denominator was shrunk — a model-under-test
+    can exploit this by producing output that makes the judge unscoreable on
+    its hardest samples, erasing them from the reported mean (the
+    "unscoreable-as-pass" class). Surface via ``none_count`` so callers can
+    detect the gap between the reported mean and the true worst-case.
+    """
     """This is the population variance, not the sample variance.
 
     See https://towardsdatascience.com/variance-sample-vs-population-3ddbd29e498a
@@ -31,8 +40,12 @@ class Stat:
     """
 
     def add(self, x) -> "Stat":
-        # Skip Nones for statistic aggregation.
+        # Skip Nones for statistic aggregation, but count them so the
+        # denominator-drop is visible. A non-zero none_count means the reported
+        # mean is computed over fewer samples than expected — a model that makes
+        # itself unscoreable on hard samples can inflate its score.
         if x is None:
+            self.none_count += 1
             return self
         if isinstance(x, bool):
             x = 1 if x is True else 0
@@ -70,13 +83,16 @@ class Stat:
             return str(round(x, 3))
 
         if self.count > 0:
+            none_note = f" ⚠{self.none_count} skipped" if self.none_count else ""
             return (
                 f"min={process(self.min)}, "
                 f"mean={process(self.mean)}, "
                 f"max={process(self.max)}, "
                 f"sum={process(self.sum)} "
-                f"({self.count})"
+                f"({self.count}{none_note})"
             )
+        elif self.none_count > 0:
+            return f"(0, {self.none_count} skipped)"
         else:
             return "(0)"
 
