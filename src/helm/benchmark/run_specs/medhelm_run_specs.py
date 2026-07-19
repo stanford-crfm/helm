@@ -321,7 +321,7 @@ def get_head_qa_run_spec(language: str = "en", category: Union[str, None] = None
             "multiple-choice questions accurately based on the options provided. "
             "Each question will relate to biomedical concepts, "
             "and you will be asked to choose the most appropriate answer.\n\n"
-            "Select the correct answer by outputting only the letter corresponding to your choice (A, B, C, or D)."
+            "Select the correct answer by outputting only the letter corresponding to your choice (A, B, C, or D). Do not add any other text, punctuation, or symbols."
         ),
         input_noun="Question",
         output_noun="Answer",
@@ -361,7 +361,7 @@ def get_medbullets_run_spec() -> RunSpec:
             "You are a highly knowledgeable AI assistant specializing in medicine. "
             "Your task is to answer medical questions similar to those found on the USMLE Step 2/3 exams. "
             "You will be provided with a clinical scenario followed by several multiple-choice options.\n\n"
-            "Select the correct answer by outputting only the letter corresponding to your choice (A, B, C, D, or E)."
+            "Select the correct answer by outputting only the letter corresponding to your choice (A, B, C, D, or E). Do not add any other text, punctuation, or symbols."
         ),
         input_noun="Clinical Scenario",
         output_noun="Answer",
@@ -1260,7 +1260,7 @@ def get_pubmed_qa_spec() -> RunSpec:
     adapter_spec = get_multiple_choice_adapter_spec(
         method=ADAPT_MULTIPLE_CHOICE_JOINT,
         instructions=(
-            "Answer A for yes, B for no or C for maybe. "
+            "Answer A for yes, B for no or C for maybe. Do not add any other text, punctuation, or symbols."
             "Do not include any explanation or additional text. "
             "Output only the letter on a single line."
         ),
