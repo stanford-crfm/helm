@@ -11,6 +11,7 @@ from helm.common.general import (
     get_file_name,
     unique_simplification,
     is_url,
+    match_case,
 )
 
 
@@ -68,3 +69,10 @@ def test_get_file_name():
 def test_is_url():
     assert is_url("https://crfm.stanford.edu")
     assert not is_url("/some/path")
+
+
+def test_match_case():
+    assert match_case("AIN'T", "is not") == "IS NOT"
+    assert match_case("DON'T", "do not") == "DO NOT"
+    assert match_case("HELLO", "world") == "WORLD"
+    assert match_case("hello", "WORLD") == "world"
