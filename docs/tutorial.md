@@ -53,11 +53,11 @@ This reads the pre-existing files in `benchmark_output/runs/my-suite/` that were
 - `groups.json` contains a serialized list of `Table`, each containing information about groups in a group category.
 - `groups_metadata.json` contains a list of all the groups along with a human-readable description and a taxonomy.
 
-Additionally, for each group and group-relavent metric, it will output a pair of files: `benchmark_output/runs/my-suite/groups/latex/<group_name>_<metric_name>.tex` and `benchmark_output/runs/my-suite/groups/json/<group_name>_<metric_name>.json`. These files contain the statistics for that metric from each run within the group.
+Additionally, for each group and group-relevant metric, it will output a pair of files: `benchmark_output/runs/my-suite/groups/latex/<group_name>_<metric_name>.tex` and `benchmark_output/runs/my-suite/groups/json/<group_name>_<metric_name>.json`. These files contain the statistics for that metric from each run within the group.
 
 ## Using `helm-server`
 
-Finally, the `helm-server` command launches a web server to visualize the output files of `helm-run` and `helm-benchmark`. Run:
+Finally, the `helm-server` command launches a web server to visualize the output files of `helm-run` and `helm-summarize`. Run:
 
 ```sh
 helm-server --suite my-suite
