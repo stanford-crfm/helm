@@ -14,10 +14,10 @@ There are two ways of passing the run entry to `helm-run`. We can use the `--run
 helm-run --run-entries med_qa:model=openai/gpt2 --suite my-suite --max-eval-instances 10
 ```
 
-Alternatively, we can put the run entry into a `run_entries.conf` file, and the pass that file to `helm-run` using the `--conf-file` flag. The `run_entries.conf` file is a **run entry configuration file** that conforms to the format documented [here](run_entries_configuration_files.md). For example:
+Alternatively, we can put the run entry into a `run_entries.conf` file, and the pass that file to `helm-run` using the `--conf-paths` flag. The `run_entries.conf` file is a **run entry configuration file** that conforms to the format documented [here](run_entries_configuration_files.md). For example:
 
 ```
-helm-run --conf-file run_entries.conf --suite my-suite --max-eval-instances 10
+helm-run --conf-paths run_entries.conf --suite my-suite --max-eval-instances 10
 ```
 
 ## Constructing run entires

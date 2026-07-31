@@ -1,6 +1,6 @@
 # Run Entries Configuration Files
 
-In the tutorial, we have been using `--run-entries` to specify run entries for `helm-run`. However, we can also put the run entries into a **run entries configuration file**, and then pass the file to `helm-run` using the `--conf-file` flag.
+In the tutorial, we have been using `--run-entries` to specify run entries for `helm-run`. However, we can also put the run entries into a **run entries configuration file**, and then pass the file to `helm-run` using the `--conf-paths` flag.
 
 This has a number of advantages:
 
@@ -25,7 +25,7 @@ entries: [
 You would then use this file with `helm-run` with this command:
 
 ```bash
-helm-run --conf-file tutorial_run_entries.conf --suite tutorial --max-eval-instances 10
+helm-run --conf-paths tutorial_run_entries.conf --suite tutorial --max-eval-instances 10
 ```
 
 ## Model Run Expander Wildcards
@@ -42,14 +42,14 @@ entries: [
 You would then use this file with `helm-run` with this command:
 
 ```bash
-helm-run --conf-file tutorial_run_entries.conf --suite tutorial --max-eval-instances 10 --models-to-run openai/gpt2
+helm-run --conf-paths tutorial_run_entries.conf --suite tutorial --max-eval-instances 10 --models-to-run openai/gpt2
 ```
 
 This has exactly the same behavior has the previous example. For more information on model run expander wildcards, refer to the run entry format documentation.
 
 ## Priorities 
 
-You can use the `--priority` flag in conjunction with `--conf-file`. This filters out run entries with a higher priority value than the specified `--priority` value. For instance, with this run entries configuration file:
+You can use the `--priority` flag in conjunction with `--conf-paths`. This filters out run entries with a higher priority value than the specified `--priority` value. For instance, with this run entries configuration file:
 
 ```conf
 entries: [
