@@ -5,6 +5,7 @@ from helm.common.cache import CacheConfig
 from helm.common.request import (
     Thinking,
     wrap_request_time,
+    combine_usage_dicts,
     Request,
     RequestResult,
     GeneratedOutput,
@@ -90,6 +91,7 @@ class LiteLLMCompletionClient(CachingClient):
         # The responses API does not support a "num_completions" parameter,
         # so we need to handle it ourselves with a simple loop
         completions: list[GeneratedOutput] = []
+        usages: List[Dict[str, Any]] = []
         for _ in range(request.num_completions):
 
             def do_it() -> Dict[str, Any]:
@@ -103,6 +105,9 @@ class LiteLLMCompletionClient(CachingClient):
             del helm_raw_response["request_time"]
             request_datetime = helm_raw_response["request_datetime"]
             del helm_raw_response["request_datetime"]
+            usage = helm_raw_response.get("usage")
+            if usage:
+                usages.append(usage)
             response = ModelResponse.model_validate(helm_raw_response)
             for choice in response.choices:
                 assert isinstance(choice, Choices)
@@ -137,4 +142,5 @@ class LiteLLMCompletionClient(CachingClient):
             request_datetime=request_datetime,
             completions=completions,
             embedding=[],
+            usage=combine_usage_dicts(usages),
         )

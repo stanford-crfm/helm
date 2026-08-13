@@ -8,6 +8,7 @@ from helm.common.request import (
     ErrorFlags,
     Thinking,
     wrap_request_time,
+    combine_usage_dicts,
     Request,
     RequestResult,
     GeneratedOutput,
@@ -140,6 +141,7 @@ class OpenAIResponseClient(CachingClient):
         # The responses API does not support a "num_completions" parameter,
         # so we need to handle it ourselves with a simple loop
         completions: list[GeneratedOutput] = []
+        usages: List[Dict[str, Any]] = []
         for _ in range(request.num_completions):
 
             def do_it() -> Dict[str, Any]:
@@ -152,6 +154,10 @@ class OpenAIResponseClient(CachingClient):
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             except openai.OpenAIError as e:
                 return OpenAIClientUtils.handle_openai_error(e, request)
+
+            usage = response.get("usage")
+            if usage:
+                usages.append(usage)
 
             # Previously, we converted the raw response into the Pydantic model
             # using Response.model_validate() for type safety.
@@ -209,4 +215,5 @@ class OpenAIResponseClient(CachingClient):
             request_datetime=response["request_datetime"],
             completions=completions,
             embedding=[],
+            usage=combine_usage_dicts(usages),
         )

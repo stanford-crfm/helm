@@ -16,6 +16,7 @@ from helm.benchmark.augmentations.synonym_perturbation import SynonymPerturbatio
 from helm.benchmark.augmentations.typos_perturbation import TyposPerturbation
 from helm.benchmark.augmentations.perturbation_description import PerturbationDescription
 from helm.common.codec import from_json, to_json
+from helm.common.request import RequestResult, combine_usage_dicts
 
 
 @dataclass(frozen=True)
@@ -100,6 +101,34 @@ class TestJsonCodec(unittest.TestCase):
             json.loads(data_json).items(),
         )
         self.assertEqual(data, from_json(data_json, DataClassWithDefaults))
+
+    def test_request_result_usage_is_optional(self):
+        data = RequestResult(success=True, embedding=[], completions=[], cached=False)
+        data_json = to_json(data)
+        self.assertNotIn("usage", json.loads(data_json))
+        self.assertEqual(data, from_json(data_json, RequestResult))
+
+    def test_request_result_usage_round_trip(self):
+        data = RequestResult(
+            success=True,
+            embedding=[],
+            completions=[],
+            cached=False,
+            usage={
+                "prompt_tokens": 100,
+                "prompt_tokens_details": {
+                    "cached_tokens": 64,
+                    "cache_write_tokens": 16,
+                },
+            },
+        )
+        data_json = to_json(data)
+        self.assertEqual(data.usage, json.loads(data_json)["usage"])
+        self.assertEqual(data, from_json(data_json, RequestResult))
+
+    def test_combine_usage_dicts_preserves_multiple_provider_records(self):
+        usages = [{"input_tokens": 10}, {"input_tokens": 20}]
+        self.assertEqual({"responses": usages}, combine_usage_dicts(usages))
 
     def test_round_trip_perturbation_descriptions(self):
         descriptions = [

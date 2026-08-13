@@ -180,6 +180,7 @@ class OpenAIClient(CachingClient):
             request_datetime=response.get("request_datetime"),
             completions=[],
             embedding=embedding,
+            usage=response.get("usage"),
         )
 
     def _make_chat_raw_request(self, request: Request) -> Dict[str, Any]:
@@ -399,6 +400,7 @@ class OpenAIClient(CachingClient):
             request_datetime=response.get("request_datetime"),
             completions=completions,
             embedding=[],
+            usage=response.get("usage"),
         )
 
     def _to_raw_completion_request(self, request: Request) -> Dict[str, Any]:
@@ -472,6 +474,7 @@ class OpenAIClient(CachingClient):
             request_datetime=response.get("request_datetime"),
             completions=completions,
             embedding=[],
+            usage=response.get("usage"),
         )
 
     def _make_transcription_request(self, request: Request) -> RequestResult:
