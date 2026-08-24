@@ -1060,11 +1060,15 @@ def get_starr_patient_instructions_run_spec(data_path: str, jury_config_path: Op
 
 
 @run_spec_function("med_dialog")
-def get_med_dialog_spec(subset: str, jury_config_path: Optional[str] = None) -> RunSpec:
+def get_med_dialog_spec(subset: str, dedup: bool = False, jury_config_path: Optional[str] = None) -> RunSpec:
     from helm.common.gpu_utils import get_torch_device_name
 
+    scenario_args: Dict[str, Union[str, bool]] = {"subset": subset}
+    if dedup:
+        scenario_args["dedup"] = True
+
     scenario_spec = ScenarioSpec(
-        class_name="helm.benchmark.scenarios.med_dialog_scenario.MedDialogScenario", args={"subset": subset}
+        class_name="helm.benchmark.scenarios.med_dialog_scenario.MedDialogScenario", args=scenario_args
     )
 
     adapter_spec = get_generation_adapter_spec(
@@ -1104,8 +1108,12 @@ def get_med_dialog_spec(subset: str, jury_config_path: Optional[str] = None) -> 
             },
         )
     ]
+    run_spec_name = f"med_dialog,subset={subset}"
+    if dedup:
+        run_spec_name += ",dedup=True"
+
     return RunSpec(
-        name=f"med_dialog,subset={subset}",
+        name=run_spec_name,
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         annotators=annotator_specs,
