@@ -1,6 +1,6 @@
 import json
 import os
-from typing import List
+from typing import List, Set
 
 from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
@@ -108,10 +108,19 @@ class MedDialogScenario(Scenario):
     )
     tags = ["dialogue", "biomedical"]
 
-    def __init__(self, subset: str):
+    def __init__(self, subset: str, dedup: bool = False):
+        """
+        Args:
+            subset: Which subset of MedDialog to use, either "healthcaremagic" or "icliniq".
+            dedup: If True, drop examples whose source text duplicates an earlier example,
+                keeping the first occurrence. The upstream data contains duplicates
+                (about a third of the icliniq test split; see issue #3746). Defaults to
+                False to preserve backwards compatibility with previously published runs.
+        """
         super().__init__()
         assert subset in ["healthcaremagic", "icliniq"], f"Invalid subset specified for {self.name}: {subset}."
         self.subset: str = subset
+        self.dedup: bool = dedup
 
     def get_instances(self, output_path: str) -> List[Instance]:
         data_path: str = os.path.join(output_path, self.subset)
@@ -133,7 +142,12 @@ class MedDialogScenario(Scenario):
 
                 with open(split_path, "r") as f:
                     examples: List = json.load(f)["data"]
+                    seen_sources: Set[str] = set()
                     for example in examples:
+                        if self.dedup:
+                            if example["src"] in seen_sources:
+                                continue
+                            seen_sources.add(example["src"])
                         instances.append(
                             Instance(
                                 input=Input(text=example["src"]),
