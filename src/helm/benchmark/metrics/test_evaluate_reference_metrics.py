@@ -31,6 +31,15 @@ def test_final_number_exact_match():
     assert final_number_exact_match("34.2", "2") == 0
     assert final_number_exact_match("342", "342.") == 1
     assert final_number_exact_match("3,420", "3420") == 1
+    # Commas in prose after the final number must not be extracted as the "final number" (#4337)
+    assert final_number_exact_match("The answer is 72.", "The answer is 72, in total, so the farmer earns that.") == 1
+    assert final_number_exact_match("The answer is 72.", "The answer is 72, which is the total.") == 1
+    assert final_number_exact_match("3", "The answer is 3, yes, really.") == 1
+    # A comma-only run in the gold must not be extracted either
+    assert final_number_exact_match("72, in total,", "72") == 1
+    # The decimal point is escaped, so an arbitrary separator no longer glues digits into one number
+    assert final_number_exact_match("4", "3 4") == 1
+    assert final_number_exact_match("5", "1/2.5 hours") == 0
 
 
 def test_bleu_1():
