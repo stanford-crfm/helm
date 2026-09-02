@@ -6,6 +6,7 @@ from typing import Dict
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
 from helm.benchmark.annotation.model_as_judge import AnnotatorModelInfo
+from helm.benchmark.annotation.score_parser import find_last_match
 from helm.clients.auto_client import AutoClient
 from helm.common.hierarchical_logger import hwarn
 from helm.common.request import Request
@@ -100,7 +101,7 @@ class WildBenchAnnotator(Annotator):
             else:
                 assert len(annotator_response.completions) == 1
                 annotator_response_text = annotator_response.completions[0].text
-                annotator_response_parts = self._pattern.search(annotator_response_text)
+                annotator_response_parts = find_last_match(self._pattern, annotator_response_text)
                 if not annotator_response_parts:
                     hwarn(
                         "WildBenchAnnotator got a malformed annotation from "
