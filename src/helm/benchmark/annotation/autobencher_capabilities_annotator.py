@@ -1,8 +1,8 @@
-import re
 from typing import Any
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.annotation.annotator import Annotator
+from helm.benchmark.annotation.score_parser import find_last_tagged_match
 from helm.clients.auto_client import AutoClient
 from helm.common.request import Request
 from helm.proxy.retry import NonRetriableException
@@ -84,12 +84,8 @@ INSERT_YOUR_SCORE_HERE
         assert len(annotator_response.completions) == 1
         annotator_response_text = annotator_response.completions[0].text
         # fuzzy match regex check, allows for different casing, or forgetting / in end tag
-        reasoning_match = re.search(
-            r"<\s*reasoning\s*>(.*?)<\/?\s*reasoning\s*>", annotator_response_text, re.DOTALL | re.IGNORECASE
-        )
-        score_match = re.search(
-            r"<\s*score\s*>(.*?)<\/?\s*score\s*>", annotator_response_text, re.DOTALL | re.IGNORECASE
-        )
+        reasoning_match = find_last_tagged_match(annotator_response_text, "reasoning")
+        score_match = find_last_tagged_match(annotator_response_text, "score")
         if not reasoning_match or not score_match:
             raise AnnotatorResponseParseFailure(
                 message=f"Could not parse markup in raw response: '{annotator_response_text}'",

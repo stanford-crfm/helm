@@ -1,9 +1,9 @@
 from typing import Dict, List
-import re
 
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
+from helm.benchmark.annotation.score_parser import find_last_match
 from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInstanceStats, add_context
 from helm.benchmark.metrics.metric_name import MetricContext, MetricName
 from helm.benchmark.metrics.metric_service import MetricService
@@ -66,7 +66,7 @@ Your response should be in the format:
         Extract the score from the evaluator response. Refer to the official Vibe-Eval implementation:
         https://github.com/reka-ai/reka-vibe-eval/blob/3852d4712da172a7b85dddeffc4f9c3482a6f4c9/evaluate.py#L159-#L164
         """
-        re_match = re.search(r"Rating:\s*([1-5])", evaluator_response)
+        re_match = find_last_match(r"Rating:\s*([1-5])", evaluator_response)
         if re_match is None:
             hlog(f"Error parsing answer: {evaluator_response}. Skipping question (and so the respondent entirely)")
             return None
