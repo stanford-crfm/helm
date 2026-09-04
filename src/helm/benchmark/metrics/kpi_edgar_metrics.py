@@ -110,7 +110,7 @@ def _request_states_to_pred_gold_pairs(request_states: List[RequestState]) -> Li
         assert len(request_state.result.completions) == 1
         assert len(request_state.instance.references) == 1
         pred_gold_pairs.append(
-            (request_state.instance.references[0].output.text, request_state.result.completions[0].text)
+            (request_state.result.completions[0].text, request_state.instance.references[0].output.text)
         )
     return pred_gold_pairs
 
