@@ -65,16 +65,16 @@ class MedCalcBenchMetric(Metric):
 
     def check_in_range(self, prediction: str, reference: str, extra_data: Dict[str, Any], category: str) -> int:
         """Check if the prediction falls within the range specified by the reference."""
+        if category not in ["date", "lab", "dosage", "physical"]:
+            raise ValueError(f"Category {category} not supported")
         try:
             if category == "date":
                 exact_match = self.check_date(prediction, reference, extra_data)
-            elif category in ["dosage conversion", "physical"]:
+            else:
                 lower_limit = float(extra_data["lower_limit"])
                 upper_limit = float(extra_data["upper_limit"])
                 float_prediction = float(prediction)
                 exact_match = 1 if lower_limit <= float_prediction <= upper_limit else 0
-            else:
-                raise ValueError(f"Category {category} not supported")
         except ValueError:
             return 0
 
