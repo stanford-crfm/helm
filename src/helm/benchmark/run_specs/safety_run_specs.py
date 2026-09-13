@@ -1,5 +1,6 @@
 from helm.benchmark.adaptation.adapter_spec import ADAPT_GENERATION, AdapterSpec
 from helm.benchmark.annotation.annotator import AnnotatorSpec
+from helm.benchmark.metrics.common_metric_specs import get_classification_metric_specs
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 
@@ -188,4 +189,46 @@ def get_anthropic_red_team_spec() -> RunSpec:
         metric_specs=metric_specs,
         annotators=annotator_specs,
         groups=["anthropic_red_team"],
+    )
+
+
+@run_spec_function("finproof_bench")
+def get_finproof_bench_spec() -> RunSpec:
+    """FinProof Bench: adversarial guardrail evaluation for BFSI.
+
+    The evaluated model IS the guardrail — it outputs SAFE or UNSAFE.
+    No LLM annotator needed: gold labels are in the dataset.
+    Metrics: macro/micro F1 + precision/recall via ClassificationMetric,
+    plus a custom FPR metric for false positives on benign queries.
+    """
+    adapter_spec = AdapterSpec(
+        method=ADAPT_GENERATION,
+        global_prefix="",
+        global_suffix="",
+        instructions="",
+        input_prefix="",
+        input_suffix="",
+        output_prefix="",
+        output_suffix="",
+        instance_prefix="",
+        max_train_instances=0,
+        num_outputs=1,
+        max_tokens=8,
+        temperature=0.0,
+        stop_sequences=["\n", "."],
+    )
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.finproof_bench_scenario.FinProofBenchScenario"
+    )
+    metric_specs = get_classification_metric_specs(labels=["safe", "unsafe"]) + [
+        MetricSpec(class_name="helm.benchmark.metrics.finproof_bench_metrics.FinProofFPRMetric"),
+        MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.InstancesPerSplitMetric"),
+    ]
+    return RunSpec(
+        name="finproof_bench",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        annotators=[],
+        groups=["finproof_bench"],
     )
