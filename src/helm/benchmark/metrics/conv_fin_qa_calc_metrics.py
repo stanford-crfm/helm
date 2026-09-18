@@ -30,8 +30,8 @@ def float_equiv(str1: str, str2: str, eps: float = 1e-6) -> float:
 
     Note: This is a "mostly-correct" equality function and does not handle some cases correctly:
 
-    - If both values are non-floats, then it will always return 1.0,
-      regardless of whether strings match.
+    - If either string cannot be parsed as a float, then it will return 0.0,
+      regardless of whether the strings match.
     - If either of both values have different units (e.g. currency symbols,
       trailing "M" or "B", trailing %), the values will not be converted to the same
       units before comparison.
@@ -41,7 +41,7 @@ def float_equiv(str1: str, str2: str, eps: float = 1e-6) -> float:
         ss2 = _strip_string(str2)
 
         if ss1 is None or ss2 is None:
-            hwarn("float_equiv returning 1.0 because both values are non-floats")
+            hwarn("float_equiv returning 0.0 because at least one value is a non-float")
             return 0.0
         return float(abs(ss1 - ss2) < eps)
     except Exception:
