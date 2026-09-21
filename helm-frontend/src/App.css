@@ -10,3 +10,8 @@
 .tremor-BarList-labelWrapper {
   height: 1.75rem;
 }
+
+.scenario-language-arabic .localize-text-direction {
+  direction: rtl;
+  text-align: right;
+}

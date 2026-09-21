@@ -2,6 +2,7 @@ import datasets
 import os
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     Reference,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_directory_exists
 
@@ -114,3 +116,21 @@ class EWoKScenario(Scenario):
             ]
         )
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="ewok",
+            display_name="EWoK",
+            description="Elements of World Knowledge (EWoK) is a benchmark for evaluating world "
+            "modeling by testing their ability to use knowledge of a concept to match a "
+            "target text with a plausible/implausible context.",
+            taxonomy=TaxonomyInfo(
+                task="multiple choice question answering",
+                what="world knowledge",
+                when="n/a",
+                who="n/a",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

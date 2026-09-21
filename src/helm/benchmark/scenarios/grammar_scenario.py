@@ -1,6 +1,7 @@
 from typing import List
 
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT, ScenarioMetadata
 from helm.benchmark.scenarios.grammar import read_grammar, generate_derivations, Derivation, get_values, get_tags
 
 
@@ -41,3 +42,21 @@ class GrammarScenario(Scenario):
         instances: List[Instance] = list(map(derivation_to_instance, derivations))
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="grammar",
+            display_name="Best ChatGPT Prompts",
+            short_display_name="Best ChatGPT Prompts",
+            description="A list of “best ChatGPT prompts to power your workflow” summarized by "
+            "[GRIDFITI](https://gridfiti.com/best-chatgpt-prompts/).",
+            taxonomy=TaxonomyInfo(
+                task="open-ended instruction following",
+                what="Instructions for LLMs",
+                when="2023",
+                who="Gridfiti Staff",
+                language="English",
+            ),
+            main_metric="Helpfulness",
+            main_split="test",
+        )

@@ -2,6 +2,7 @@ import os
 from typing import List, Dict
 import json
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded, flatten_list
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.scenarios.scenario import (
@@ -14,6 +15,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 PID_TO_NAME = {
@@ -183,3 +185,21 @@ class WIKIFactScenario(Scenario):
                 instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="wikifact",
+            display_name="WikiFact",
+            description="Scenario introduced in this work, inspired by [Petroni et al. "
+            "(2019)](https://aclanthology.org/D19-1250/), to more extensively test factual "
+            "knowledge.",
+            taxonomy=TaxonomyInfo(
+                task="knowledge base completion",
+                what="entity-relation-entity triples in natural language form",
+                when="?",
+                who="automatically generated from templates",
+                language="structured English",
+            ),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )

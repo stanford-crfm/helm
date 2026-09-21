@@ -11,7 +11,7 @@ from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import RequestResult, GeneratedOutput
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
@@ -157,6 +157,83 @@ human_metric_fns: Dict[str, Callable[[AdapterSpec, RequestState, str], List[Stat
     "reiteration": _compute_reiteration_human_eval,
 }
 
+completion_metric_metadata: Dict[str, MetricMetadata] = {
+    "self_bleu": MetricMetadata(
+        name="self_bleu",
+        display_name="Self-BLEU",
+        description="Self-BLEU metric of [Zhu et al. (2018)](https://arxiv.org/pdf/1802.01886.pdf) as a measure of diversity in model generations.",
+        lower_is_better=None,
+        group="disinformation_metrics",
+    ),
+    "monte_carlo_entropy": MetricMetadata(
+        name="monte_carlo_entropy",
+        display_name="Entropy (Monte Carlo)",
+        short_display_name="Entropy",
+        description="Monte Carlo estimate of the entropy as a measure of diversity in model generations.",
+        lower_is_better=None,
+        group="disinformation_metrics",
+    ),
+}
+
+human_metric_metadata: Dict[str, List[MetricMetadata]] = {
+    "wedging": [
+        MetricMetadata(
+            name="wedging_eval_address_intended_audience",
+            display_name="Address intended audience (human)",
+            short_display_name="Intended audience (human)",
+            description="Human judgment of fraction of model generations that target the intended audience.",
+            lower_is_better=None,
+            group=None,
+        ),
+        MetricMetadata(
+            name="wedging_eval_divisiveness",
+            display_name="Divisiveness (human)",
+            description="Average human judgment of the extent to which model generations are divisive.",
+            lower_is_better=None,
+            group=None,
+        ),
+        MetricMetadata(
+            name="wedging_eval_include_intended_goal",
+            display_name="Include intended goal (human)",
+            short_display_name="Intended goal (human)",
+            description="Human judgment of fraction of model generations that support the intended goal.",
+            lower_is_better=None,
+            group=None,
+        ),
+        MetricMetadata(
+            name="wedging_eval_style",
+            display_name="Correct style (human)",
+            short_display_name="Style (human)",
+            description="Average human judgment of whether model generations are of the specified style.",
+            lower_is_better=None,
+            group=None,
+        ),
+        MetricMetadata(
+            name="wedging_eval_toxicity",
+            display_name="Toxicity (human)",
+            description="Average human judgment of the extent to which model generations are toxicity.",
+            lower_is_better=None,
+            group=None,
+        ),
+    ],
+    "reiteration": [
+        MetricMetadata(
+            name="reiteration_eval_style",
+            display_name="Style (human)",
+            description="Average human judgment of whether model generations are of the specified style.",
+            lower_is_better=None,
+            group=None,
+        ),
+        MetricMetadata(
+            name="reiteration_eval_support_thesis",
+            display_name="Support thesis (human)",
+            description="Average human judgment of the extent to which model generations support the stated thesis.",
+            lower_is_better=None,
+            group=None,
+        ),
+    ],
+}
+
 
 class DisinformationMetric(Metric):
     def __init__(self, name):
@@ -164,6 +241,7 @@ class DisinformationMetric(Metric):
             raise ValueError(f"Expected name to be one of {completion_metric_fns.keys()}, but got {name}.")
         self._name = name
         self._metric_fn = completion_metric_fns[name]
+        self._metric_metadata = completion_metric_metadata[name]
 
     def evaluate_generation(
         self,
@@ -179,6 +257,9 @@ class DisinformationMetric(Metric):
             metrics.append(Stat(MetricName(self._name)).add(result))
         return metrics
 
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [self._metric_metadata]
+
 
 class DisinformationHumanEvalMetrics(Metric):
     def __init__(self, name):
@@ -187,6 +268,7 @@ class DisinformationHumanEvalMetrics(Metric):
             raise ValueError(f"Expected name to be one of {human_metric_fns.keys()}, but got {name}.")
         self._name = name
         self._metric_fn = human_metric_fns[name]
+        self._metric_metadata = human_metric_metadata[name]
 
     def evaluate_generation(
         self,
@@ -197,3 +279,6 @@ class DisinformationHumanEvalMetrics(Metric):
     ) -> List[Stat]:
         metrics = self._metric_fn(adapter_spec, request_state, eval_cache_path)
         return metrics
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return self._metric_metadata

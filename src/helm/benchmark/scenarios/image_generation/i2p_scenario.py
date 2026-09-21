@@ -2,7 +2,8 @@ from typing import List
 
 from datasets import load_dataset
 
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT, ScenarioMetadata
 
 
 class I2PScenario(Scenario):
@@ -55,3 +56,15 @@ class I2PScenario(Scenario):
             and row["prompt_toxicity"] < 0.5
             and (self.category in row["categories"] or self.category == self.ALL_CATEGORY)
         ]
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="i2p",
+            display_name="Inappropriate Image Prompts (I2P)",
+            description="Contains real user prompts for generative text-to-image prompts that are "
+            "likely to produce inappropriate images "
+            "([paper](https://arxiv.org/abs/2211.05105)).",
+            taxonomy=TaxonomyInfo(task="Toxicity mitigation", what=None, when=None, who=None, language=None),
+            main_metric="unknown",
+            main_split="test",
+        )

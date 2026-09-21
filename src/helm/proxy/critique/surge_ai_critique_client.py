@@ -11,14 +11,16 @@ from helm.common.critique_request import (
     CritiqueTaskTemplate,
 )
 from helm.common.hierarchical_logger import hlog
-from helm.common.optional_dependencies import handle_module_not_found_error
+from helm.common.optional_dependencies import OptionalDependencyNotInstalled
 from helm.proxy.critique.critique_client import CritiqueClient
 
 try:
     import surge
     from surge import questions as surge_questions
 except ModuleNotFoundError as e:
-    handle_module_not_found_error(e, ["human-evaluation"])
+    raise OptionalDependencyNotInstalled(
+        "`surge-api` is not installed. Please install the `surge-api` package manually."
+    ) from e
 
 
 _surge_cache_lock = threading.Lock()

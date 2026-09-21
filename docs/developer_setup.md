@@ -8,13 +8,13 @@ Check your system verison of Python by running:
 python --version
 ```
 
-If your version of Python is older than 3.9, you _must_ use either **Conda** or **pyenv** to install a version of Python >=3.9 when setting up your virtual environment.
+If your version of Python is older than 3.10, you _must_ use either **Conda** or **pyenv** to install a version of Python >=3.10 when setting up your virtual environment.
 
 ## Set up the Python virtual environment
 
-First, create a Python virtual environment with Python version >= 3.9 and activate it.
+First, create a Python virtual environment with Python version >= 3.10 and activate it.
 
-Using [**Virtualenv**](https://docs.python.org/3/library/venv.html#creating-virtual-environments) (*requires* system Python version >=3.9):
+Using [**Virtualenv**](https://docs.python.org/3/library/venv.html#creating-virtual-environments) (*requires* system Python version >=3.10):
 
 ```bash
 # Create a virtual environment.
@@ -111,7 +111,7 @@ mypy src scripts
 The recommended way to execute `helm-run`, `helm-summarize`, `helm-server`, etc, with your local version of the repository is to do an editable install, using the following steps:
 
 1. Activate your virtual environment.
-1. Change directory to the repository root (contains setup.cfg).
+1. Change directory to the repository root (contains pyproject.toml).
 1. Make sure you don't have an existing helm installation for that environment with `pip uninstall crfm-helm`
 1. Run `pip install -e .`
 

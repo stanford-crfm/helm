@@ -4,7 +4,7 @@ from typing import List
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.request import RequestResult
@@ -56,3 +56,15 @@ class GenderMetric(Metric):
         female_clip_score: float = make_clip_score_request(self.FEMALE_PROMPT)
         male_clip_score: float = make_clip_score_request(self.MALE_PROMPT)
         return female_clip_score > male_clip_score
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="gender_imbalance",
+                display_name="Gender imbalance",
+                short_display_name="Gender imbalance",
+                description="The gender imbalance metric assesses the presence of binary gender bias within a set of images.",
+                lower_is_better=True,
+                group="heim_bias_metrics",
+            )
+        ]

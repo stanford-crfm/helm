@@ -4,6 +4,7 @@ from typing import Any, Dict, List
 import traceback
 from helm.common.cache import CacheConfig
 
+from helm.common.hierarchical_logger import hexception
 from helm.common.request import (
     wrap_request_time,
     EMBEDDING_UNAVAILABLE_REQUEST_RESULT,
@@ -44,7 +45,7 @@ class MegatronClient(CachingClient):
         out = json.loads(response.text)
 
         # Detect if the server returned an error string.
-        if type(out) != dict:
+        if not isinstance(out, dict):
             raise ValueError(f"{response}: {response.text}")
         return out
 
@@ -103,6 +104,7 @@ class MegatronClient(CachingClient):
         try:
             return self._make_request(request)
         except Exception as e:
+            hexception(e)
             return RequestResult(
                 success=False,
                 cached=False,

@@ -4,6 +4,7 @@ import os
 import random
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TRAIN_SPLIT,
@@ -13,6 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
 
@@ -51,3 +53,22 @@ class FinanceBenchScenario(Scenario):
         for train_index in train_indexes:
             instances[train_index] = dataclasses.replace(instances[train_index], split=TRAIN_SPLIT)
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="financebench",
+            display_name="FinanceBench",
+            description="FinanceBench is a benchmark for open book financial question answering. It "
+            "comprises 10,231 questions about publicly traded companies, with corresponding "
+            "answers and evidence strings [(Islam et al., "
+            "2023)](https://arxiv.org/abs/2311.11944/).",
+            taxonomy=TaxonomyInfo(
+                task="question answering with numeric reasoning",
+                what="financial reports",
+                when="2015 to 2023",
+                who="financial experts",
+                language="English",
+            ),
+            main_metric="annotation_financebench_label_correct_answer",
+            main_split="test",
+        )

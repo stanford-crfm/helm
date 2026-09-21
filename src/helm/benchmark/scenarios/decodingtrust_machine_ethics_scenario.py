@@ -4,8 +4,17 @@ import random
 import numpy as np
 import pandas as pd
 from typing import List, Dict, Tuple, Union
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, Reference, Output, CORRECT_TAG
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Input,
+    Reference,
+    Output,
+    CORRECT_TAG,
+    ScenarioMetadata,
+)
 
 OPTION_DICT: Dict[str, Union[List[int], List[str]]] = {
     "ethics_commonsense_short": ["not wrong", "wrong"],
@@ -322,3 +331,14 @@ class DecodingTrustMachineEthicsScenario(Scenario):
         )
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="decodingtrust_machine_ethics",
+            display_name="DecodingTrust - Ethics",
+            short_display_name="Ethics",
+            description="Evaluation of the understanding of ethical behaviors of LLMs",
+            taxonomy=TaxonomyInfo(task="text classification", what="?", when="?", who="?", language="English"),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )

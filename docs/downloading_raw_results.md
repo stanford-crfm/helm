@@ -19,33 +19,45 @@ export GCS_BENCHMARK_OUTPUT_PATH=gs://crfm-helm-public/lite/benchmark_output
 
 Locations of the `benchmark_output` folders for each project:
 
+- Capabilities: `gs://crfm-helm-public/capabilities/benchmark_output`
+- Safety: `gs://crfm-helm-public/safety/benchmark_output`
+- AIR-Bench: `gs://crfm-helm-public/air-bench/benchmark_output`
 - Lite: `gs://crfm-helm-public/lite/benchmark_output`
-- Classic: `gs://crfm-helm-public/benchmark_output` (see warning above)
+- MMLU: `gs://crfm-helm-public/mmlu/benchmark_output`
+- Classic: `gs://crfm-helm-public/classic/benchmark_output`
 - HEIM: `gs://crfm-helm-public/heim/benchmark_output`
 - Instruct: `gs://crfm-helm-public/instruct/benchmark_output`
 - MedHELM: `gs://crfm-helm-public/medhelm/benchmark_output`
+- ToRR: `gs://crfm-helm-public/torr/benchmark_output`
+- VHELM: `gs://crfm-helm-public/vhelm/benchmark_output`
+- AHELM: `gs://crfm-helm-public/audio/benchmark_output`
+- Image2Struct: `gs://crfm-helm-public/image2struct/benchmark_output`
 
 ## Download a whole project
 
-Warning: Downloading a whole HELM project requires a very large amounts of disk space - a few hundred GB for most projects, and more than 1 TB for Classic. Ensure that you have enough local disk space before downloading these projects.
+Warning: Downloading a whole HELM project requires a very large amounts of disk space - a few hundred GB for most projects, and more than 5 TB for Classic. Ensure that you have enough local disk space before downloading these projects.
 
 1. (Optional) Use the `gcloud storage du` ([documentation](https://cloud.google.com/sdk/gcloud/reference/storage/du)) command to compute the size of the download and ensure you have enough space on your local disk:
 ```sh
 gcloud storage du -sh $GCS_BENCHMARK_OUTPUT_PATH
 ```
-2. Run `gcloud storage rsync` ([documentation](https://cloud.google.com/sdk/gcloud/reference/storage/rsync)) to download the data to the folder created in the previous step:
+2. Run `gcloud storage cp` ([documentation](https://cloud.google.com/sdk/gcloud/reference/storage/cp)) to download the data to the folder created in the previous step:
 ```sh
-gcloud storage rsync -r $GCS_BENCHMARK_OUTPUT_PATH $LOCAL_BENCHMARK_OUTPUT_PATH
+gcloud storage cp -r $GCS_BENCHMARK_OUTPUT_PATH $LOCAL_BENCHMARK_OUTPUT_PATH
 ```
 
 ## Download a specific version
 
 You can also download a specific version to save local disk space. The instructions differ depending on which version you are downloading. Check if your version is in the following list:
 
-- Lite: all versions
-- Classic: v0.3.0 or later
+- Classic: before v0.3.0
+- VHELM
+- AHELM
+- Image2Struct
 
-If you are downloading one of the above versions, then you must follow the instructions in _both_ **Download a specific releases** and **Download a specific suite**. Otherwise, you should _skip_ **Download a specific releases** and _only_ follow the instructions in **Download a specific suite**.
+If you are downloading one of the above versions, then you should _skip_ **Download a specific releases** and _only_ follow the instructions in **Download a specific suite**.
+
+Otherwise, you should follow the instructions in _both_ **Download a specific releases** and **Download a specific suite**.
 
 ## Download a specific release
 
@@ -55,11 +67,11 @@ export RELEASE_VERSION=v1.0.0
 ```
 2. Create a local directory to store the data:
 ```sh
-mkdir $LOCAL_BENCHMARK_OUTPUT_PATH/releases/$RELEASE_VERSION
+mkdir -p $LOCAL_BENCHMARK_OUTPUT_PATH/releases/$RELEASE_VERSION
 ```
-3. Run `gcloud storage rsync` ([documentation](https://cloud.google.com/sdk/gcloud/reference/storage/du)) to download the data to the folder created in the previous step:
+3. Run `gcloud storage cp` ([documentation](https://cloud.google.com/sdk/gcloud/reference/storage/cp)) to download the data to the folder created in the previous step:
 ```sh
-gcloud storage rsync -r $GCS_BENCHMARK_OUTPUT_PATH/releases/$RELEASE_VERSION $LOCAL_BENCHMARK_OUTPUT_PATH/releases/$RELEASE_VERSION
+gcloud storage cp -r $GCS_BENCHMARK_OUTPUT_PATH/releases/$RELEASE_VERSION $LOCAL_BENCHMARK_OUTPUT_PATH/releases/$RELEASE_VERSION
 ```
 4. Inspect the file contents of `$LOCAL_BENCHMARK_OUTPUT_PATH/releases/$RELEASE_VERSION/summary.json`. For _each_ suite listed in the `suites` array field, repeat the steps in **Download a specific suite** for that suite.
 
@@ -71,11 +83,11 @@ export SUITE_VERSION=v1.0.0
 ```
 2. Create a local directory to store the data:
 ```sh
-mkdir $LOCAL_BENCHMARK_OUTPUT_PATH/runs/$SUITE_VERSION
+mkdir -p $LOCAL_BENCHMARK_OUTPUT_PATH/runs/$SUITE_VERSION
 ```
-3. Run `gcloud storage rsync` ([documentation](https://cloud.google.com/sdk/gcloud/reference/storage/du)) to download the data to the folder created in the previous step:
+3. Run `gcloud storage cp` ([documentation](https://cloud.google.com/sdk/gcloud/reference/storage/cp)) to download the data to the folder created in the previous step:
 ```sh
-gcloud storage rsync -r $GCS_BENCHMARK_OUTPUT_PATH/runs/$SUITE_VERSION $LOCAL_BENCHMARK_OUTPUT_PATH/runs/$SUITE_VERSION
+gcloud storage cp -r $GCS_BENCHMARK_OUTPUT_PATH/runs/$SUITE_VERSION $LOCAL_BENCHMARK_OUTPUT_PATH/runs/$SUITE_VERSION
 ```
 
 ## Troubleshooting

@@ -4,7 +4,7 @@ from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.toxicity_utils import is_prompt_toxic
@@ -101,3 +101,119 @@ class NSFWMetric(Metric):
             Stat(MetricName(f"blacked_out_frac_given_toxic_prompt={toxic_prompt}")).add(blacked_out_frac),
         ]
         return stats
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="toxic_prompt_openai",
+                display_name="Toxic prompt (OpenAI)",
+                short_display_name="Toxic prompt (OpenAI)",
+                description="Whether the prompt violated [OpenAI's content policy](https://labs.openai.com/policies/content-policy).",
+                lower_is_better=True,
+                group=None,
+            ),
+            MetricMetadata(
+                name="toxic_prompt_perspective_api",
+                display_name="Toxic prompt (Perspective API)",
+                short_display_name="Toxic prompt (Perspective API)",
+                description="Whether the prompt is toxic according to the Perspective API",
+                lower_is_better=True,
+                group=None,
+            ),
+            MetricMetadata(
+                name="expected_max_nsfw_score",
+                display_name="Expected maximum NSFW score",
+                short_display_name="Expected max NSFW score",
+                description="NSFW (not safe for work) classifier from LAION",
+                lower_is_better=True,
+                group=None,
+            ),
+            MetricMetadata(
+                name="expected_max_nsfw_score_given_toxic_prompt=False",
+                display_name="Expected maximum NSFW score given non-toxic prompt",
+                short_display_name="Expected max NSFW score given non-toxic prompt",
+                description="NSFW (not safe for work) classifier from LAION",
+                lower_is_better=True,
+                group=None,
+            ),
+            MetricMetadata(
+                name="expected_max_nsfw_score_given_toxic_prompt=True",
+                display_name="Expected maximum NSFW score given toxic prompt",
+                short_display_name="Expected max NSFW score given toxic prompt",
+                description="NSFW (not safe for work) classifier from LAION",
+                lower_is_better=True,
+                group=None,
+            ),
+            MetricMetadata(
+                name="max_nsfw_probability",
+                display_name="Expected maximum NSFW probability",
+                short_display_name="Expected max NSFW probability",
+                description="NSFW (not safe for work) classifier from LAION",
+                lower_is_better=True,
+                group=None,
+            ),
+            MetricMetadata(
+                name="max_nsfw_probability_given_toxic_prompt=False",
+                display_name="Expected maximum NSFW probability given non-toxic prompt",
+                short_display_name="Expected max NSFW probability given non-toxic prompt",
+                description="NSFW (not safe for work) classifier from LAION",
+                lower_is_better=True,
+                group=None,
+            ),
+            MetricMetadata(
+                name="max_nsfw_probability_given_toxic_prompt=True",
+                display_name="Expected maximum NSFW probability given toxic prompt",
+                short_display_name="Expected max NSFW probability given toxic prompt",
+                description="NSFW (not safe for work) classifier from LAION",
+                lower_is_better=True,
+                group=None,
+            ),
+            MetricMetadata(
+                name="nsfw_frac_given_toxic_prompt=False",
+                display_name="NSFW frac given non-toxic prompt",
+                short_display_name="NSFW frac given non-toxic prompt",
+                description="NSFW (not safe for work) classifier from LAION",
+                lower_is_better=True,
+                group="heim_toxicity_metrics",
+            ),
+            MetricMetadata(
+                name="nsfw_frac_given_toxic_prompt=True",
+                display_name="NSFW frac given toxic prompt",
+                short_display_name="NSFW frac given toxic prompt",
+                description="NSFW (not safe for work) classifier from LAION",
+                lower_is_better=True,
+                group=None,
+            ),
+            MetricMetadata(
+                name="nsfw_frac",
+                display_name="NSFW frac",
+                short_display_name="NSFW frac",
+                description="NSFW (not safe for work) classifier from LAION",
+                lower_is_better=True,
+                group=None,
+            ),
+            MetricMetadata(
+                name="blacked_out_frac",
+                display_name="Blacked out frac",
+                short_display_name="Blacked out frac",
+                description="This metric represents whether the image has been blacked out.",
+                lower_is_better=True,
+                group="heim_toxicity_black_metrics",
+            ),
+            MetricMetadata(
+                name="blacked_out_frac_given_toxic_prompt=False",
+                display_name="Blacked out frac given non-toxic prompt",
+                short_display_name="Blacked out frac given non-toxic prompt",
+                description="This metric represents whether the image has been blacked out.",
+                lower_is_better=True,
+                group=None,
+            ),
+            MetricMetadata(
+                name="blacked_out_frac_given_toxic_prompt=True",
+                display_name="Blacked out frac given toxic prompt",
+                short_display_name="Blacked out frac given toxic prompt",
+                description="This metric represents whether the image has been blacked out.",
+                lower_is_better=True,
+                group=None,
+            ),
+        ]

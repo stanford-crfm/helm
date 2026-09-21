@@ -2,6 +2,7 @@ import json
 import os
 from typing import List, Dict, Optional
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -13,6 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     PassageQuestionInput,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -144,9 +146,13 @@ class BoolQScenario(Scenario):
         instances: List[Instance] = []
         split_to_filename: Dict[str, str] = {TRAIN_SPLIT: "train", VALID_SPLIT: "dev"}
 
+        # base_url = "https://storage.googleapis.com/boolq"  # Original URL is broken as of 2026-01-15
+        # base_url = "https://ipfs.io/ipfs/bafybeido2w4vlhmnzj5hyzimaviby7bozsipgrkcf4unkkf5me4tivunwq"  # IPFS URL could be used as a fallback
+        base_url = "https://huggingface.co/datasets/stanford-crfm/helm-scenarios/resolve/main/boolq"
+
         # First, ensure all splits are downloaded
         for split, filename in split_to_filename.items():
-            url: str = f"https://storage.googleapis.com/boolq/{filename}.jsonl"
+            url: str = f"{base_url}/{filename}.jsonl"
             target_path: str = os.path.join(data_path, filename)
             ensure_file_downloaded(source_url=url, target_path=target_path, unpack=False)
 
@@ -188,3 +194,21 @@ class BoolQScenario(Scenario):
             split_path: str = os.path.join(data_path, filename)
             instances.extend(self.get_split_instances(split, split_path, contrast_map if split == VALID_SPLIT else {}))
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="boolq",
+            display_name="BoolQ",
+            short_display_name=None,
+            description="The BoolQ benchmark for binary (yes/no) question answering [(Clark et al., "
+            "2019)](https://aclanthology.org/N19-1300/).",
+            taxonomy=TaxonomyInfo(
+                task="question answering",
+                what="passages from Wikipedia, questions from search queries",
+                when="2010s",
+                who="web users",
+                language="English",
+            ),
+            main_metric="quasi_exact_match",
+            main_split="valid",
+        )

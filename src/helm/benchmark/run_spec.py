@@ -1,14 +1,13 @@
 from dataclasses import dataclass, field
-import importlib
 import os
-import pkgutil
-from typing import Callable, Dict, Iterable, List, Optional, TypeVar
+from typing import Callable, Dict, List, Optional, TypeVar
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.augmentations.data_augmenter import DataAugmenterSpec
 from helm.benchmark.metrics.metric import MetricSpec
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.benchmark.annotation.annotator import AnnotatorSpec
+from helm.common.plugins import import_all_modules_in_package
 
 
 @dataclass(frozen=True)
@@ -70,21 +69,11 @@ def run_spec_function(name: str) -> Callable[[F], F]:
     return wrap
 
 
-# Copied from https://docs.python.org/3/library/pkgutil.html#pkgutil.iter_modules
-def _iter_namespace(ns_pkg) -> Iterable[pkgutil.ModuleInfo]:
-    # Specifying the second argument (prefix) to iter_modules makes the
-    # returned name an absolute name instead of a relative one. This allows
-    # import_module to work without having to do additional modification to
-    # the name.
-    return pkgutil.iter_modules(ns_pkg.__path__, ns_pkg.__name__ + ".")
-
-
 def discover_run_spec_functions() -> None:
     """Discover and register all run spec functions under helm.benchmark.run_specs"""
     import helm.benchmark.run_specs  # noqa
 
-    for finder, name, ispkg in _iter_namespace(helm.benchmark.run_specs):
-        importlib.import_module(name)
+    import_all_modules_in_package(helm.benchmark.run_specs)
 
 
 def get_run_spec_function(name: str) -> Optional[RunSpecFunction]:

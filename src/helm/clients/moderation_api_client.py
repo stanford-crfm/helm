@@ -1,5 +1,6 @@
 from typing import Any, Dict
 
+from helm.common.hierarchical_logger import hexception
 from helm.common.request import wrap_request_time
 from helm.common.cache import Cache, CacheConfig
 from helm.common.moderations_api_request import (
@@ -64,6 +65,7 @@ class ModerationAPIClient:
 
             response, cached = self.cache.get(raw_request, wrap_request_time(do_it))
         except openai.OpenAIError as e:
+            hexception(e)
             error: str = f"Moderation API error: {e}"
             return ModerationAPIRequestResult(
                 success=False, cached=False, error=error, flagged=None, flagged_results=None, scores=None

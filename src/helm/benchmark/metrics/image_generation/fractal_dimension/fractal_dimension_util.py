@@ -58,6 +58,6 @@ def compute_fractal_dimension(image_path: str) -> float:
     except ModuleNotFoundError as e:
         handle_module_not_found_error(e, ["heim"])
 
-    image = cv2.imread(image_path, 0) / 255.0  # type: ignore
+    image: np.ndarray = cv2.imread(image_path, 0) / 255.0  # type: ignore
     assert image.min() >= 0 and image.max() <= 1
     return fractal_dimension(image)

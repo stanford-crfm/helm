@@ -4,6 +4,7 @@ import base64
 from helm.common.cache import CacheConfig, Cache
 from helm.common.general import hlog
 from helm.common.file_caches.file_cache import FileCache
+from helm.common.hierarchical_logger import hexception
 from helm.common.media_object import MultimediaObject
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import Request, RequestResult, GeneratedOutput, wrap_request_time
@@ -124,6 +125,7 @@ class DALLE2Client(Client):
             hlog(f"Failed safety check: {request.prompt}")
             return self.get_content_policy_violated_result(request)
         else:
+            hexception(error)
             return RequestResult(
                 success=False, cached=False, error=f"DALL-E error: {error}", completions=[], embedding=[]
             )

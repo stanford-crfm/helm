@@ -5,7 +5,6 @@ from helm.clients.openai_client import OpenAIClient
 from helm.common.cache import CacheConfig
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.proxy.retry import NonRetriableException
-from helm.tokenizers.tokenizer import Tokenizer
 
 try:
     from openai import AzureOpenAI
@@ -18,8 +17,6 @@ class AzureOpenAIClient(OpenAIClient):
 
     def __init__(
         self,
-        tokenizer: Tokenizer,
-        tokenizer_name: str,
         cache_config: CacheConfig,
         api_key: Optional[str] = None,
         endpoint: Optional[str] = None,
@@ -29,8 +26,6 @@ class AzureOpenAIClient(OpenAIClient):
         azure_openai_deployment_name: Optional[str] = None,
     ):
         super().__init__(
-            tokenizer=tokenizer,
-            tokenizer_name=tokenizer_name,
             cache_config=cache_config,
             api_key="unused",
             openai_model_name=azure_openai_deployment_name,

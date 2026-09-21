@@ -3,7 +3,7 @@ from typing import List
 
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
@@ -50,3 +50,14 @@ class OpenAIMRCRMetric(Metric):
             score = float(SequenceMatcher(None, response_sequence, gold_sequence).ratio())
 
         return [Stat(MetricName("openai_mrcr_accuracy")).add(score)]
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="openai_mrcr_accuracy",
+                display_name="MRCR Accuracy",
+                description="MRCR Accuracy",
+                lower_is_better=False,
+                group=None,
+            )
+        ]

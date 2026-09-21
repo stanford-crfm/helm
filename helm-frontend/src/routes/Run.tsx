@@ -14,6 +14,7 @@ import type MetricFieldMap from "@/types/MetricFieldMap";
 import getRunSpecByName, {
   getRunSpecByNameUrl,
 } from "@/services/getRunSpecByName";
+import { getPerInstanceStatsByNameUrl } from "@/services/getPerInstanceStatsByName";
 import { getScenarioStateByNameUrl } from "@/services/getScenarioStateByName";
 import Tab from "@/components/Tab";
 import Tabs from "@/components/Tabs";
@@ -26,6 +27,7 @@ import Instances from "@/components/Instances";
 import RunMetrics from "@/components/RunMetrics";
 import UserAgreement from "@/components/UserAgreement";
 import isScenarioEncrypted from "@/utils/isScenarioEncrypted";
+import RunGroup from "@/types/RunGroup";
 
 export default function Run() {
   const { runName } = useParams();
@@ -34,6 +36,7 @@ export default function Run() {
   const [runSuite, setRunSuite] = useState<string | undefined>();
   const [model, setModel] = useState<Model | undefined>();
   const [scenario, setScenario] = useState<Scenario | undefined>();
+  const [runGroup, setRunGroup] = useState<RunGroup | undefined>();
   const [adapterFieldMap, setAdapterFieldMap] = useState<AdapterFieldMap>({});
   const [metricFieldMap, setMetricFieldMap] = useState<
     MetricFieldMap | undefined
@@ -77,6 +80,12 @@ export default function Run() {
         }, {} as AdapterFieldMap),
       );
 
+      setRunGroup(
+        schema.run_groups.find((runGroup) =>
+          runSpecResp?.groups.includes(runGroup.name),
+        ),
+      );
+
       setModel(
         schema.models.find((m) => m.name === runSpecResp?.adapter_spec.model),
       );
@@ -97,20 +106,32 @@ export default function Run() {
     return <Loading />;
   }
 
+  // Add a class that is used by CSS to control the LTR / RTL direction of the text based on the language
+  const scenarioLanguage = runGroup?.taxonomy?.language;
+  const scenarioLanguageClassName = scenarioLanguage
+    ? "scenario-language-" + scenarioLanguage.toLowerCase()
+    : "";
+
   return (
-    <>
+    <div className={scenarioLanguageClassName}>
       <div className="flex justify-between gap-8 mb-12">
         <div>
           <h1 className="text-3xl flex items-center">
-            {scenario.name}
-            <a href={"/#/groups/" + scenario.name}>
-              <ArrowTopRightOnSquareIcon className="w-6 h-6 ml-2" />
-            </a>
+            {runGroup?.display_name || scenario.name}
+            {runGroup ? (
+              <a href={"/#/groups/" + runGroup.name}>
+                <ArrowTopRightOnSquareIcon className="w-6 h-6 ml-2" />
+              </a>
+            ) : null}
           </h1>
           <h3 className="text-xl">
-            <MarkdownValue value={scenario.description} />
+            <MarkdownValue
+              value={runGroup?.description || scenario.description}
+            />
           </h3>
-          <h1 className="text-3xl mt-2">{runSpec.adapter_spec.model}</h1>
+          <h1 className="text-3xl mt-2">
+            {model?.display_name || runSpec.adapter_spec.model}
+          </h1>
           <h3 className="text-xl">
             <MarkdownValue value={model?.description || ""} />
           </h3>
@@ -144,6 +165,14 @@ export default function Run() {
             >
               Full JSON
             </a>
+            <a
+              className="link link-primary link-hover"
+              href={getPerInstanceStatsByNameUrl(runSpec.name, runSuite)}
+              download="true"
+              target="_blank"
+            >
+              Per-Instance Stats JSON
+            </a>
           </div>
         </div>
         <div>
@@ -158,7 +187,7 @@ export default function Run() {
                       : undefined
                   }
                 >{`${key}: `}</strong>
-                <span className="overflow-x-auto">{value}</span>
+                <span className="overflow-x-auto pre-wrap">{value}</span>
               </ListItem>
             ))}
           </List>
@@ -202,6 +231,6 @@ export default function Run() {
           metricFieldMap={metricFieldMap}
         />
       )}
-    </>
+    </div>
   );
 }

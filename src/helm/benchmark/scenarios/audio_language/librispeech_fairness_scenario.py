@@ -2,6 +2,7 @@ from typing import List
 import os
 import json
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from collections import OrderedDict
 from tqdm import tqdm
@@ -94,3 +96,27 @@ class LibriSpeechFairnessScenario(Scenario):
             references = [Reference(Output(text=answer), tags=[CORRECT_TAG])]
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="librispeech_fairness",
+            display_name="LibriSpeech Fairness",
+            description="The LibriSpeech corpus (Vassil et al. 2015) is derived from audiobooks that "
+            "are part  of the LibriVox project, and contains 1000 hours of speech sampled "
+            "at 16 kHz. The  data has separately prepared language-model training data and "
+            "pre-built language models.  This corpus is one of the most widely-used ASR "
+            "corpus, which has been extended to many  applicaitons such as robust ASR and "
+            "multilingual ASR tasks.\n"
+            "The dataset contains the audio, transcriptions for all subsets. We ask the "
+            "model to do  ASR on audio files from different gender groups  ([Vassil et al. "
+            "2015](https://ieeexplore.ieee.org/document/7178964)).\n",
+            taxonomy=TaxonomyInfo(
+                task="audio recognition",
+                what="audio, transcripts of audio samples in daily scenarios",
+                when="2015",
+                who="real speakers",
+                language="English",
+            ),
+            main_metric="wer_score",
+            main_split="test",
+        )

@@ -8,7 +8,7 @@ from helm.common.credentials_utils import provide_api_key
 from helm.common.cache_backend_config import CacheBackendConfig, CacheConfig
 from helm.common.hierarchical_logger import hlog
 from helm.common.object_spec import create_object, inject_object_spec_args
-from helm.proxy.retry import retry_tokenizer_request
+from helm.proxy.retry import NonRetriableException, retry_tokenizer_request
 from helm.common.tokenization_request import (
     DecodeRequest,
     DecodeRequestResult,
@@ -50,7 +50,7 @@ class AutoTokenizer(Tokenizer):
             )
             tokenizer = create_object(tokenizer_spec)
         else:
-            hlog(f"No tokenizer config for {tokenizer_name}")
+            raise NonRetriableException(f"Could not find tokenizer config for {tokenizer_name}")
 
         # Cache the tokenizer
         assert isinstance(tokenizer, Tokenizer)  # To make mypy happy

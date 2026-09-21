@@ -2,6 +2,7 @@ from typing import List
 import os
 import json
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from tqdm import tqdm
 from helm.common.media_object import MediaObject, MultimediaObject
@@ -75,3 +77,24 @@ class COREBenchScenario(Scenario):
             references = [Reference(Output(text=answer), tags=[CORRECT_TAG])]
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="corebench",
+            display_name="COREBench",
+            description="The COREBench is a new audio benchmark incorporating multi-speaker "
+            "conversations.  It consists of conversational audio, transcript, question, and "
+            "answer. There  are two challenging features of this benchmark: (1) the "
+            "questions are designed  to require reasoning over multiple turns of "
+            "conversation, and (2) the average  audio length is longer than 1 minute, which "
+            "is significantly longer than  existing benchmarks.\n",
+            taxonomy=TaxonomyInfo(
+                task="audio question-answering",
+                what="audio, question, transcripts and answer given the audio",
+                when="2025",
+                who="OpenAI's TTS",
+                language="English",
+            ),
+            main_metric="quasi_prefix_exact_match",
+            main_split="test",
+        )

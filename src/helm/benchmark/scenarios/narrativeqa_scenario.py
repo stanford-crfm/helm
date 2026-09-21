@@ -3,6 +3,7 @@ import random
 import csv
 from typing import List, Dict
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -13,6 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     Input,
     PassageQuestionInput,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -155,3 +157,20 @@ class NarrativeQAScenario(Scenario):
             instances.extend(self.get_split_instances(summaries_file=summaries_file, qaps_file=qaps_file, split=split))
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="narrative_qa",
+            display_name="NarrativeQA",
+            description="The NarrativeQA benchmark for reading comprehension over narratives [(Kočiský "
+            "et al., 2017)](https://aclanthology.org/Q18-1023/).",
+            taxonomy=TaxonomyInfo(
+                task="short-answer question answering",
+                what="passages are books and movie scripts, questions are unknown",
+                when="2018",
+                who="annotators from summaries",
+                language="English",
+            ),
+            main_metric="f1_score",
+            main_split="test",
+        )

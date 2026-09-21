@@ -1,11 +1,13 @@
 import os
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     Scenario,
     Instance,
     Input,
+    ScenarioMetadata,
 )
 from helm.common.audio_utils import is_invalid_audio_file
 from helm.common.media_object import MediaObject, MultimediaObject
@@ -85,3 +87,20 @@ class VoiceJailbreakAttacksScenario(Scenario):
             instances.append(Instance(input=input, references=[], split=TEST_SPLIT))
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="voice_jailbreak_attacks",
+            display_name="Voice Jailbreak Attacks Against GPT-4o",
+            description="Voice jailbreak attacks against GPT-4o ([Shen et al, "
+            "2024](https://arxiv.org/abs/2405.19103)).\n",
+            taxonomy=TaxonomyInfo(
+                task="refusal for safety",
+                what="voice jailbreak attacks against GPT-4o",
+                when="2024",
+                who="AI-generated speech",
+                language="English",
+            ),
+            main_metric="refusal_rate",
+            main_split="test",
+        )

@@ -34,6 +34,8 @@ class GrokAPITokenizer(CachingTokenizer):
                 "Set grokApiKey in credentials.conf or set the GROK_API_KEY environment variable"
             )
         text = request["text"]
+        if not text:
+            return {"token_ids": []}
         model = request["tokenizer"].split("/")[-1]
         response = requests.post(
             url="https://api.x.ai/v1/tokenize-text",

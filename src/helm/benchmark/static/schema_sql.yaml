@@ -87,11 +87,13 @@ metrics:
     short_display_name: SQL Error Rate
     description: Fraction of generated queries that result in a SQL execution error
     lower_is_better: true
-  - name: execution_accuracy
-    display_name: Execution Accuracy
-    short_display_name: Execution Accuracy
-    description: Execution Accuracy
-    lower_is_better: false
+
+  # Efficiency metrics:
+  - name: inference_runtime
+    display_name: Observed inference runtime (s)
+    short_display_name: Observed inference time (s)
+    lower_is_better: true
+    description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
 
 ############################################################
 perturbations: []

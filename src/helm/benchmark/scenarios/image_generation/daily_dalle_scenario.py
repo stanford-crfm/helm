@@ -1,6 +1,7 @@
 from typing import List
 
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT, ScenarioMetadata
 
 
 class DailyDallEScenario(Scenario):
@@ -122,3 +123,13 @@ class DailyDallEScenario(Scenario):
 
     def get_instances(self, _) -> List[Instance]:
         return [Instance(Input(text=prompt), references=[], split=TEST_SPLIT) for prompt in self.PROMPTS]
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="daily_dalle",
+            display_name="dailydall.e",
+            description="DALL-E 2 prompts from [Chad Nelson's " "Instagram](https://www.instagram.com/dailydall.e/)",
+            taxonomy=TaxonomyInfo(task="Originality", what=None, when=None, who=None, language=None),
+            main_metric="unknown",
+            main_split="test",
+        )

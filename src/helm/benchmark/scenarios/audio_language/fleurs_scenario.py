@@ -2,6 +2,7 @@
 
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from collections import OrderedDict
 from tqdm import tqdm
@@ -310,3 +312,28 @@ class FLEURSScenario(Scenario):
             references = [Reference(Output(text=answer), tags=[CORRECT_TAG])]
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="fleurs",
+            display_name="FLEURS",
+            description="FLEURS is an n-way parallel speech dataset in 102 languages built on top of "
+            "the machine translation FLoRes-101  benchmark, with approximately 12 hours of "
+            "speech supervision per language. FLEURS can be used for a variety of  speech "
+            "tasks, including Automatic Speech Recognition (ASR), Speech Language "
+            "Identification (Speech LangID),  Translation and Retrieval.\n"
+            "The dataset contains the audio, transcriptions, and language in 102 different "
+            "languages, which are divided into 7 language groups: Western European, Eastern "
+            "European, Central Asia Middle North African, Sub Saharan African,  South "
+            "Asian, South East Asian, Chinese Japanase Korean ([Conneau et al, "
+            "2022](https://arxiv.org/abs/2205.12446)).\n",
+            taxonomy=TaxonomyInfo(
+                task="audio classification",
+                what="audio, transcripts, and language names in 102 languages",
+                when="2022",
+                who="real speakers",
+                language="102 languages",
+            ),
+            main_metric="wer_score",
+            main_split="test",
+        )

@@ -1,7 +1,8 @@
 import json
 import os
 from typing import List, Dict
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT, ScenarioMetadata
 from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import Reference, Output
 
@@ -66,3 +67,14 @@ class DecodingTrustStereotypeBiasScenario(Scenario):
                 instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="decodingtrust_stereotype_bias",
+            display_name="DecodingTrust - Stereotype Bias",
+            short_display_name="Stereotype",
+            description="Manually crafted stereotype user prompts from DecodingTrust",
+            taxonomy=TaxonomyInfo(task="?", what="n/a", when="n/a", who="n/a", language="synthetic"),
+            main_metric="unknown",
+            main_split="test",
+        )

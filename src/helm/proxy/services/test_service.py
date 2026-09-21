@@ -59,7 +59,7 @@ class TestServerService:
             self.service.create_account(non_admin_auth)
         except Exception as e:
             raised = True
-            assert type(e) == AuthenticationError
+            assert isinstance(e, AuthenticationError)
         assert raised
 
     def test_delete_account(self):
@@ -74,7 +74,7 @@ class TestServerService:
             self.service.delete_account(non_admin_auth, non_admin_api_key)
         except Exception as e:
             raised = True
-            assert type(e) == AuthenticationError
+            assert isinstance(e, AuthenticationError)
         assert raised
 
         # Delete the account as an admin and verify the account no longer exists
@@ -98,7 +98,7 @@ class TestServerService:
             self.service.get_accounts(non_admin_auth)
         except Exception as e:
             raised = True
-            assert type(e) == AuthenticationError
+            assert isinstance(e, AuthenticationError)
         assert raised
 
     def test_get_account(self):
@@ -151,7 +151,7 @@ class TestServerService:
             self.service.rotate_api_key(non_admin_auth, account)
         except Exception as e:
             raised = True
-            assert type(e) == AuthenticationError
+            assert isinstance(e, AuthenticationError)
         assert raised
 
     def test_shutdown(self):
@@ -164,7 +164,7 @@ class TestServerService:
             self.service.shutdown(non_admin_auth)
         except Exception as e:
             raised = True
-            assert type(e) == AuthenticationError
+            assert isinstance(e, AuthenticationError)
         assert raised
 
 

@@ -48,18 +48,20 @@ nav:
     - adding_new_tokenizers.md
     - downloading_raw_results.md
     - reproducing_leaderboards.md
-    - get_helm_rank.md
     - benchmark.md
     - huggingface_models.md
+    - maintenance_mode.md
   - Papers:
     - heim.md
     - vhelm.md
     - enterprise_benchmark.md
+    - efficent_benchmarking.md
     - reeval.md
     - medhelm.md
   - Reference:
     - models.md
     - metrics.md
+    - model_request_api.md
     - perturbations.md
     - scenarios.md
     - schemas.md

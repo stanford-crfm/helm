@@ -208,6 +208,7 @@ run_groups:
       - mmlu_clinical_afr_college_medicine_zu
       - mmlu_clinical_afr_virology_zu
 
+  - name: winogrande_afr_by_language
     display_name: WinoGrande
     description: Results for WinoGrande by language.
     category: Results by benchmark

@@ -1,6 +1,7 @@
 from typing import List, Optional
 
 from datasets import load_dataset, Dataset
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
     make_rank_tag,
 )
 
@@ -152,6 +154,17 @@ class MELTInformationRetrievalMMARCOScenario(MELTInformationRetrievalScenario):
             **kwargs,
         )
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="melt_information_retrieval_mmarco",
+            display_name="MARCO",
+            short_display_name="MARCO",
+            description="The MARCO benchmark for measuring information retrieval on Vietnamese MARCO.",
+            taxonomy=TaxonomyInfo(task="information retrieval", what="?", when="?", who="?", language="Vietnamese"),
+            main_metric="RR@10",
+            main_split="valid",
+        )
+
 
 class MELTInformationRetrievalMRobustScenario(MELTInformationRetrievalScenario):
     """
@@ -168,4 +181,15 @@ class MELTInformationRetrievalMRobustScenario(MELTInformationRetrievalScenario):
             revision="fda452a7fbfd9550db2f78d9d98e6b3ec16734df",
             subset="vietnamese",
             **kwargs,
+        )
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="melt_information_retrieval_mrobust",
+            display_name="MRobust",
+            short_display_name="MRobust",
+            description="The MRobust benchmark for measuring information retrieval on Vietnamese " "MRobust.",
+            taxonomy=TaxonomyInfo(task="information retrieval", what="?", when="?", who="?", language="Vietnamese"),
+            main_metric="NDCG@10",
+            main_split="valid",
         )

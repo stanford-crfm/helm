@@ -21,9 +21,19 @@ class WindowServiceFactory:
             if model_deployment.window_service_spec:
                 window_service_spec = model_deployment.window_service_spec
             else:
-                window_service_spec = WindowServiceSpec(
-                    class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService", args={}
-                )
+                if (
+                    model_deployment.max_request_length is None
+                    and model_deployment.max_sequence_length is None
+                    and model_deployment.max_sequence_and_generated_tokens_length is None
+                    and model_deployment.tokenizer_name is None
+                ):
+                    window_service_spec = WindowServiceSpec(
+                        class_name="helm.benchmark.window_services.no_tokenizer_window_service.NoTokenizerWindowService"
+                    )
+                else:
+                    window_service_spec = WindowServiceSpec(
+                        class_name="helm.benchmark.window_services.default_window_service.DefaultWindowService"
+                    )
 
             # If provided, look up special tokens from TokenizerConfig.
             end_of_text_token: Optional[str] = None

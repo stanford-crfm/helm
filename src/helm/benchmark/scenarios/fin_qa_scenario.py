@@ -2,6 +2,7 @@ import os
 import json
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     TRAIN_SPLIT,
     TEST_SPLIT,
     CORRECT_TAG,
+    ScenarioMetadata,
 )
 
 
@@ -117,3 +119,21 @@ class FinQAScenario(Scenario):
                     )
                     instances.append(instance)
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="fin_qa",
+            display_name="FinQA",
+            description="The FinQA benchmark for numeric reasoning over financial data, with question "
+            "answering pairs written by financial experts over financial reports [(Chen et "
+            "al., 2021)](https://arxiv.org/abs/2109.00122/).",
+            taxonomy=TaxonomyInfo(
+                task="question answering with numeric reasoning",
+                what="financial reports",
+                when="1999 to 2019",
+                who="financial experts",
+                language="English",
+            ),
+            main_metric="program_accuracy",
+            main_split="test",
+        )

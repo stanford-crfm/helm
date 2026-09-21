@@ -4,6 +4,7 @@ from typing import List
 import pandas as pd
 from tqdm import tqdm
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     TEST_SPLIT,
     TRAIN_SPLIT,
@@ -14,6 +15,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.audio_utils import ensure_audio_file_exists_from_array, get_array_from_audio_file
 from helm.common.media_object import MediaObject, MultimediaObject
@@ -111,3 +113,23 @@ class MELDAudioScenario(Scenario):
             )
             instances.append(instance)
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="meld_audio",
+            display_name="Multimodal EmotionLines Dataset (MELD) Audio",
+            description="Multimodal EmotionLines Dataset (MELD) has been created by enhancing and "
+            "extending EmotionLines dataset. MELD has more than 1400 dialogues and 13000 "
+            "utterances from Friends TV series. Multiple speakers participated in the "
+            "dialogues. Each utterance in a dialogue has been labeled by any of these seven "
+            "emotions - Anger, Disgust, Sadness, Joy, Neutral, Surprise and Fear.\n",
+            taxonomy=TaxonomyInfo(
+                task="audio classification",
+                what="Classify audio by emotion",
+                when="1994-2004",  # corrected from 2018 in the schema file
+                who="Friends TV series",
+                language="English",
+            ),
+            main_metric="quasi_prefix_exact_match",
+            main_split="test",
+        )

@@ -1,6 +1,7 @@
 from typing import List
-import json
+import os
 
+from datasets import load_dataset
 from tqdm import tqdm
 
 from helm.benchmark.scenarios.scenario import (
@@ -13,8 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
-from helm.common.general import ensure_file_downloaded
-from .ultra_suite_classification_scenario import find_audio_json_pairs
+from helm.common.audio_utils import ensure_audio_file_exists_from_array
 
 
 class UltraSuiteDisorderBreakdownScenario(Scenario):
@@ -27,7 +27,6 @@ class UltraSuiteDisorderBreakdownScenario(Scenario):
     name = "speech_disorder"
     description = "A scenario for evaluating and classifying specific types of speech disorders in children"
     tags = ["audio", "classification", "speech_disorder", "disorder_breakdown"]
-    HF_MAPPING_URL = "https://https://huggingface.co/datasets/SAA-Lab/SLPHelmManualLabels"
 
     def get_instruction(self, words: str) -> str:
         return f"""You are a highly experienced Speech-Language Pathologist (SLP). An audio recording will be provided, typically consisting of a speech prompt from a pathologist followed by a child's repetition. The prompt text the child is trying to repeat is as follows: {words}. Based on your professional expertise: 1. Assess the child's speech in the recording for signs of typical development or potential speech-language disorder. 2. Conclude your analysis with one of the following labels only: A - 'typically developing' (child's speech patterns and development are within normal age-appropriate ranges), B - 'articulation' (difficulty producing specific speech sounds correctly, such as substituting, omitting, or distorting sounds), C - 'phonological' (difficulty understanding and using the sound system of language, affecting sounds of a particular type). 3. Provide your response as a single letter without any additional explanation, commentary, or unnecessary text."""  # noqa: E501
@@ -39,37 +38,38 @@ class UltraSuiteDisorderBreakdownScenario(Scenario):
         - Audio files (e.g., .mp3)
         - A JSON file with annotations containing 'disorder_class' field
         """
-        print(f"Downloading dataset from {UltraSuiteDisorderBreakdownScenario.HF_MAPPING_URL} to {output_path}")
-        ensure_file_downloaded(source_url=UltraSuiteDisorderBreakdownScenario.HF_MAPPING_URL, target_path=output_path)
+        audio_save_dir = os.path.join(output_path, "audio_files")
+        os.makedirs(audio_save_dir, exist_ok=True)
+
+        print("Downloading SAA-Lab/SLPHelmUltraSuitePlus dataset...")
+        dataset = load_dataset("SAA-Lab/SLPHelmUltraSuitePlus")
 
         instances: List[Instance] = []
         split: str = TEST_SPLIT
 
-        # Find all pairs of audio and JSON files
-        pairs = find_audio_json_pairs(output_path)
-        print(f"Num pairs: {len(pairs)}")
-
-        for audio_path, json_path in tqdm(pairs):
+        for idx, row in enumerate(tqdm(dataset["train"])):
             # Load the annotation
-            with open(json_path, "r") as f:
-                annotation = json.load(f)
+            label = row["disorder_type"]
+            transcription = row["transcription"]
 
-            # Get the correct answer and convert to label
-            if "disorder_type" not in annotation or "transcription" not in annotation:
-                continue
-            label = annotation["disorder_type"]
-            prompt = annotation["transcription"]
+            unique_id = str(idx)
+            local_audio_name = f"{label}_{unique_id}.mp3"
+            local_audio_path = os.path.join(audio_save_dir, local_audio_name)
+            ensure_audio_file_exists_from_array(local_audio_path, row["audio"]["array"], row["audio"]["sampling_rate"])
 
             # Create references for each option
             references: List[Reference] = []
-            for option in ["typically_developing", "articulation", "phonological"]:
+            options = ["typically_developing", "articulation", "phonological"]
+            if label not in options:
+                continue
+            for option in options:
                 reference = Reference(Output(text=option), tags=[CORRECT_TAG] if option == label else [])
                 references.append(reference)
 
             # Create the input with audio and instruction
             content = [
-                MediaObject(content_type="audio/mpeg", location=audio_path),
-                MediaObject(content_type="text/plain", text=self.get_instruction(prompt)),
+                MediaObject(content_type="audio/mpeg", location=local_audio_path),
+                MediaObject(content_type="text/plain", text=self.get_instruction(transcription)),
             ]
 
             input = Input(multimedia_content=MultimediaObject(content))

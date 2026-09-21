@@ -1,7 +1,7 @@
 from abc import ABC
 from abc import abstractmethod
 
-from helm.common.hierarchical_logger import hlog
+from helm.common.hierarchical_logger import hexception, hlog
 from helm.common.cache import CacheConfig
 from helm.common.request import (
     Request,
@@ -249,6 +249,7 @@ class IbmChatClient(IbmClient):
             )
 
         except Exception as e:
+            hexception(e)
             error: str = f"IBM Chat client Model error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
@@ -263,5 +264,6 @@ class IbmTextClient(IbmClient):
                 inference_handler=GenerateInferenceHandler(inference_engine=self.inference_engine), request=request
             )
         except Exception as e:
+            hexception(e)
             error: str = f"IBM Text client Model error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])

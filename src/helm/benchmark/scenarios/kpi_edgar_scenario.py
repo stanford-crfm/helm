@@ -3,6 +3,7 @@ from typing import List, Dict
 import json
 import re
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -14,6 +15,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -149,3 +151,22 @@ class KPIEDGARScenario(Scenario):
         with open(target_path, "r") as f:
             raw_dataset = json.load(f)
         return KPIEDGARScenario.sentences_to_instances(KPIEDGARScenario.get_sentences(raw_dataset))
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="kpi_edgar",
+            display_name="KPI-EDGAR Financial Documents (Named Entity Recognition)",
+            short_display_name=None,
+            description="A named entity recognition beenchmark based on the paper KPI-EDGAR - A Novel "
+            "Dataset and Accompanying Metric for Relation Extraction from Financial "
+            "Documents [(Deußer et al., 2022)](https://arxiv.org/pdf/2210.09163.pdf).",
+            taxonomy=TaxonomyInfo(
+                task="named entity recognition",
+                what="financial reports",
+                when="before 2022",
+                who="financial experts",
+                language="English",
+            ),
+            main_metric="adjusted_macro_f1_score",
+            main_split="test",
+        )

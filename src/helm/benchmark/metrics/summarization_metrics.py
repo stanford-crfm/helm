@@ -16,7 +16,7 @@ from helm.benchmark.metrics.evaluate_reference_metrics import get_rouge_function
 from helm.common.hierarchical_logger import hlog
 from helm.common.general import ensure_file_downloaded
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.benchmark.metrics.metric import Metric, MetricResult
+from helm.benchmark.metrics.metric import Metric, MetricMetadata, MetricResult
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
@@ -54,6 +54,7 @@ class SummarizationMetric(Metric):
         device: str = "cpu",
         bertscore_model: str = "microsoft/deberta-large-mnli",
         rescale_with_baseline: bool = True,
+        summac_new_line_split: bool = False,
     ):
         self.rouge_fns = {
             "rouge_1": get_rouge_function("rouge1"),
@@ -86,7 +87,13 @@ class SummarizationMetric(Metric):
             )
             # Need GPU for faithfulness metrics since they are model-based.
             self.compute_faithfulness = True
-            self.summac = SummaCZS(granularity="sentence", model_name="vitc", imager_load_cache=False, device=device)
+            self.summac = SummaCZS(
+                granularity="sentence",
+                model_name="vitc",
+                imager_load_cache=False,
+                device=device,
+                new_line_split=summac_new_line_split,
+            )
 
     def _load_qafacteval(self, eval_cache_path: str):
         target_path: str = os.path.join(eval_cache_path, "qafacteval.pk")
@@ -240,6 +247,134 @@ class SummarizationMetric(Metric):
 
         return result
 
+    def get_metadata(self):
+        metadata: List[MetricMetadata] = [
+            MetricMetadata(
+                name="QAFactEval",
+                display_name="QAFactEval",
+                description="Faithfulness scores based on the SummaC method of [Laban et al. "
+                "(2022)](https://aclanthology.org/2022.tacl-1.10/).",
+                lower_is_better=False,
+                group="summarization_metrics",
+            ),
+            MetricMetadata(
+                name="summarization_coverage",
+                display_name="Coverage",
+                description="Extent to which the model-generated summaries are extractive fragments from the source "
+                "document [(Grusky et al., 2018)](https://aclanthology.org/N18-1065/).",
+                lower_is_better=None,
+                group="summarization_metrics",
+            ),
+            MetricMetadata(
+                name="summarization_density",
+                display_name="Density",
+                description="Extent to which the model-generated summaries are extractive summaries based on the "
+                "source document [(Grusky et al., 2018)](https://aclanthology.org/N18-1065/).",
+                lower_is_better=None,
+                group="summarization_metrics",
+            ),
+            MetricMetadata(
+                name="summarization_compression",
+                display_name="Compression",
+                description="Extent to which the model-generated summaries are compressed relative to the source "
+                "document [(Grusky et al., 2018)](https://aclanthology.org/N18-1065/).",
+                lower_is_better=None,
+                group="summarization_metrics",
+            ),
+            MetricMetadata(
+                name="rouge_1",
+                display_name="ROUGE-1",
+                short_display_name="ROUGE-1",
+                description="ROUGE-1",
+                lower_is_better=False,
+                group="summarization_metrics",
+            ),
+            MetricMetadata(
+                name="rouge-2",
+                display_name="ROUGE-2",
+                short_display_name="ROUGE-2",
+                description="ROUGE-2",
+                lower_is_better=False,
+                group="summarization_metrics",
+            ),
+            MetricMetadata(
+                name="rouge-l",
+                display_name="ROUGE-L",
+                short_display_name="ROUGE-L",
+                description="ROUGE-L",
+                lower_is_better=False,
+                group="summarization_metrics",
+            ),
+        ]
+        if self.humaneval is not None:
+            metadata.extend(
+                [
+                    MetricMetadata(
+                        name="HumanEval-faithfulness",
+                        display_name="HumanEval-faithfulness",
+                        description="Human evaluation score for faithfulness.",
+                        lower_is_better=False,
+                        group="summarization_metrics",
+                    ),
+                    MetricMetadata(
+                        name="HumanEval-relevance",
+                        display_name="HumanEval-relevance",
+                        description="Human evaluation score for relevance.",
+                        lower_is_better=False,
+                        group="summarization_metrics",
+                    ),
+                    MetricMetadata(
+                        name="HumanEval-coherence",
+                        display_name="HumanEval-coherence",
+                        description="Human evaluation score for coherence.",
+                        lower_is_better=False,
+                        group="summarization_metrics",
+                    ),
+                ]
+            )
+        if self.compute_faithfulness:
+            metadata.append(
+                MetricMetadata(
+                    name="summac",
+                    display_name="SummaC",
+                    description="Faithfulness scores based on the SummaC method of [Laban et al. "
+                    "(2022)](https://aclanthology.org/2022.tacl-1.10/).",
+                    lower_is_better=False,
+                    group="summarization_metrics",
+                )
+            )
+        if self.compute_bertscore:
+            metadata.extend(
+                [
+                    MetricMetadata(
+                        name="BERTScore-P",
+                        display_name="BERTScore (P)",
+                        description="Average BERTScore precision [(Zhang et al., "
+                        "2020)](https://openreview.net/pdf?id=SkeHuCVFDr) between model generation and reference "
+                        "summary.",
+                        lower_is_better=False,
+                        group=None,
+                    ),
+                    MetricMetadata(
+                        name="BERTScore-R",
+                        display_name="BERTScore (R)",
+                        description="Average BERTScore recall [(Zhang et al., 2020)](https://openreview.net/pdf?id=SkeHuCVFDr) "
+                        "between model generation and reference summary.",
+                        lower_is_better=False,
+                        group=None,
+                    ),
+                    MetricMetadata(
+                        name="BERTScore-F",
+                        display_name="BERTScore (F1)",
+                        description="Average BERTScore F1 [(Zhang et al., 2020)](https://openreview.net/pdf?id=SkeHuCVFDr) "
+                        "between model generation and reference summary.",
+                        lower_is_better=False,
+                        group="summarization_metrics",
+                    ),
+                ]
+            )
+        return metadata
+
 
 def _paired_bootstrap_test(treatment_list: list, control_list: list, nboot: int = 10000):
     """
@@ -358,7 +493,7 @@ class SummarizationHumanEvalAnalyzer:
         print("=" * 40)
 
         print("COHERENCE")
-        for model, score in self._compute_average(self.relevance):
+        for model, score in self._compute_average(self.coherence):
             print(f"{model:40}: {score:.4f}")
         print("=" * 40)
 

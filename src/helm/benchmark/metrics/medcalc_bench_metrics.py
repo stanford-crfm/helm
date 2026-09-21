@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import List, Dict, Any
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
@@ -121,4 +121,17 @@ class MedCalcBenchMetric(Metric):
 
         return [
             Stat(MetricName("medcalc_bench_accuracy")).add(exact_match),
+        ]
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="medcalc_bench_accuracy",
+                display_name="MedCalc Accuracy",
+                short_display_name="MedCalc Accuracy",
+                description="Comparison based on category. Exact match for categories risk, severity and diagnosis. "
+                "Check if within range for the other categories.",
+                lower_is_better=False,
+                group=None,
+            ),
         ]

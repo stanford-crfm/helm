@@ -105,13 +105,6 @@ metrics:
   lower_is_better: true
   description: Estimate of the amount of energy used to train the model.
 
-- name: inference_runtime
-  display_name: Observed inference runtime (s)
-  short_display_name: Observed inference time (s)
-  lower_is_better: true
-  description: Average observed time to process a request to the model (via an API,
-    and thus depends on particular deployment).
-
 - name: inference_idealized_runtime
   display_name: Idealized inference runtime (s)
   short_display_name: Idealized inference time (s)
@@ -1055,7 +1048,7 @@ run_groups:
 - name: draw_bench_image_quality
   display_name: DrawBench (image quality categories)
   description: A comprehensive and challenging set of prompts that support the evaluation
-    and comparison of text-to-image models.
+    and comparison of text-to-image models ([paper](https://arxiv.org/abs/2205.11487)).
   metric_groups:
   - heim_alignment_human_metrics
   - heim_alignment_clip_metrics
@@ -1074,7 +1067,7 @@ run_groups:
   display_name: PartiPrompts (image quality categories)
   description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow
     us to more comprehensively evaluate and test the limits of text-to-image synthesis
-    models.
+    models. ([paper](https://arxiv.org/abs/2206.10789))
   metric_groups:
   - heim_alignment_human_metrics
   - heim_alignment_clip_metrics
@@ -1185,7 +1178,7 @@ run_groups:
 - name: draw_bench_reasoning
   display_name: DrawBench (reasoning categories)
   description: A comprehensive and challenging set of prompts that support the evaluation
-    and comparison of text-to-image models.
+    and comparison of text-to-image models ([paper](https://arxiv.org/abs/2205.11487)).
   metric_groups:
   - heim_alignment_human_metrics
   - heim_alignment_clip_metrics
@@ -1204,7 +1197,7 @@ run_groups:
   display_name: PartiPrompts (reasoning categories)
   description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow
     us to more comprehensively evaluate and test the limits of text-to-image synthesis
-    models.
+    models. ([paper](https://arxiv.org/abs/2206.10789))
   metric_groups:
   - heim_alignment_human_metrics
   - heim_alignment_clip_metrics
@@ -1223,7 +1216,7 @@ run_groups:
   display_name: Relational Understanding
   description: Based on existing cognitive, linguistic, and developmental literature,
     the authors created a set of 15 relations (8 physical, 7 agentic) and a set of
-    12 entities (6 objects, 6 agents)
+    12 entities (6 objects, 6 agents) ([paper](https://arxiv.org/abs/2208.00005))
   metric_groups:
   - heim_alignment_human_metrics
   - heim_alignment_clip_metrics
@@ -1281,7 +1274,7 @@ run_groups:
   display_name: PartiPrompts (knowledge categories)
   description: PartiPrompts (P2) is a set of 1600 diverse English prompts that allow
     us to more comprehensively evaluate and test the limits of text-to-image synthesis
-    models.
+    models. ([paper](https://arxiv.org/abs/2206.10789))
   metric_groups:
   - heim_alignment_human_metrics
   - heim_alignment_clip_metrics
@@ -1299,7 +1292,7 @@ run_groups:
 - name: draw_bench_knowledge
   display_name: DrawBench (knowledge categories)
   description: A comprehensive and challenging set of prompts that support the evaluation
-    and comparison of text-to-image models.
+    and comparison of text-to-image models ([paper](https://arxiv.org/abs/2205.11487)).
   metric_groups:
   - heim_alignment_human_metrics
   - heim_alignment_clip_metrics

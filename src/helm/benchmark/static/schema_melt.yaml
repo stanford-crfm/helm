@@ -607,7 +607,7 @@ metric_groups:
         perturbation_name: typos
       - name: ${main_name}
         split: ${main_split}
-        perturbation_name: synonyms
+        perturbation_name: synonym
 
   - name: fairness
     display_name: Fairness

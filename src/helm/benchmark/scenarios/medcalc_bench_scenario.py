@@ -1,6 +1,7 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 from datasets import load_dataset
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     PassageQuestionInput,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -26,7 +28,7 @@ class MedCalcBenchScenario(Scenario):
     This dataset contains a training dataset of 10,053 instances and a testing
     dataset of 1,047 instances.
 
-    Dataset: https://huggingface.co/datasets/ncbi/MedCalc-Bench-v1.0
+    Dataset: https://huggingface.co/datasets/ncbi/MedCalc-Bench
     Paper: https://arxiv.org/abs/2406.12036
 
     Sample Prompt:
@@ -71,8 +73,10 @@ class MedCalcBenchScenario(Scenario):
 
     name = "medcalc_bench"
     description = (
-        "A dataset which consists of a patient note, a question "
-        "requesting to compute a specific medical value, and a ground truth answer."
+        "MedCalc-Bench is a benchmark designed to evaluate models on their ability to compute"
+        "clinically relevant values from patient notes. Each instance consists of a clinical note"
+        "describing the patient's condition, a diagnostic question targeting a specific medical"
+        "value, and a ground truth response."
     )
     tags = ["knowledge", "reasoning", "biomedical"]
 
@@ -108,9 +112,10 @@ class MedCalcBenchScenario(Scenario):
             instances.append(instance)
         return instances
 
-    def get_instances(self, output_path: str) -> List[Instance]:
+    def get_instances(self, output_path: str, version: Optional[str] = None) -> List[Instance]:
         # Load the MedCalc-Bench dataset from Hugging Face
-        dataset = load_dataset("ncbi/MedCalc-Bench-v1.0")
+        dataset_path = f"ncbi/MedCalc-Bench{('-' + version) if version else ''}"
+        dataset = load_dataset(dataset_path)
 
         # Process all the instances - limit to zero shot setting
         instances: List[Instance] = []
@@ -123,3 +128,23 @@ class MedCalcBenchScenario(Scenario):
             instances.extend(self.process_csv(data, split))
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="medcalc_bench",
+            display_name="MedCalc-Bench",
+            description="MedCalc-Bench is a benchmark designed to evaluate models on their ability to "
+            "compute clinically relevant values from patient notes. Each instance consists "
+            "of a clinical note describing the patient's condition, a diagnostic question "
+            "targeting a specific medical value, and a ground truth response. [(Khandekar "
+            "et al., 2024)](https://arxiv.org/abs/2406.12036).",
+            taxonomy=TaxonomyInfo(
+                task="Computational reasoning",
+                what="Compute a specific medical value from a patient note",
+                when="Any",
+                who="Clinician, Researcher",
+                language="English",
+            ),
+            main_metric="medcalc_bench_accuracy",
+            main_split="test",
+        )

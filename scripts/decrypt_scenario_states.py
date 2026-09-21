@@ -12,11 +12,10 @@ from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.scenarios.scenario import Instance, Reference
 from helm.common.codec import from_json, to_json
-from helm.common.hierarchical_logger import hwarn
-from helm.common.request import Request, RequestResult
+from helm.common.hierarchical_logger import hlog, hwarn
+from helm.common.request import Request, RequestResult, Thinking
 
 _SCENARIO_STATE_FILE_NAME = "scenario_state.json"
-_DECRYPTED_SCENARIO_STATE_FILE_NAME = "decrypted_scenario_state.json"
 _DISPLAY_ENCRYPTION_DATA_JSON_FILE_NAME = "encryption_data.json"
 
 
@@ -105,10 +104,23 @@ def decrypt_result(result: Optional[RequestResult], decryptor: HELMDecryptor) ->
         return None
 
     decrypted_completions = [
-        dataclasses.replace(completion, text=decryptor.decrypt_text(completion.text))
+        dataclasses.replace(
+            completion,
+            text=decryptor.decrypt_text(completion.text),
+            thinking=decrypt_thinking(completion.thinking, decryptor),
+        )
         for completion in result.completions
     ]
     return dataclasses.replace(result, completions=decrypted_completions)
+
+
+def decrypt_thinking(thinking: Optional[Thinking], decryptor: HELMDecryptor) -> Optional[Thinking]:
+    if thinking is None:
+        return None
+    elif thinking.text is None:
+        return thinking
+    else:
+        return dataclasses.replace(thinking, text=decryptor.decrypt_text(thinking.text))
 
 
 def decrypt_request_state(request_state: RequestState, decryptor: HELMDecryptor) -> RequestState:
@@ -126,7 +138,7 @@ def decrypt_scenario_state(scenario_state: ScenarioState, decryptor: HELMDecrypt
     return dataclasses.replace(scenario_state, request_states=decrypted_request_states)
 
 
-def modify_scenario_state_for_run(run_path: str) -> None:
+def modify_scenario_state_for_run(run_path: str, decrypted_scenario_state_file_name: str) -> None:
     scenario_state_path = os.path.join(run_path, _SCENARIO_STATE_FILE_NAME)
     encryption_data_path = os.path.join(run_path, _DISPLAY_ENCRYPTION_DATA_JSON_FILE_NAME)
 
@@ -135,11 +147,15 @@ def modify_scenario_state_for_run(run_path: str) -> None:
     decryptor = HELMDecryptor(encryption_data_mapping)
 
     decrypted_scenario_state = decrypt_scenario_state(scenario_state, decryptor)
-    decrypted_scenario_state_path = os.path.join(run_path, _DECRYPTED_SCENARIO_STATE_FILE_NAME)
+    decrypted_scenario_state_path = os.path.join(run_path, decrypted_scenario_state_file_name)
     write_scenario_state(decrypted_scenario_state_path, decrypted_scenario_state)
+    os.remove(encryption_data_path)
+    hlog(f"decrypted {run_path}")
 
 
-def modify_scenario_states_for_suite(run_suite_path: str, scenario: str) -> None:
+def modify_scenario_states_for_suite(
+    run_suite_path: str, scenario: str, decrypted_scenario_state_file_name: str
+) -> None:
     scenario_prefix = scenario if scenario != "all" else ""
     run_dir_names = sorted(
         [
@@ -161,7 +177,7 @@ def modify_scenario_states_for_suite(run_suite_path: str, scenario: str) -> None
             hwarn(f"{run_dir_name} doesn't have {_DISPLAY_ENCRYPTION_DATA_JSON_FILE_NAME}, skipping")
             continue
         run_path: str = os.path.join(run_suite_path, run_dir_name)
-        modify_scenario_state_for_run(run_path)
+        modify_scenario_state_for_run(run_path, decrypted_scenario_state_file_name)
 
 
 def main():
@@ -180,11 +196,21 @@ def main():
         default="all",
         help="Name of the scenario this decryption should go under. Default is all.",
     )
+    parser.add_argument(
+        "--decrypted-scenario-state-file-name",
+        type=str,
+        default=_SCENARIO_STATE_FILE_NAME,
+        help="Name of the decrypted scenario state output file.",
+    )
     args = parser.parse_args()
     output_path = args.output_path
     suite = args.suite
     run_suite_path = os.path.join(output_path, "runs", suite)
-    modify_scenario_states_for_suite(run_suite_path, scenario=args.scenario)
+    modify_scenario_states_for_suite(
+        run_suite_path,
+        scenario=args.scenario,
+        decrypted_scenario_state_file_name=args.decrypted_scenario_state_file_name,
+    )
 
 
 if __name__ == "__main__":

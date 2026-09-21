@@ -2,11 +2,523 @@
 
 ## [Upcoming]
 
+## [v0.5.16] - 2026-04-29
+
+### Breaking Changes
+
+- `meta/llama-3.1-405b-instruct-turbo` will no longer be used as a LLM-as-judge in Omni-MATH, WildBench, HarmBench, XSTest, and Anthropic Red Team scenarios due to deprecation by Together AI (#4233)
+
+### Models
+
+- Deprecate `meta/llama-3.1-405b-instruct-turbo` (#4233)
+
+### Scenarios
+
+- Release Arabic Legal scenario (#4226, #4236, #4237)
+- Release Arabic Content Generation scenario (#4224, #4229, #4236, #4237)
+- Migrate Unitxt integration to use new Unitxt API (#4234)
+- Remove `meta/llama-3.1-405b-instruct-turbo` from annotators (#4233)
+- Fix AutobencherSafetyScenario parsing the file path string as JSON (#4206)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @Chessing234
+- @yifanmai
+
+## [v0.5.15] - 2026-04-22
+
+### Breaking Changes
+
+- The ArabicMMLU scenario will now include the context field in the inputs; previously, the context field was incorrect omitted, which made some instances unsolvable (#4218)
+
+### Models
+
+- Add GPT-5.4, GPT-5.4 mini, and GPT-5.4 nano (#4145)
+- Add Llama 4 Maverick on Vertex AI Llama 4 API Service (#4150)
+- Add Qwen3.5 models on Together (#4152)
+- Lazily load model in HuggingFaceClient (#4172)
+- Add Gemini 3 Flash and Gemini 3.1 Flash-Lite (#4204)
+- Work around Pydantic validation error in `OpenAIResponseClient` (#4223)
+
+### Scenarios
+
+- Fix `_apply_output_mapping_pattern` returning wrong match results (#4192)
+- Release Arabic Finance scenario (#4220)
+- Fix missing context in ArabicMMLU scenario (#4218) 
+
+### Frontend
+
+- Add link to `per_instance_stats.json` on frontend (#4166) 
+
+### Framework
+
+- Suppress duplicate warnings from `truncate_sequence` (#4151)
+- Default suite to "default" in `helm-run` and `helm-summarize` (#4155)
+- Don't import PyTorch when registering run spec functions (#4221)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @atulydvv
+- @Chessing234
+- @yifanmai
+
+## [v0.5.14] - 2026-03-26
+
+### Breaking Changes
+
+- Previously, responses from models on the OpenAI, Anthropic Claude, OpenRouter, NVIDIA NIM, vLLM, and xAI Grok APIs were tokenized locally locally. These responses will no longer be tokenized. (#4108, #4113)
+- The MadinahQA scenario will now include the context field in the inputs for the reading comprehension task (#4127)
+
+### Models
+
+- Add Mistral Large 3, Mistral Medium 3.1, Mistral Small 3.2, and Ministral 3 (#4098)
+- Add GPT-5.4 (#4099)
+- Switch llama-4-scout-17b-16e-instruct to use Vertex AI instead of Together (#4104)
+- Add the ability to use models from certain providers without manually configuring `model_deployments.yaml` (#4100, #4103, #4117):
+  - The following providers are supported:
+    - OpenAI (#4107)
+    - Anthropic (#4109)
+    - OpenRouter (#4114)
+    - Mistral (#4118)
+    - Writer (#4119)
+    - xAI (#4120)
+    - Cohere (#4130)
+    - Google (#4131)
+    - Hugging Face Hub (from v0.5.12)
+    - HuggingFace Inference Providers (from v0.5.13)
+    - Together (from v0.5.12)
+    - LiteLLM (from v0.5.12)
+  - Note: Together models will now use the chat API rather than the text completions API by default (#4106)
+- Remove tokenization from `AnthropicMessagesClient` (#4108)
+- Remove tokenization from `OpenAIClient` (#4113)
+
+### Scenarios
+
+- Fix MadinahQA scenario to include Context field for reading comprehension (#4127)
+
+### Framework
+
+- Remove the human-evaluation optional dependency (#4101)
+- Install dependencies for documentation on Read the Docs with uv (#4140)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @aaabulkhair
+- @yifanmai
+
+## [v0.5.13] - 2026-02-25
+
+### Breaking Changes
+
+- Previously, in `HuggingFaceClient`, Hugging Face models were loaded with `trust_remote_code=True` by default. This was a security risk as it permitted executing arbitrary code from the model repositories. This will no longer be done. If needed, `trust_remote_code` must be explicitly set in the `args` field in `model_deployments.yaml` for Hugging Face models. (#4054)
+- Previously, responses from models on the Mistral AI API were tokenized locally locally. These responses will no longer be tokenized. (#4084)
+
+### Models
+
+- Do not set `trust_remote_code=True` by default in HuggingFaceClient (#4054)
+- Add Grok 4 Fast and Grok 4.1 Fast (#4071)
+- Add GPT-5.2 (#4075)
+- Add Claude Sonnet 4.6 and Opus 4.6 (#4083)
+- Add Gemini 3.1 Pro (#4076)
+- Explicitly set `pad_token_id` for Hugging Face generations (#4087)
+- Support models on HuggingFace Inference Providers (#4086)
+
+### Scenarios
+
+- Add links to the cited papers in the schema for HEIM (#4063, #4074)
+
+### Framework
+
+- Add `--export-path` arg to helm-server for exporting a static website (#4047)
+- Use Python standard library for downloading files (#4052)
+- Use Python standard library for decompressing archives (#4051)
+- Add validation for schema YAML files (#4049)
+- Add optional dependencies for summarization metrics (#4067)
+
+### Frontend
+
+- Render whitespace in adapter values in frontend using CSS pre-wrap (#4062)
+- Render whitespace in model responses in proxy server frontend using CSS pre-wrap (#4085)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @HetanshWaghela
+- @yifanmai
+
+## [v0.5.12] - 2026-01-27
+
+### Models
+
+- Add Kimi K2 Instruct 0905 (#3955)
+- Add DeepSeek v3.1 (#3956)
+- Add Cohere Labs Command A (#3957)
+- Allow using Together models without configuration (#3980)
+- Allow using LiteLLM models without configuration (#3981, #3982)
+- Allow using Hugging Face Hub models without configuration (#3983)
+- Remove tokenizer from OpenAIResponseClient (#4020)
+
+### Scenarios
+
+- Update schema, model metadata and scenario metadata for HELM Arabic (#3959)
+- Set subject to all by default for MMLU-Pro (#3975)
+- Add missing language entry for MMLU-Winogrande-Afr (#3973)
+- Fix scenario description in ThaiExam (#3972)
+- Support newer versions of MedCalc-Bench (#3921)
+- Fix broken BoolQ file download URLs (#4039)
+
+### Framework
+
+- Allow omitting the tokenizer and disabling request truncation (#3974)
+- Support plugins that use `--plugin` or `project.entry-points.helm` (#3916)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @chakravarthik27
+- @Erotemic
+- @frogcat
+- @MiguelAFH
+- @teetone
+- @yifanmai
+
+## [v0.5.11] - 2025-12-04
+
+### Breaking Changes
+
+- Remove deprecated Claude 3.5 model from LLM juries (#3926)
+- Switch Gemini 2.5 to use `GoogleGenAIClient` (#3944)
+
+### Models
+
+- Add Claude Haiku 4.5 (#3922)
+- Add GPT-5.1 model (#3927, 3937)
+- Add `GoogleGenAIClient` (#3925)
+- Add Gemini 3 Pro (#3936, 3937)
+- Add Gemini Robotics-ER 1.5 (#3939)
+- Add Kimi K2 model on Together (#3943)
+- Switch Gemini 2.5 to use `GoogleGenAIClient` (#3944)
+- Add more Qwen3 and Qwen3-Next models on Together AI (#3947)
+
+### Scenarios
+
+- Convert AraTrust to use multiple_choice_joint adapter (#3920)
+- Remove deprecated Claude 3.5 model from LLM juries (#3926)
+- Remove stop sequences in ALRAGE scenario (#3948)
+
+### Framework
+
+- Add support for uv (#3929, #3932)
+- Support schema files in JSON format in helm-summarize (#3924)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @beyandbey
+- @chaudhariatul
+- @kiro-agent
+- @yifanmai
+
+## [v0.5.10] - 2025-11-10
+
+### Breaking Changes
+
+- Python 3.9 is no longer supported as it reached end-of-life in October 2025. (#3903)
+
+### Models
+
+- Add Palmyra X5 on Bedrock (#3905)
+- Add IBM Granite 4 models on Hugging Face (#3906)
+- Fix incorrect Arabic model configs (#3907)
+
+### Scenarios
+
+- Fix `shc_privacy_med` scenario in MedHELM (#3911)
+
+### Framework
+
+- Remove Python 3.9 support (#3903)
+- Separate the definition of the ArgumentParser from its usage (#3908)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @asad-aali
+- @aunell
+- @Erotemic
+- @MiguelAFH
+- @patelfagun1998
+- @yifanmai
+
+## [v0.5.9] - 2025-10-01
+
+### Models
+
+- Add Arabic language models
+    - AceGPT-v2 (#3867)
+    - ALLaM (#3867)
+    - SILMA (#3867)
+    - Jais Family (#3878)
+    - Jais Adapted (#3881)
+- Add Qwen3-Next 80B A3B Thinking model (#3875)
+- Add DeepSeek-R1-Distill-Llama-70B and DeepSeek-R1-Distill-Qwen-14B (#3873)
+- Add Qwen3-Next 80B A3B Thinking model (#3891)
+- Add Falcon3 models (#3894)
+- Add Claude 4.5 Sonnet (#3897)
+
+### Scenarios
+
+- Fix breakages in `shc_privacy_med` and `shc_proxy_med` (#3876)
+- Allow applying regular expression pattern before mapping output (#3882)
+- Add output mapping patterns for Arabic MCQA scenarios (#3885)
+- Update speech language pathology scenarios to use Hugging Face Datasets (#3835)
+
+### Framework
+
+- Make priority optional for run entries (#3865)
+- Add `herror()` and `hexception()` to logger (#3789)
+- Log error stack traces from within various clients (#3880)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @chakravarthik27
+- @MiguelAFH
+- @patelfagun1998
+- @yifanmai
+
+## [v0.5.8] - 2025-08-29
+
+### Models
+
+- Add GLM-4.5-AIR-FP8 model (#3785)
+- Add Qwen3 235B A22B Instruct 2507 FP8 (#3788)
+- Add Gemini 2.5 Flash-Lite GA (#3776)
+- Add gpt-oss (#3789, #3794)
+- Add GPT-5 (#3793, #3797)
+- Handle safety and usage guidelines errors from Grok API (#3770)
+- Handle Gemini responses with max tokens reached during thinking (#3804)
+- Add OpenRouterClient (#3811)
+
+### Scenarios
+
+- Fix instructions and prompt formatting for InfiniteBench En.MC (#3790)
+- Add MedQA and MedMCQA to MedHELM (#3781)
+- Add or modify Arabic language scenarios:
+    - ALRAGE (#3806, #3721, #3831, #3831)
+    - MadinahQA (#3806, #3800, #3817)
+    - ArabicMMLU (#3806, #3817, #3838)
+    - AraTrust (#3806, #3819)
+    - Arabic EXAMS (#3806, #3818, #3825)
+    - AlGhafa (#3806, #3821)
+    - MBZUAI Human-Translated Arabic MMLU (#3822)
+- Add run expander for Arabic language instructions for Arabic MCQA scenarios (#3833)
+- Allow configuration of LLM-as-a-judge models in MedHELM scenarios (#3812)
+- Add user-configurable MedHELM scenario (#3844)
+
+### Frontend
+
+- Display Arabic text in RTL direction in frontend (#3807)
+- Fix regular expression query handling in run predictions (#3826)
+- Fix invalid sort column index error in leaderboard (#3845)
+
+### Framework
+
+- Migrate to pyproject.toml (#3767)
+- Various fixes for proxy server (#3801, #3802, #3803)
+- Raise error if helm-summarize is given a non-existent suite (#3805)
+- Allow setting reference prefix characters (#3809)
+- Auto-generate schema in helm-summarize if `--auto-generate-schema` is specified (#3813, #3814, #3828, #3839, #3842, #3848, #3850)
+- Omit empty tables for metric groups in helm-summarize (#3851)
+- Add `get_metadata()` method for many scenarios and metrics (#3815, #3829, #3832, #3834, #3841, #3843, #3849, #3840, #3830)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @chakravarthik27
+- @Erotemic
+- @MiguelAFH
+- @patelfagun1998
+- @yifanmai
+
+## [v0.5.7] - 2025-07-31
+
+### Breaking Changes
+
+- In v0.5.6, `HuggingFaceClient` would call `apply_chat_template` with `add_generation_prompt()` unspecified, which caused it to default to `False`. In v0.5.7, `HuggingFaceClient` now calls `add_generation_prompt()` with `apply_chat_template=True`. (#3703)
+- Previously, in the `model_deployments.yaml` configuration files, when determining the default model deployment for a model, the first model deployment in the file would be preferred, and model deployments in the package would be preferred over those in `prod_env/`. Now, the last model deployment in the file will be preferred, and model deployments in `prod_env` will be preferred over those in the package. (#3694)
+
+### Models
+
+- Add o3-pro (#3671)
+- Allow passing initialization kwargs to VLLMClient and OpenAIClient (#3690)
+- Add support for Granite thinking on vLLM (#3692)
+- Add some Brazilian models (#3686)
+- Always set `add_generation_prompt` to `True` in `apply_chat_template` in `HuggingFaceClient` (#3703)
+- Add support for chat models on vLLM (#3729)
+- Add Kimi K2 (#3758)
+- Add Grok 4 (#3759)
+
+### Scenarios
+
+- Add LMKT (Language model cultural alignment transfer) (#3682)
+- Modify SLPHelm (#3679)
+- Add InfiniteBench En.MC (#3687)
+- Add MMMLU (#3699)
+- Add Arabic MMLU, AlGhafa (#3700)
+- Add AlGhafa (#3706)
+- Add EXAMS (#3714)
+- Add AraTrust (#3715)
+- Add HEALTHQA-BR (#3711)
+- Add BLEUX (#3711)
+- Remove numeracy scenario (#3733)
+- Fixes to HEIM (#3765)
+
+### Framework
+
+- Improvements to logging (#3683, #3696, #3744)
+- Change logic for default model deployments (#3694)
+- Loosen various dependency version specifiers (#3725, #3726)
+- Add short_description field to RunGroup in schema (#3755)
+- Add support for configuring the number of retries using environment variables (#3766)
+
+### Frontend
+
+- Show run group name and description from schema on run page (#3753)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @Erotemic
+- @Gum-Joe
+- @IriedsonSouto
+- @Kazf28
+- @ledong0110
+- @lucas-s-p
+- @martinakaduc
+- @MiguelAFH
+- @RonalddMatias
+- @samirunni
+- @sangttruong
+- @sashimono-san
+- @yifanmai
+
+## [v0.5.6] - 2025-06-20
+
+### Breaking Changes
+
+- Previously, HuggingFaceClient did not apply the chat template for chat models. `HuggingFaceClient` will now automatically apply the chat template if the tokenizer contains one. This may result in incorrect behavior for some non-chat models that have tokenizers with chat templates e.g. Qwen2, Qwen 2.5. For these models, the default behavior can be overridden by explicitly setting `apply_chat_template` in `args`. (#3678)
+
+### Models
+
+- Fixed bug regarding `reasoning_effort` not being set correct for OpenAI models (#3501)
+- Add Llama 4 Scout and Maverick on Together AI (#3504)
+- Add Qwen2.5 Omni 7B (#3505, #3530)
+- Add Grok 3 models (#3518, #3529, #3534)
+- Add GPT-4.1 models (#3527, #3528)
+- Add Gemini 2.5 models (#3538, #3614)
+- Add OpenAI o3 and o4 series models (#3539, #3617)
+- Adjust max_tokens restriction for Anthropic models (#3555)
+- Add Vietnamese LLMs (#3563)
+- Add Qwen3 235B on Together (#3579)
+- Add Palmyra X5 (#3580)
+- Add COREBench v0 audio scenario (#3567, #3610)
+- Add Anthropic Claude 4 models (#3607)
+- Add extended thinking to Claude 3.7 and Claude 4 (#3622)
+- Support streaming in Anthropic client (#3624)
+- Added support for reasoning content (#3632, #3650)
+- Add DeepSeek-R1-0528 on Together AI (#3636)
+- Add Amazon Nova Premier model (#3656)
+- Add Marin 8B Instruct (#3658, #3666)
+- Add HuggingFacePipelineClient (#3665)
+- Add SmolLM2 (#3665, #3668)
+- Add OLMo 2 and OLMoE models (#3667, #3676)
+- Add Granite 3.3 8B Instruct (#3675)
+- Add Mistral Medium 3 (#3674)
+- Add Gemini 2.5 Flash-Lite (#3677)
+- Apply chat template in HuggingFaceClient and make chat template usage configurable (#3678)
+- Add support for OpenAI Responses API (#3652)
+
+### Scenarios
+
+- Improvements to VHELM (#3500)
+- Improvements to audio scenarios (#3500, #3523,)
+- Improvements to MedHELM scnearios (#3507, #3499, #3506, #3496, #3509, #3503, #3522, #3508, #3540, #3535, #3548, #3545, #3560, #3565, #3557, #3566, #3577, #3625, #3631)
+- Add Vietnamese language scenarios (#3464, #3511, #3594, #3536, #3556, #3551, #3611, #3634)
+- Add KPI Edgar scneario (#3495)
+- Add run entries with additional instructions for MMLU-Winogrande-Afr (#3497)
+- Add run entries for reasoning models (#3541, #3544)
+- Fix bug with AIR-Bench handling of empty responses (#3543)
+- Fix bug regarding the MMLU-Pro computer science subject (#3547)
+- Add InfiniteBench En.QA (#3588)
+- Add speech pathology scenarios (#3553, #3558)
+- Bugfix for Image2Struct: EMS metric fails when the inputs are identical homogenous images files (#3576)
+- Fix download URL for TruthfulQA CSV file (#3601)
+- Use Python logging library in hlog (#3598, #3606)
+- Add OpenAI-MRCR scenario (#3653)
+- Rename InfiniteBench Sum to InfiniteBench En.Sum (#3657)
+- Change metrics for long context scenarios (#3659)
+
+### Framework
+
+- Avoid accessing SQLite accounts file in helm-run (#3573)
+- Support video understanding (#3578)
+- Use Python logging library (#3598)
+
+### Frontend
+
+- Support displaying nested objects in annotations (#3513)
+- Add displaying nested objects in annotations (#3512)
+- Fix mobile menu z-index (#3514)
+- Change favicon URL (#3597)
+- Set MIME type for config.js in server (#3605)
+- Fixes pagination of metrics displayed on the front-end (#3646)
+
+### Contributors
+
+Thank you to the following contributors for your work on this HELM release!
+
+- @asillycat
+- @aunell
+- @chiheem
+- @Erotemic
+- @Gum-Joe
+- @haoqiu1
+- @HennyJie
+- @ImKeTT
+- @jmbanda
+- @Joey-Ji
+- @lucas-s-p
+- @martinakaduc
+- @MiguelAFH
+- @mtake
+- @patelfagun1998
+- @raulista1997
+- @ryokawajp
+- @sangttruong
+- @suhana13
+- @tcz
+- @teetone
+- @yifanmai
+
 ## [v0.5.5] - 2025-04-04
 
 ### Breaking Changes
 
--  Optimum Intel OpenVINO is no longer supported (#3153)
+- Optimum Intel OpenVINO is no longer supported (#3153)
 
 ### Scenarios
 
@@ -921,7 +1433,18 @@ Thank you to the following contributors for your contributions to this HELM rele
 
 - Initial release
 
-[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.5...HEAD
+[upcoming]: https://github.com/stanford-crfm/helm/compare/v0.5.16...HEAD
+[v0.5.15]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.16
+[v0.5.15]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.15
+[v0.5.14]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.14
+[v0.5.13]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.13
+[v0.5.12]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.12
+[v0.5.11]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.11
+[v0.5.10]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.10
+[v0.5.9]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.9
+[v0.5.8]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.8
+[v0.5.7]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.7
+[v0.5.6]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.6
 [v0.5.5]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.5
 [v0.5.4]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.4
 [v0.5.3]: https://github.com/stanford-crfm/helm/releases/tag/v0.5.3

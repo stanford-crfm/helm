@@ -55,7 +55,7 @@ class AutoBencherCapabilitiesScenario(Scenario):
         )
         instances: List[Instance] = []
         for row in dataset:
-            if row["subject"] == self.subject:
+            if row["subject"] != self.subject:
                 continue
             input = Input(text=row["question"])
             # References are category ID, followed by level 2, 3 and 4 category names.

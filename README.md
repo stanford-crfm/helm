@@ -1,5 +1,7 @@
 # Holistic Evaluation of Language Models (HELM)
 
+[comment]: <> (When using the img tag, which allows us to specify size, src has to be a URL.)
+<img src="https://github.com/stanford-crfm/helm/raw/v0.5.4/helm-frontend/src/assets/helm-logo.png" alt="HELM logo"  width="480"/>
 
 <a href="https://github.com/stanford-crfm/helm">
     <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/stanford-crfm/helm">
@@ -7,8 +9,8 @@
 <a href="https://github.com/stanford-crfm/helm/graphs/contributors">
     <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/stanford-crfm/helm">
 </a>
-<a href="https://github.com/stanford-crfm/helm/actions/workflows/test.yml?query=branch%3Amain">
-    <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/stanford-crfm/helm/test.yml">
+<a href="https://github.com/stanford-crfm/helm/actions/workflows/test-python.yml?query=branch%3Amain">
+    <img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/stanford-crfm/helm/test-python.yml">
 </a>
 <a href="https://crfm-helm.readthedocs.io/en/latest/">
     <img alt="Documentation Status" src="https://readthedocs.org/projects/helm/badge/?version=latest">
@@ -20,8 +22,7 @@
     <img alt="PyPI" src="https://img.shields.io/pypi/v/crfm-helm?color=blue" />
 </a>
 
-[comment]: <> (When using the img tag, which allows us to specify size, src has to be a URL.)
-<img src="https://github.com/stanford-crfm/helm/raw/v0.5.4/helm-frontend/src/assets/helm-logo.png" alt="HELM logo"  width="480"/>
+_Note: HELM entered maintenance mode on June 1, 2026. For more information, refer to the [Maintenance Mode Policy](https://crfm-helm.readthedocs.io/en/latest/maintenance_mode/)._
 
 **Holistic Evaluation of Language Models (HELM)** is an open source Python framework created by the [Center for Research on Foundation Models (CRFM) at Stanford](https://crfm.stanford.edu/) for holistic, reproducible and transparent evaluation of foundation models, including large language models (LLMs) and multimodal models. This framework includes the following features:
 
@@ -64,7 +65,7 @@ Then go to http://localhost:8000/ in your browser.
 
 ## Leaderboards
 
-We maintain offical leaderboards with results from evaluating recent models on notable benchmarks using this framework. Our current flagship leaderboards are:
+We maintain official leaderboards with results from evaluating recent models on notable benchmarks using this framework. Our current flagship leaderboards are:
 
 - [HELM Capabilities](https://crfm.stanford.edu/helm/capabilities/latest/)
 - [HELM Safety](https://crfm.stanford.edu/helm/safety/latest/)
@@ -76,14 +77,16 @@ We also maintain leaderboards for a diverse range of domains (e.g. medicine, fin
 
 The HELM framework was used in the following papers for evaluating models.
 
-- **Holistic Evaluation of Language Models** - [paper](https://openreview.net/forum?id=iO4LZibEqW), [leaderboard](https://crfm.stanford.edu/helm/classic/latest/)
-- **Holistic Evaluation of Vision-Language Models (VHELM)** - [paper](https://arxiv.org/abs/2410.07112), [leaderboard](https://crfm.stanford.edu/helm/vhelm/latest/), [documentation](https://crfm-helm.readthedocs.io/en/latest/vhelm/)
-- **Holistic Evaluation of Text-To-Image Models (HEIM)** - [paper](https://arxiv.org/abs/2311.04287), [leaderboard](https://crfm.stanford.edu/helm/heim/latest/), [documentation](https://crfm-helm.readthedocs.io/en/latest/heim/)
-- **Image2Struct: Benchmarking Structure Extraction for Vision-Language Models** - [paper](https://arxiv.org/abs/2410.22456)
-- **Enterprise Benchmarks for Large Language Model Evaluation** - [paper](https://arxiv.org/abs/2410.12857), [documentation](https://crfm-helm.readthedocs.io/en/latest/enterprise_benchmark/)
-- **The Mighty ToRR: A Benchmark for Table Reasoning and Robustness** - [paper](https://arxiv.org/abs/2502.19412), [leaderboard](https://crfm.stanford.edu/helm/torr/latest/)
-- **Reliable and Efficient Amortized Model-based Evaluation** - [paper](https://arxiv.org/abs/2503.13335), [documentation](https://crfm-helm.readthedocs.io/en/latest/reeval/)
-- **MedHELM** - paper in progress, [leaderboard](https://crfm.stanford.edu/helm/medhelm/latest/), [documentation](https://crfm-helm.readthedocs.io/en/latest/reeval/)
+- Holistic Evaluation of Language Models - [paper](https://openreview.net/forum?id=iO4LZibEqW), [leaderboard](https://crfm.stanford.edu/helm/classic/latest/)
+- Holistic Evaluation of Vision-Language Models (VHELM) - [paper](https://arxiv.org/abs/2410.07112), [leaderboard](https://crfm.stanford.edu/helm/vhelm/latest/), [documentation](https://crfm-helm.readthedocs.io/en/latest/vhelm/)
+- Holistic Evaluation of Text-To-Image Models (HEIM) - [paper](https://arxiv.org/abs/2311.04287), [leaderboard](https://crfm.stanford.edu/helm/heim/latest/), [documentation](https://crfm-helm.readthedocs.io/en/latest/heim/)
+- Image2Struct: Benchmarking Structure Extraction for Vision-Language Models - [paper](https://arxiv.org/abs/2410.22456)
+- Enterprise Benchmarks for Large Language Model Evaluation - [paper](https://arxiv.org/abs/2410.12857), [documentation](https://crfm-helm.readthedocs.io/en/latest/enterprise_benchmark/)
+- The Mighty ToRR: A Benchmark for Table Reasoning and Robustness - [paper](https://arxiv.org/abs/2502.19412), [leaderboard](https://crfm.stanford.edu/helm/torr/latest/)
+- Efficient Benchmarking of Language Models - [paper](https://arxiv.org/abs/2308.11696), [documentation](https://crfm-helm.readthedocs.io/en/latest/efficient_benchmarking/)
+- Reliable and Efficient Amortized Model-based Evaluation - [paper](https://arxiv.org/abs/2503.13335), [documentation](https://crfm-helm.readthedocs.io/en/latest/reeval/)
+- Holistic evaluation of large language models for medical tasks with MedHELM - [paper](https://www.nature.com/articles/s41591-025-04151-2), [leaderboard](https://crfm.stanford.edu/helm/medhelm/latest/)
+- Holistic Evaluation of Audio-Language Models - [paper](https://arxiv.org/abs/2508.21376), [leaderboard](https://crfm.stanford.edu/helm/audio/latest/)
 
 The HELM framework can be used to reproduce the published model evaluation results from these papers. To get started, refer to the documentation links above for the corresponding paper, or the [main Reproducing Leaderboards documentation](https://crfm-helm.readthedocs.io/en/latest/reproducing_leaderboards/).
 

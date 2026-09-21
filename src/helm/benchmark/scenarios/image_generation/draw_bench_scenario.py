@@ -2,8 +2,9 @@ import csv
 import os
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT, ScenarioMetadata
 
 
 class DrawBenchScenario(Scenario):
@@ -72,3 +73,45 @@ class DrawBenchScenario(Scenario):
                     instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        if self.category in ["Colors", "Text", "Rare"]:
+            return ScenarioMetadata(
+                name="draw_bench_image_quality",
+                display_name="DrawBench (image quality categories)",
+                description="A comprehensive and challenging set of prompts that support the evaluation and "
+                "comparison of text-to-image models.",
+                taxonomy=TaxonomyInfo(task="Image quality", what=None, when=None, who=None, language=None),
+                main_metric="unknown",
+                main_split="test",
+            )
+        elif self.category == "Reddit":
+            return ScenarioMetadata(
+                name="draw_bench_knowledge",
+                display_name="DrawBench (knowledge categories)",
+                description="A comprehensive and challenging set of prompts that support the evaluation and "
+                "comparison of text-to-image models.",
+                taxonomy=TaxonomyInfo(task="Knowledge", what=None, when=None, who=None, language=None),
+                main_metric="unknown",
+                main_split="test",
+            )
+        elif self.category == "Misspellings":
+            return ScenarioMetadata(
+                name="draw_bench_reasoning",
+                display_name="DrawBench (robustness categories)",
+                description="A comprehensive and challenging set of prompts that support the evaluation and "
+                "comparison of text-to-image models.",
+                taxonomy=TaxonomyInfo(task="Robustness", what=None, when=None, who=None, language=None),
+                main_metric="unknown",
+                main_split="test",
+            )
+        else:
+            return ScenarioMetadata(
+                name="draw_bench_reasoning",
+                display_name="DrawBench (reasoning categories)",
+                description="A comprehensive and challenging set of prompts that support the evaluation and "
+                "comparison of text-to-image models.",
+                taxonomy=TaxonomyInfo(task="Reasoning", what=None, when=None, who=None, language=None),
+                main_metric="unknown",
+                main_split="test",
+            )

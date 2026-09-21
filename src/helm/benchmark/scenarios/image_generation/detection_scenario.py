@@ -3,8 +3,18 @@ import json
 import os
 import csv
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT, Reference, Output, CORRECT_TAG
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Input,
+    TEST_SPLIT,
+    Reference,
+    Output,
+    CORRECT_TAG,
+    ScenarioMetadata,
+)
 
 
 class DetectionScenario(Scenario):
@@ -81,3 +91,14 @@ class DetectionScenario(Scenario):
                 instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="detection",
+            display_name="Detection (PaintSkills)",
+            description="A compositional diagnostic dataset an evaluation toolkit that measures visual "
+            "reasoning skills ([paper](https://arxiv.org/abs/2202.04053)).",
+            taxonomy=TaxonomyInfo(task="Reasoning", what=None, when=None, who=None, language=None),
+            main_metric="unknown",
+            main_split="test",
+        )

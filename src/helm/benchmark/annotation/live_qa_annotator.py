@@ -50,7 +50,7 @@ class LiveQAAnnotator(Annotator):
         cache_dir = os.path.join(file_storage_path, "data")
         ensure_directory_exists(cache_dir)
         # Regex pattern is lenient to allow for typos e.g. extra whitespace
-        self._pattern = re.compile("##\s*short_reasoning\s*:(.*)##\s*the_score\s*:(.*)", re.DOTALL)
+        self._pattern = re.compile(r"##\s*short_reasoning\s*:(.*)##\s*the_score\s*:(.*)", re.DOTALL)
 
     def annotate(self, request_state: RequestState) -> Any:
         assert request_state.result

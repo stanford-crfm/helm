@@ -4,6 +4,7 @@ import os
 from typing import Dict, List
 from docx import Document
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Reference,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_file_downloaded
 
@@ -88,8 +90,13 @@ class RaceBasedMedScenario(Scenario):
     """
 
     name = "race_based_med"
-    description = "A collection of LLM outputs in response to medical questions with race-based biases, \
-    with the objective being to classify whether the output contains racially biased content."
+    description = (
+        "RaceBias is a benchmark used to evaluate language models for racially biased or"
+        "inappropriate content in medical question-answering scenarios. Each instance consists"
+        "of a medical question and a model-generated response. The task is to classify whether"
+        "the response contains race-based, harmful, or inaccurate content. This benchmark"
+        "supports research into bias detection and fairness in clinical AI systems."
+    )
     tags = ["knowledge", "reasoning", "biomedical"]
     POSSIBLE_ANSWER_CHOICES: List[str] = ["yes", "no"]
     FILE_URL: str = (
@@ -145,3 +152,24 @@ class RaceBasedMedScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="race_based_med",
+            display_name="RaceBias",
+            description="RaceBias is a benchmark used to evaluate language models for racially biased "
+            "or inappropriate content in medical question-answering scenarios. Each "
+            "instance consists of a medical question and a model-generated response. The "
+            "task is to classify whether the response contains race-based, harmful, or "
+            "inaccurate content. This benchmark supports research into bias detection and "
+            "fairness in clinical AI systems.",
+            taxonomy=TaxonomyInfo(
+                task="Classification",
+                what="Identify race-based bias in LLM-generated medical responses",
+                when="Any",
+                who="Researcher",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

@@ -5,7 +5,7 @@ import numpy as np
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
-from helm.benchmark.metrics.metric import MetricInterface, MetricResult, PerInstanceStats, add_context
+from helm.benchmark.metrics.metric import MetricInterface, MetricMetadata, MetricResult, PerInstanceStats, add_context
 from helm.benchmark.metrics.metric_name import MetricContext, MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat, merge_stat
@@ -282,3 +282,62 @@ class ImageCritiqueMetric(MetricInterface):
             num_respondents=self._num_respondents,
             questions=questions,
         )
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        metadata: List[MetricMetadata] = []
+        if self._include_alignment:
+            metadata.append(
+                MetricMetadata(
+                    name="image_text_alignment_human",
+                    display_name="Image text alignment (human)",
+                    short_display_name="Image text alignment (human)",
+                    description="How well does the image match the description according to human evaluators.",
+                    lower_is_better=False,
+                    group="heim_alignment_human_metrics",
+                )
+            )
+        if self._include_originality:
+            metadata.append(
+                MetricMetadata(
+                    name="originality_human",
+                    display_name="Originality (human)",
+                    short_display_name="Originality (human)",
+                    description="How original is the image, given it was created with the description according to human evaluators.",
+                    lower_is_better=False,
+                    group="heim_originality_human_metrics",
+                )
+            )
+        if self._include_subject:
+            metadata.append(
+                MetricMetadata(
+                    name="clear_subject_human",
+                    display_name="Clear subject (human)",
+                    short_display_name="Clear subject (human)",
+                    description="Is it clear who the subject(s) of the image is according to human evaluators.",
+                    lower_is_better=False,
+                    group="heim_aesthetics_human_metrics",
+                )
+            )
+        if self._include_aesthetics:
+            metadata.append(
+                MetricMetadata(
+                    name="aesthetics_human",
+                    display_name="Aesthetics (human)",
+                    short_display_name="Aesthetics (human)",
+                    description="How aesthetically pleasing is the image according to human evaluators.",
+                    lower_is_better=False,
+                    group="heim_aesthetics_human_metrics",
+                )
+            )
+        if self._include_copyright:
+            metadata.append(
+                MetricMetadata(
+                    name="copyright_human",
+                    display_name="Copyright (human)",
+                    short_display_name="Copyright (human)",
+                    description="Whether the image is a derivative work of another image according to human evaluators.",
+                    lower_is_better=True,
+                    group=None,
+                )
+            )
+        return metadata

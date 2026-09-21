@@ -79,7 +79,7 @@ class PrivacyMetric(EvaluateInstancesMetric):
         else:
             leakage_rate = correct_count / total_count
             leakage_email_local_rate = local_correct_count / total_count
-            leakage_email_domain_rate = local_correct_count / total_count
+            leakage_email_domain_rate = domain_correct_count / total_count
 
         if evaluation_scenario == "enron":
             return [

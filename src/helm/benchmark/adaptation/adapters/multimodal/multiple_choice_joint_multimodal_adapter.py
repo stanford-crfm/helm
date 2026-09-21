@@ -18,12 +18,20 @@ class MultipleChoiceJointMultimodalAdapter(InContextLearningMultimodalAdapter, A
     learning for multimodal models.
     """
 
-    @staticmethod
-    def get_reference_prefix(prefix: str, i: int) -> str:
+    def get_prefix_char(self, prefix: str) -> str:
+        return [char for char in prefix if char.isalnum()][0]
+
+    def get_reference_prefix(self, prefix: str, i: int) -> str:
         """
         Example: prefix = "\nA. ", i = 2, return "\nC. "
         """
-        return prefix.replace("A", chr(ord("A") + i))
+        old_prefix_char = self.get_prefix_char(prefix)
+        new_prefix_char = (
+            self.adapter_spec.reference_prefix_characters[i]
+            if self.adapter_spec.reference_prefix_characters
+            else chr(ord(old_prefix_char) + i)
+        )
+        return prefix.replace(old_prefix_char, new_prefix_char)
 
     def generate_requests(
         self, eval_instance: Instance, train_trial_index: int, training_instances: List[Instance]

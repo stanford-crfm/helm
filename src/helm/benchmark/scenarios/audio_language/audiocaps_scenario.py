@@ -1,6 +1,7 @@
 from typing import List
 import os
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -9,6 +10,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from tqdm import tqdm
 from helm.common.media_object import MediaObject, MultimediaObject
@@ -57,3 +59,23 @@ class AudioCapsScenario(Scenario):
             references = [Reference(Output(text=str(row["caption"])), tags=[CORRECT_TAG])]
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="audiocaps",
+            display_name="AudioCaps",
+            description="AudioCaps is a large-scale dataset of about 46K audio clips to human-written "
+            "text pairs collected  via crowdsourcing on the AudioSet dataset, which covers "
+            "a wide range of human and animal sounds,  musical instruments and genres, and "
+            "common everyday environmental sounds.  ([Kim et al, "
+            "2019](https://aclanthology.org/N19-1011.pdf)).\n",
+            taxonomy=TaxonomyInfo(
+                task="audio captioning",
+                what="audio clips in the wild",
+                when="2019",
+                who="real speakers",
+                language="English",
+            ),
+            main_metric="gpt4_audio_critique",
+            main_split="test",
+        )

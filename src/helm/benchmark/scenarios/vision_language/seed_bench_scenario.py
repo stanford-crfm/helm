@@ -4,6 +4,7 @@ from typing import Dict, List
 from datasets import load_dataset
 from tqdm import tqdm
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
+    ScenarioMetadata,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_directory_exists
@@ -129,3 +131,21 @@ class SEEDBenchScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="seed_bench",
+            display_name="Seed Bench",
+            description="A massive multiple-choice question-answering benchmark that spans 9 evaluation "
+            "aspects with the image input including the comprehension of both the image and "
+            "video modality ([Li et al., 2023](https://arxiv.org/abs/2307.16125)).",
+            taxonomy=TaxonomyInfo(
+                task="multiple-choice question answering",
+                what="Real-world images",
+                when="2023",
+                who="Human experts",
+                language="English",
+            ),
+            main_metric="quasi_prefix_exact_match",
+            main_split="test",
+        )

@@ -25,7 +25,7 @@ def _bool_to_str(value: bool):
 
 
 @run_spec_function("mmlu_pro")
-def get_mmlu_pro_spec(subject: str, use_chain_of_thought: str = "true", use_few_shot: str = "false") -> RunSpec:
+def get_mmlu_pro_spec(subject: str = "all", use_chain_of_thought: str = "true", use_few_shot: str = "false") -> RunSpec:
     # Convert to bools and remove the str versions
     use_chain_of_thought_bool: bool = use_chain_of_thought.lower() == "true"
     use_few_shot_bool: bool = use_few_shot.lower() == "true"

@@ -2,6 +2,7 @@ import json
 import os
 from typing import Dict, List, Any
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Input,
     Scenario,
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     VALID_SPLIT,
     CORRECT_TAG,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_file_downloaded
 
@@ -95,3 +97,22 @@ class ConvFinQACalcScenario(Scenario):
                 for raw_instance in raw_instances:
                     instances.append(self.convert_to_instance(raw_instance, split))
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="conv_fin_qa_calc",
+            display_name="ConvFinQACalc",
+            short_display_name=None,
+            description="A mathematical calculation benchmark based on ConvFinQA: Exploring the Chain "
+            "of Numerical Reasoning in Conversational Finance Question Answering [(Chen ey "
+            "al., 2022)](https://arxiv.org/pdf/2210.03849.pdf).",
+            taxonomy=TaxonomyInfo(
+                task="question answering with numeric reasoning",
+                what="financial reports",
+                when="1999 to 2019",
+                who="financial experts",
+                language="English",
+            ),
+            main_metric="float_equiv",
+            main_split="valid",
+        )

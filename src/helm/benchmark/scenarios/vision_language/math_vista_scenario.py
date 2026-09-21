@@ -4,6 +4,7 @@ from typing import List
 from datasets import load_dataset
 from tqdm import tqdm
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
+    ScenarioMetadata,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_directory_exists
@@ -115,3 +117,20 @@ class MathVistaScenario(Scenario):
             len(instances) > 0
         ), f"No instances found for subject {self._grade} and question type {self._question_type}"
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="math_vista",
+            display_name="MathVista",
+            description="A benchmark designed to combine challenges from diverse mathematical and "
+            "visual tasks ([Lu et al., 2024](https://arxiv.org/abs/2310.02255)).",
+            taxonomy=TaxonomyInfo(
+                task="multiple-choice question answering",
+                what="Evaluating Math Reasoning in Visual Contexts",
+                when="2024",
+                who="Human experts",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

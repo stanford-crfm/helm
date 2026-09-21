@@ -3,6 +3,7 @@ import csv
 import sys
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
@@ -11,6 +12,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_file_downloaded
 
@@ -68,7 +70,12 @@ class MedBulletsScenario(Scenario):
     )
 
     name = "medbullets"
-    description = "A USMLE-style medical question dataset with multiple-choice answers and explanations."
+    description = (
+        "Medbullets is a benchmark of USMLE-style medical questions designed to assess a"
+        "model’s ability to understand and apply clinical knowledge. Each question is accompanied"
+        "by a patient scenario and five multiple-choice options, similar to those found on"
+        "Step 2 and Step 3 on the US medical licensing exam."
+    )
     tags = ["reasoning", "biomedical"]
 
     # Define the possible answer choices
@@ -138,3 +145,23 @@ class MedBulletsScenario(Scenario):
             csv_path = self.download_csv(output_path, split_suffix)
             instances.extend(self.process_csv(csv_path, split))
         return instances
+
+    def get_metadata(self):
+        return ScenarioMetadata(
+            name="medbullets",
+            display_name="Medbullets",
+            description="Medbullets is a benchmark of USMLE-style medical questions designed to assess "
+            "a model's ability to understand and apply clinical knowledge. Each question is "
+            "accompanied by a patient scenario and five multiple-choice options, similar to "
+            "those found on Step 2 and Step 3 board exams [(MedBullets, "
+            "2025)](https://step2.medbullets.com).",
+            taxonomy=TaxonomyInfo(
+                task="Question answering",
+                what="Medical knowledge testing",
+                when="Any",
+                who="Medical student, . Researcher",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

@@ -575,7 +575,7 @@ class NumTrialRunExpander(ReplaceValueRunExpander):
     }
 
 
-class ModelRunExpander(ReplaceValueRunExpander):
+class ModelRunExpander(RunExpander):
     """
     For specifying different models.
     Note: we're assuming we don't have to change the decoding parameters for different models.
@@ -584,16 +584,31 @@ class ModelRunExpander(ReplaceValueRunExpander):
     name = "model"
 
     def __init__(self, value):
-        """
-        `value` is either the actual value to use or a lookup into the values dict.
-        """
-        if value in self.values_dict:
-            self.values = self.values_dict[value]
-        else:
-            self.values = [value]
+        self.value = value
 
-    @property
-    def values_dict(self):
+    def sanitize(self, value):
+        return str(value).replace("/", "_")
+
+    def replace_model_in_run_spec(self, model_deployment_name: str, run_spec: RunSpec) -> RunSpec:
+        parts = model_deployment_name.split("/")
+        model_name = "/".join(parts[-2:])
+        new_run_spec_name = f"{run_spec.name}{',' if ':' in run_spec.name else ':'}model={self.sanitize(model_name)}"
+        if len(parts) > 2:
+            new_adapter_spec = replace(run_spec.adapter_spec, model=model_name, model_deployment=model_deployment_name)
+        else:
+            new_adapter_spec = replace(run_spec.adapter_spec, model=model_name)
+        return replace(
+            run_spec,
+            name=new_run_spec_name,
+            adapter_spec=new_adapter_spec,
+        )
+
+    def expand(self, run_spec: RunSpec) -> List[RunSpec]:
+        model_group_to_model_names = self.get_model_group_to_model_names()
+        model_names = model_group_to_model_names.get(self.value, [self.value])
+        return [self.replace_model_in_run_spec(value, run_spec) for value in model_names]
+
+    def get_model_group_to_model_names(self):
         values_dict = {
             "full_functionality_text": get_model_names_with_tag(FULL_FUNCTIONALITY_TEXT_MODEL_TAG),
             "ai21/j1-jumbo": ["ai21/j1-jumbo"],
@@ -1484,6 +1499,8 @@ class OutputFormatInstructions(RunExpander):
                 instructions = "Answer with only a single letter. Do not include a period in your answer."
             elif self.scenario == "mcqa_only_last_question":
                 instructions = "Answer only the last question with only a single letter."
+            elif self.scenario == "arabic_mcqa":
+                instructions = "اكتب حرف الإجابة فقط، دون أي إضافات أخرى."
             else:
                 instructions = "Answer with only a single letter."
         elif run_spec.adapter_spec.method == ADAPT_GENERATION:
@@ -1525,6 +1542,8 @@ class OutputFormatInstructions(RunExpander):
                     "Answer only the last question with a short answer. "
                     "Avoid extra, unnecessary information in the answer."
                 )
+            elif self.scenario == "arabic_mcqa":
+                instructions = "اكتب حرف الإجابة فقط، دون أي إضافات أخرى."
             else:
                 raise ValueError(f"Unknown scenario {self.scenario}")
         elif run_spec.adapter_spec.method == ADAPT_MULTIPLE_CHOICE_JOINT_CHAIN_OF_THOUGHT:

@@ -16,7 +16,11 @@ export default function Preview({ value }: Props) {
         onMouseOut={() => setShowButton(false)}
         className="relative"
       >
-        <div className="bg-base-200 p-2 block overflow-auto w-full max-h-[36rem] mb-2 whitespace-pre-wrap">
+        <div
+          className={
+            "bg-base-200 p-2 block overflow-auto w-full max-h-[36rem] mb-2 whitespace-pre-wrap localize-text-direction"
+          }
+        >
           {value}
         </div>
 
@@ -38,7 +42,11 @@ export default function Preview({ value }: Props) {
         className="modal p-16 bg-opacity-80 bg-white"
         onClick={() => setShowModal(false)}
       >
-        <div className="modal-box max-w-none p-4 whitespace-pre-wrap bg-base-200">
+        <div
+          className={
+            "modal-box max-w-none p-4 whitespace-pre-wrap bg-base-200 localize-text-direction"
+          }
+        >
           {value}
         </div>
       </dialog>

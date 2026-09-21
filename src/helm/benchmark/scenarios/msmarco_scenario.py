@@ -4,6 +4,7 @@ import random
 from collections import defaultdict
 from typing import Dict, List, Tuple, Optional, Union
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded, ensure_directory_exists
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.scenarios.scenario import (
@@ -13,6 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     TRAIN_SPLIT,
     VALID_SPLIT,
     CORRECT_TAG,
+    ScenarioMetadata,
     make_rank_tag,
     make_relevance_tag,
     Input,
@@ -657,3 +659,31 @@ class MSMARCOScenario(Scenario):
         valid_instances = self.get_valid_instances()
 
         return train_instances + valid_instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        if self.track == self.REGULAR_TRACK:
+            return ScenarioMetadata(
+                name="msmarco_regular",
+                display_name="MS MARCO (regular track)",
+                short_display_name="MS MARCO (regular)",
+                description="The MS MARCO benchmark's regular track for passage retrieval in information "
+                "retrieval "
+                "[(https://microsoft.github.io/msmarco/)](https://microsoft.github.io/msmarco/).",
+                taxonomy=TaxonomyInfo(task="information retrieval", what="?", when="?", who="?", language="English"),
+                main_metric="RR@10",
+                main_split="valid",
+            )
+        elif self.track == self.TREC_TRACK:
+            return ScenarioMetadata(
+                name="msmarco_trec",
+                display_name="MS MARCO (TREC track)",
+                short_display_name="MS MARCO (TREC)",
+                description="The MS MARCO benchmark's deep learning TREC track for passage retrieval in "
+                "information retrieval "
+                "[(https://trec.nist.gov)](https://microsoft.github.io/msmarco/).",
+                taxonomy=TaxonomyInfo(task="information retrieval", what="?", when="?", who="?", language="English"),
+                main_metric="NDCG@10",
+                main_split="valid",
+            )
+        else:
+            raise Exception(f"Unknown track {self.track}")

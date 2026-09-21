@@ -3,7 +3,6 @@ from typing import Any, Dict, Optional
 from helm.clients.openai_client import OpenAIClient
 from helm.common.cache import CacheConfig
 from helm.common.request import Request
-from helm.tokenizers.tokenizer import Tokenizer
 
 
 class GrokChatClient(OpenAIClient):
@@ -14,14 +13,10 @@ class GrokChatClient(OpenAIClient):
 
     def __init__(
         self,
-        tokenizer: Tokenizer,
-        tokenizer_name: str,
         cache_config: CacheConfig,
         api_key: Optional[str] = None,
     ):
         super().__init__(
-            tokenizer=tokenizer,
-            tokenizer_name=tokenizer_name,
             cache_config=cache_config,
             api_key=api_key,
             org_id=None,

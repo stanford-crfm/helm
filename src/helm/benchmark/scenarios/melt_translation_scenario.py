@@ -1,6 +1,7 @@
 from typing import Any, Dict, List, Optional
 
 from datasets import load_dataset, Dataset
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.hierarchical_logger import htrack_block
 from helm.benchmark.scenarios.scenario import (
     Scenario,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -129,6 +131,17 @@ class MELTTranslationOPUS100Scenario(MELTTranslationScenario):
             **kwargs,
         )
 
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="melt_translation_opus100",
+            display_name="OPUS100",
+            short_display_name="OPUS100",
+            description="The OPUS100 benchmark for measuring translation on Vietnamese OPUS100.",
+            taxonomy=TaxonomyInfo(task="translation", what="?", when="?", who="?", language="Vietnamese"),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )
+
 
 class MELTTranslationPhoMTScenario(MELTTranslationScenario):
     """
@@ -149,4 +162,15 @@ class MELTTranslationPhoMTScenario(MELTTranslationScenario):
                 TEST_SPLIT: "test",
             },
             **kwargs,
+        )
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="melt_translation_phomt",
+            display_name="PhoMT",
+            short_display_name="PhoMT",
+            description="The PhoMT benchmark for measuring translation on Vietnamese PhoMT.",
+            taxonomy=TaxonomyInfo(task="translation", what="?", when="?", who="?", language="Vietnamese"),
+            main_metric="quasi_exact_match",
+            main_split="test",
         )

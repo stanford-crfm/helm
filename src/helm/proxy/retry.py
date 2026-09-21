@@ -5,6 +5,7 @@ from retrying import Retrying
 from helm.common.request import RequestResult
 from helm.common.tokenization_request import TokenizationRequestResult
 from helm.common.hierarchical_logger import hlog
+import os
 import traceback
 import threading
 
@@ -18,6 +19,10 @@ Example usage:
     def make_request(request: Request) -> RequestResult:
         ...
 """
+
+# TODO: make these configurable at a config / cli level
+HELM_RETRIES = int(os.environ.get("HELM_RETRIES", "5"))
+HELM_TOKENIZER_RETRIES = int(os.environ.get("HELM_TOKENIZER_RETRIES", HELM_RETRIES))
 
 # The lock is used to prevent multiple threads from printing at the same time.
 # This can cause issues when printing the stack trace.
@@ -85,9 +90,12 @@ def retry_if_request_failed(result: Union[RequestResult, TokenizationRequestResu
 
 
 retry_request: Callable = get_retry_decorator(
-    "Request", max_attempts=5, wait_exponential_multiplier_seconds=5, retry_on_result=retry_if_request_failed
+    "Request", max_attempts=HELM_RETRIES, wait_exponential_multiplier_seconds=5, retry_on_result=retry_if_request_failed
 )
 
 retry_tokenizer_request: Callable = get_retry_decorator(
-    "Request", max_attempts=5, wait_exponential_multiplier_seconds=1, retry_on_result=retry_if_request_failed
+    "Request",
+    max_attempts=HELM_TOKENIZER_RETRIES,
+    wait_exponential_multiplier_seconds=1,
+    retry_on_result=retry_if_request_failed,
 )

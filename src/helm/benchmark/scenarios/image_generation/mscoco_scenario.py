@@ -3,6 +3,7 @@ import os
 from collections import defaultdict
 from typing import Any, Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.benchmark.scenarios.scenario import (
@@ -14,6 +15,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TRAIN_SPLIT,
     VALID_SPLIT,
+    ScenarioMetadata,
 )
 
 
@@ -89,3 +91,13 @@ class MSCOCOScenario(Scenario):
                     instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="mscoco",
+            display_name="MS-COCO (all)",
+            description="Common Objects in Context ([paper](https://arxiv.org/abs/1405.0312)).",
+            taxonomy=TaxonomyInfo(task="Image quality", what=None, when=None, who=None, language=None),
+            main_metric="unknown",
+            main_split="valid",
+        )

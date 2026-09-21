@@ -25,7 +25,7 @@ from helm.benchmark.adaptation.scenario_state import ScenarioState
 from helm.benchmark.scenarios.scenario import Instance, Reference
 from helm.common.codec import from_json, to_json
 from helm.common.hierarchical_logger import hlog, hwarn
-from helm.common.request import Request, RequestResult
+from helm.common.request import Request, RequestResult, Thinking
 from helm.common.general import write
 
 
@@ -101,10 +101,21 @@ def encrypt_result(result: Optional[RequestResult]) -> Optional[RequestResult]:
         return None
 
     encrypted_results = [
-        dataclasses.replace(completion, text=encryptor.encrypt_text(completion.text))
+        dataclasses.replace(
+            completion, text=encryptor.encrypt_text(completion.text), thinking=encrypt_thinking(completion.thinking)
+        )
         for completion in result.completions
     ]
     return dataclasses.replace(result, completions=encrypted_results)
+
+
+def encrypt_thinking(thinking: Optional[Thinking]) -> Optional[Thinking]:
+    if thinking is None:
+        return None
+    elif thinking.text is None:
+        return thinking
+    else:
+        return dataclasses.replace(thinking, text=encryptor.encrypt_text(thinking.text))
 
 
 def encrypt_request_state(request_state: RequestState) -> RequestState:
@@ -152,12 +163,13 @@ def modify_scenario_states_for_suite(run_suite_path: str, scenario: str) -> None
             continue
         encryption_data_path: str = os.path.join(run_path, _ENCRYTED_DATA_JSON_FILE_NAME)
         if os.path.exists(encryption_data_path):
-            hlog(f"INFO: {run_dir_name} already has {_ENCRYTED_DATA_JSON_FILE_NAME}, skipping")
+            hlog(f"{run_dir_name} already has {_ENCRYTED_DATA_JSON_FILE_NAME}, skipping")
             continue
         modify_scenario_state_for_run(run_path)
 
         # Write the encryption data to a file
         write(encryption_data_path, to_json(encryptor.encryption_data_mapping))
+        hlog(f"encrypted {run_path}")
 
 
 def main():

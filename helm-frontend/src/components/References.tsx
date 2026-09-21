@@ -16,7 +16,7 @@ export default function References({ references }: Props) {
           return (
             <li
               key={index}
-              className="bg-base-200 p-2 block overflow-auto w-full max-h-72 mb-2 whitespace-pre-wrap"
+              className="bg-base-200 p-2 block overflow-auto w-full max-h-72 mb-2 whitespace-pre-wrap localize-text-direction"
             >
               {reference.output.text}
               {reference.tags.map((tag) => {

@@ -1,6 +1,7 @@
 import datasets
 import os
 from typing import List
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -9,6 +10,7 @@ from helm.benchmark.scenarios.scenario import (
     Input,
     Output,
     CORRECT_TAG,
+    ScenarioMetadata,
 )
 from helm.common.general import ensure_directory_exists
 
@@ -51,3 +53,19 @@ class OmniMATHScenario(Scenario):
             instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name=self.name,
+            display_name="Omni-MATH",
+            description=self.description,
+            main_metric="omni_math_accuracy",
+            main_split="test",
+            taxonomy=TaxonomyInfo(
+                task="mathematics",
+                what="universal Olympiad level mathematic benchmark",
+                who="human annotators",
+                when="2024",
+                language="English",
+            ),
+        )

@@ -2,6 +2,7 @@ import csv
 import os
 from typing import Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
 from helm.benchmark.scenarios.scenario import (
@@ -14,6 +15,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 
@@ -124,3 +126,22 @@ class MMLUScenario(Scenario):
             instances.extend(self.process_csv(csv_path, splits[split]))
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="mmlu",
+            display_name="MMLU (Massive Multitask Language Understanding)",
+            short_display_name="MMLU",
+            description="The Massive Multitask Language Understanding (MMLU) benchmark for "
+            "knowledge-intensive question answering across 57 domains [(Hendrycks et al., "
+            "2021)](https://arxiv.org/pdf/2009.03300.pdf).",
+            taxonomy=TaxonomyInfo(
+                task="multiple-choice question answering",
+                what="math, science, history, etc.",
+                when="before 2021",
+                who="various online sources",
+                language="English",
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

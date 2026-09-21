@@ -2,7 +2,8 @@ import re
 from typing import List, Any, Dict
 from datasets import load_dataset
 
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TRAIN_SPLIT, TEST_SPLIT
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TRAIN_SPLIT, TEST_SPLIT, ScenarioMetadata
 
 
 class AnthropicHHRLHFScenario(Scenario):
@@ -88,3 +89,24 @@ class AnthropicHHRLHFScenario(Scenario):
                 )
                 instances.append(instance)
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="anthropic_hh_rlhf",
+            display_name="Anthropic RLHF dataset",
+            short_display_name="Anthropic RLHF dataset",
+            description="The dialogue datasets released by Anthropic to facilitate research in model "
+            "helpfulness and harmlessness ([Bai et al., "
+            "2022](https://arxiv.org/pdf/2204.05862.pdf); [Ganguli et al., "
+            "2022](https://arxiv.org/pdf/2209.07858.pdf)). We only use the first utterance "
+            "of each dialogue.",
+            taxonomy=TaxonomyInfo(
+                task="open-ended instruction following",
+                what="Human-LM dialogues and preference labels",
+                when="2022",
+                who="Workers from MTurk and Upwork, language models from Anthropic",
+                language="English",
+            ),
+            main_metric="Helpfulness",
+            main_split="test",
+        )

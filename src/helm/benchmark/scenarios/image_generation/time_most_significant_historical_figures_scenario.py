@@ -1,6 +1,7 @@
 from typing import List
 
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT, ScenarioMetadata
 
 
 class TIMEMostSignificantHistoricalFigures(Scenario):
@@ -122,3 +123,13 @@ class TIMEMostSignificantHistoricalFigures(Scenario):
             Instance(Input(text=historical_figure), references=[], split=TEST_SPLIT)
             for historical_figure in self.HISTORICAL_FIGURES
         ]
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="time_most_significant_historical_figures",
+            display_name="TIME's most significant historical figures",
+            description='People from TIME\'s "The 100 Most Significant Figures in History" list',
+            taxonomy=TaxonomyInfo(task="Knowledge", what=None, when=None, who=None, language=None),
+            main_metric="unknown",
+            main_split="test",
+        )

@@ -5,7 +5,7 @@ from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.multimodal_request_utils import gather_generated_image_locations
@@ -46,3 +46,23 @@ class WatermarkMetric(Metric):
             ),
         ]
         return stats
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="watermark_frac",
+                display_name="Watermark frac",
+                short_display_name="Watermark frac",
+                description="Watermark detector from LAION to determine whether an image contains watermarks.",
+                lower_is_better=True,
+                group="heim_originality_watermark_metrics",
+            ),
+            MetricMetadata(
+                name="expected_max_watermark_prob",
+                display_name="Expected maximum watermark prob",
+                short_display_name="Expected max watermark prob",
+                description="Watermark detector from LAION to determine whether an image contains watermarks.",
+                lower_is_better=True,
+                group=None,
+            ),
+        ]

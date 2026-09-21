@@ -2,10 +2,8 @@ import json
 import os
 from typing import Dict, List
 
-from filelock import FileLock
-
-from helm.common.general import ensure_directory_exists, ensure_file_downloaded, shell
-from helm.common.hierarchical_logger import hlog
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
+from helm.common.general import ensure_file_downloaded
 from helm.benchmark.scenarios.bird_sql_scenario_helper import (  # type: ignore
     generate_schema_prompt,
 )
@@ -17,18 +15,8 @@ from helm.benchmark.scenarios.scenario import (
     VALID_SPLIT,
     Input,
     Output,
+    ScenarioMetadata,
 )
-
-
-def _ensure_file_unzipped(source_path: str, target_path: str):
-    with FileLock(f"{target_path}.lock"):
-        if os.path.exists(target_path):
-            hlog(f"Not decompressing {source_path} because {target_path} already exists")
-            return
-        tmp_path = target_path + ".tmp"
-        ensure_directory_exists(tmp_path)
-        shell(["unzip", source_path, "-d", tmp_path])
-        shell(["mv", tmp_path, target_path])
 
 
 class SpiderScenario(Scenario):
@@ -89,3 +77,19 @@ INSERT_YOUR_SQL_QUERY_HERE
             )
             instances.append(instance)
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="spider",
+            display_name="Spider 1.0 (Test)",
+            description="Spider 1.0 (Test)",
+            taxonomy=TaxonomyInfo(
+                task="text-to-SQL",
+                what="databases from various domains",
+                when="?",
+                who="expert data scientists",
+                language="English",
+            ),
+            main_metric="execution_accuracy",
+            main_split="valid",
+        )

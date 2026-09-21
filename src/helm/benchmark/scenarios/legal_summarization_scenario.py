@@ -5,6 +5,7 @@ from typing import List, Optional, Any
 import datasets
 from datasets import load_dataset
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -15,6 +16,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 
 _ALL_LANGUAGES = {
@@ -205,3 +207,51 @@ class LegalSummarizationScenario(Scenario):
                 )
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        if self.dataset_name == "BillSum":
+            return ScenarioMetadata(
+                name="billsum_legal_summarization",
+                display_name="BillSum",
+                description="The BillSum benchmark for legal text summarization ([Kornilova & Eidelmann, "
+                "2020](https://aclanthology.org/D19-5406/)).",
+                taxonomy=TaxonomyInfo(
+                    task="summarization", what="legal text from US bills", when=None, who="lawyers", language="English"
+                ),
+                main_metric="rouge_2",
+                main_split="test",
+            )
+        elif self.dataset_name == "MultiLexSum":
+            return ScenarioMetadata(
+                name="multilexsum_legal_summarization",
+                display_name="MultiLexSum",
+                description="The MultiLexSum benchmark for legal text summarization ([Shen et al., "
+                "2022](https://arxiv.org/abs/2206.10883)).",
+                taxonomy=TaxonomyInfo(
+                    task="summarization",
+                    what="legal text from US civil rights lawsuits",
+                    when=None,
+                    who="lawyers",
+                    language="English",
+                ),
+                main_metric="rouge_2",
+                main_split="test",
+            )
+        elif self.dataset_name == "EurLexSum":
+            return ScenarioMetadata(
+                name="eurlexsum_legal_summarization",
+                display_name="EurLexSum",
+                description="The EurLexSum benchmark for legal text summarization ([Aumiller et al., "
+                "2022](https://arxiv.org/abs/2210.13448)).",
+                taxonomy=TaxonomyInfo(
+                    task="summarization",
+                    what="legal text from EU legislation",
+                    when="1960 - 2020",
+                    who="lawyers",
+                    language="English",
+                ),
+                main_metric="rouge_2",
+                main_split="test",
+            )
+        else:
+            raise Exception(f"Unknown dataset {self.dataset_name}")

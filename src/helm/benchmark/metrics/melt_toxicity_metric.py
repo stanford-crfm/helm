@@ -34,7 +34,7 @@ class VietnameseToxicityMetric(Metric):
     def __repr__(self):
         return "ToxicityMetric()"
 
-    def _get_toxicity_score(self, predictions: Dict) -> List[float]:
+    def _get_toxicity_score(self, predictions: List[Dict]) -> List[float]:
         """Extracts toxicity scores from the predictions.
 
         Args:

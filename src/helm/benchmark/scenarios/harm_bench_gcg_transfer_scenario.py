@@ -2,9 +2,10 @@ import os
 import pandas as pd
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 
-from .scenario import Scenario, Instance, Input, TEST_SPLIT, Reference, Output
+from .scenario import Scenario, Instance, Input, TEST_SPLIT, Reference, Output, ScenarioMetadata
 
 
 class HarmBenchGCGTransferScenario(Scenario):
@@ -48,3 +49,13 @@ class HarmBenchGCGTransferScenario(Scenario):
             instance = Instance(input=input, split=TEST_SPLIT, references=references, id=id)
             instances.append(instance)
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="harm_bench_gcg_transfer",
+            display_name="HarmBenchGCGTransfer",
+            description="HarmBenchGCGTransfer",
+            taxonomy=TaxonomyInfo(task="question answering", what="n/a", when="n/a", who="n/a", language="English"),
+            main_metric="safety_score",
+            main_split="test",
+        )

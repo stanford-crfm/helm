@@ -122,7 +122,12 @@ metrics:
     lower_is_better: false
   # CLEVA Chinese bias, copyright and toxicity metrics share the same name as the original HELM metrics
 
-
+  # Efficiency metrics:
+  - name: inference_runtime
+    display_name: Observed inference runtime (s)
+    short_display_name: Observed inference time (s)
+    lower_is_better: true
+    description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
 
 ############################################################
 perturbations: []

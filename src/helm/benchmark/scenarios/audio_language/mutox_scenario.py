@@ -3,6 +3,7 @@ from typing import List
 import os
 import requests
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from pydub import AudioSegment
 from tqdm import tqdm
 import pandas as pd
@@ -15,6 +16,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from helm.common.audio_utils import is_invalid_audio_file
 from helm.common.media_object import MediaObject, MultimediaObject
@@ -252,3 +254,21 @@ class MuToxScenario(Scenario):
 
         assert len(instances) > 0, f"No instances found for language: {self._language_code}"
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="mutox",
+            display_name="MuTox",
+            description="The dataset consists of 20k audio utterances for English and Spanish, and 4k "
+            "for the other languages. ([Costa-jussà et al, "
+            "2018](https://arxiv.org/abs/2401.05060)).\n",
+            taxonomy=TaxonomyInfo(
+                task="toxicity detection",
+                what="samples of utterances",
+                when="2024",
+                who="real speakers",
+                language="30 languages",
+            ),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )

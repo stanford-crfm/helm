@@ -1,0 +1,271 @@
+---
+# Schema for Arabic scenarios
+############################################################
+metrics:
+  # Infrastructure metrics:
+  - name: num_perplexity_tokens
+    display_name: '# tokens'
+    description: Average number of tokens in the predicted output (for language modeling, the input too).
+  - name: num_bytes
+    display_name: '# bytes'
+    description: Average number of bytes in the predicted output (for language modeling, the input too).
+
+  - name: num_references
+    display_name: '# ref'
+    description: Number of references.
+  - name: num_train_trials
+    display_name: '# trials'
+    description: Number of trials, where in each trial we choose an independent, random set of training instances.
+  - name: estimated_num_tokens_cost
+    display_name: 'cost'
+    description: An estimate of the number of tokens (including prompt and output completions) needed to perform the request.
+  - name: num_prompt_tokens
+    display_name: '# prompt tokens'
+    description: Number of tokens in the prompt.
+  - name: num_prompt_characters
+    display_name: '# prompt chars'
+    description: Number of characters in the prompt.
+  - name: num_completion_tokens
+    display_name: '# completion tokens'
+    description: Actual number of completion tokens (over all completions).
+  - name: num_output_tokens
+    display_name: '# output tokens'
+    description: Actual number of output tokens.
+  - name: max_num_output_tokens
+    display_name: 'Max output tokens'
+    description: Maximum number of output tokens (overestimate since we might stop earlier due to stop sequences).
+  - name: num_requests
+    display_name: '# requests'
+    description: Number of distinct API requests.
+  - name: num_instances
+    display_name: '# eval'
+    description: Number of evaluation instances.
+  - name: num_train_instances
+    display_name: '# train'
+    description: Number of training instances (e.g., in-context examples).
+  - name: prompt_truncated
+    display_name: truncated
+    description: Fraction of instances where the prompt itself was truncated (implies that there were no in-context examples).
+  - name: finish_reason_length
+    display_name: finish b/c length
+    description: Fraction of instances where the the output was terminated because of the max tokens limit.
+  - name: finish_reason_stop
+    display_name: finish b/c stop
+    description: Fraction of instances where the the output was terminated because of the stop sequences.
+  - name: finish_reason_endoftext
+    display_name: finish b/c endoftext
+    description: Fraction of instances where the the output was terminated because the end of text token was generated.
+  - name: finish_reason_unknown
+    display_name: finish b/c unknown
+    description: Fraction of instances where the the output was terminated for unknown reasons.
+  - name: num_completions
+    display_name: '# completions'
+    description: Number of completions.
+  - name: predicted_index
+    display_name: Predicted index
+    description: Integer index of the reference (0, 1, ...) that was predicted by the model (for multiple-choice).
+  - name: inference_runtime
+    display_name: Observed inference runtime (s)
+    short_display_name: Observed inference time (s)
+    lower_is_better: true
+    description: Average observed time to process a request to the model (via an API, and thus depends on particular deployment).
+
+  # Accuracy metrics:
+  - name: exact_match
+    display_name: Exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_exact_match
+    display_name: Quasi-exact match
+    short_display_name: EM
+    description: Fraction of instances that the predicted output matches a correct reference up to light processing.
+    lower_is_better: false
+  - name: prefix_exact_match
+    display_name: Prefix exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference exactly.
+    lower_is_better: false
+  - name: quasi_prefix_exact_match
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: Prefix quasi-exact match
+    short_display_name: PEM
+    description: Fraction of instances that the predicted output matches the prefix of a correct reference up to light processing.
+    lower_is_better: false
+  - name: alrage_score
+    # TODO: should call this prefix_quasi_exact_match
+    display_name: ALRAGE Score
+    short_display_name: Score
+    description: Score of the output judged by GPT-4o.
+    lower_is_better: false
+
+############################################################
+perturbations: []
+
+############################################################
+metric_groups:
+  - name: accuracy
+    display_name: Accuracy
+    aggregation_strategies: 
+      - mean
+    metrics:
+      - name: ${main_name}
+        split: ${main_split}
+
+  - name: efficiency
+    display_name: Efficiency
+    aggregation_strategies: 
+      - mean
+    metrics:
+    - name: inference_runtime
+      split: ${main_split}
+
+  - name: general_information
+    display_name: General information
+    hide_win_rates: true
+    metrics:
+    - name: num_instances
+      split: ${main_split}
+    - name: num_train_instances
+      split: ${main_split}
+    - name: prompt_truncated
+      split: ${main_split}
+    - name: num_prompt_tokens
+      split: ${main_split}
+    - name: num_output_tokens
+      split: ${main_split}
+
+############################################################
+run_groups:
+  - name: arabic_scenarios
+    display_name: Arabic Scenarios
+    description: Arabic Scenarios
+    category: Scenarios
+    subgroups:
+      - alghafa
+      - arabic_mmlu
+      - arabic_exams
+      - madinah_qa
+      - aratrust
+      - alrage
+      - mbzuai_human_translated_arabic_mmlu
+
+  - name: alghafa
+    display_name: AlGhafa
+    description: An Arabic language multiple choice evaluation benchmark derived from publicly available NLP datasets ([paper](https://aclanthology.org/2023.arabicnlp-1.21/))
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: "multiple choice question answering"
+      what: Various
+      who: Various
+      when: "before 2023"
+      language: Arabic
+
+  - name: arabic_mmlu
+    display_name: ArabicMMLU
+    description: A native Arabic language question answering benchmark using questions sourced from school exams across diverse educational levels in different countries spanning North Africa, the Levant, and the Gulf regions ([dataset](https://huggingface.co/datasets/MBZUAI/ArabicMMLU))
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: "question answering"
+      what: "academic questions across various disciplines"
+      who: "academic exams writers and takers"
+      when: "before 2024"
+      language: Arabic
+
+  - name: arabic_exams
+    display_name: Arabic EXAMS
+    description: The Arabic language subset of the EXAMS multilingual question answering benchmark, which consists of high school exam questions across various school subjects ([paper](https://aclanthology.org/2020.emnlp-main.438/))
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: "multiple choice question answering"
+      what: High school examinations
+      who: High school examinations writers and test-takers
+      when: before 2020
+      language: Arabic
+
+  - name: madinah_qa
+    display_name: MadinahQA
+    description: A question answering benchmark published by MBZUAI that tests knowledge of Arabic language and grammar ([dataset](https://huggingface.co/datasets/MBZUAI/MadinahQA))
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: "question answering"
+      what: "academic questions about Arabic language"
+      who: "academic exams writers and takers"
+      when: "before 2024"
+      language: Arabic
+
+  - name: aratrust
+    display_name: AraTrust
+    description: An Arab-region-specific safety evaluation dataset consisting of human-written questions including direct attacks, indirect attacks, and harmless requests with sensitive words ([paper](https://arxiv.org/abs/2410.17040))
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: "safety"
+      what: "human-written questions including direct attacks, indirect attacks, and harmless requests"
+      who: "human question writers"
+      when: "2024"
+      language: Arabic
+
+  - name: alrage
+    display_name: ALRAGE
+    description: An Arabic language passage-based open-ended model-graded question answering benchmark that reflects retrieval-augmented generation use cases ([dataset](https://huggingface.co/datasets/OALL/ALRAGE))
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: alrage_score
+      main_split: test
+    taxonomy:
+      task: "openbook (RAG) open-ended question answering"
+      what: "passage-based question answering"
+      who: "book authors"
+      when: "before 2025"
+      language: Arabic
+
+  - name: mbzuai_human_translated_arabic_mmlu
+    display_name: MBZUAI Human-Translated Arabic MMLU
+    short_display_name: Translated MMLU
+    description: A translation of MMLU to Arabic by human translators published by MBZUAI ([dataset](https://huggingface.co/datasets/MBZUAI/human_translated_arabic_mmlu))
+    metric_groups:
+      - accuracy
+      - efficiency
+      - general_information
+    environment:
+      main_name: exact_match
+      main_split: test
+    taxonomy:
+      task: multiple-choice question answering
+      what: math, science, history, etc.
+      who: various online sources
+      when: before 2021
+      language: Arabic

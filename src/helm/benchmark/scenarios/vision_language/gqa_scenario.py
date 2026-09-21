@@ -2,6 +2,7 @@ import os
 import json
 from typing import Any, Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     ALL_SPLITS,
     CORRECT_TAG,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
+    ScenarioMetadata,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_file_downloaded
@@ -89,3 +91,20 @@ class GQAScenario(Scenario):
                     )
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="gqa",
+            display_name="GQA",
+            description="Questions about real-world visual reasoning and compositional QA ([Hudson and "
+            "Manning, 2019](https://arxiv.org/abs/1902.09506)).",
+            taxonomy=TaxonomyInfo(
+                task="short-answer question answering",
+                what="Real-world images",
+                when="2019",
+                who="Human experts",
+                language="English",
+            ),
+            main_metric="quasi_prefix_exact_match",
+            main_split="valid",
+        )

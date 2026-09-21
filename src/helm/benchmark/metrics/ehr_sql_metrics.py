@@ -1,7 +1,7 @@
 from typing import List
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.adaptation.request_state import RequestState
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.benchmark.metrics.statistic import Stat
@@ -100,4 +100,60 @@ class EhrSqlMetric(Metric):
             Stat(MetricName("ehr_sql_recall_answerable")).add(correct_answerable if is_answerable else 0),
             Stat(MetricName("ehr_sql_total_predicted_answerable")).add(int(is_predicted_answerable)),
             Stat(MetricName("ehr_sql_total_ground_truth_answerable")).add(int(is_answerable)),
+        ]
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="ehr_sql_execution_accuracy",
+                display_name="Execution accuracy for Generated Query",
+                short_display_name="EHRSQLExeAcc",
+                description="Measures the proportion of correctly predicted answerable questions among all questions "
+                "predicted to be answerable.",
+                lower_is_better=False,
+                group=None,
+            ),
+            MetricMetadata(
+                name="ehr_sql_query_validity",
+                display_name="Validity of Generated Query",
+                short_display_name="EHRSQLQueryValid",
+                description="Measures the proportion of correctly predicted answerable questions among all answerable "
+                "questions in the dataset.",
+                lower_is_better=False,
+                group=None,
+            ),
+            MetricMetadata(
+                name="ehr_sql_precision_answerable",
+                display_name="Precision for Answerable Questions",
+                short_display_name="EHRSQLPreAns",
+                description="Measures the proportion of correctly predicted answerable questions among all questions "
+                "predicted to be answerable.",
+                lower_is_better=False,
+                group=None,
+            ),
+            MetricMetadata(
+                name="ehr_sql_recall_answerable",
+                display_name="Recall for Answerable Questions",
+                short_display_name="EHRSQLReAns",
+                description="Measures the proportion of correctly predicted answerable questions among all answerable "
+                "questions in the dataset.",
+                lower_is_better=False,
+                group=None,
+            ),
+            MetricMetadata(
+                name="ehr_sql_total_predicted_answerable",
+                display_name="Total Predicted Answerable",
+                short_display_name="Total Pred Ans",
+                description="Total number of questions predicted to be answerable by the model.",
+                lower_is_better=False,
+                group=None,
+            ),
+            MetricMetadata(
+                name="ehr_sql_total_ground_truth_answerable",
+                display_name="Total Ground Truth Answerable",
+                short_display_name="Total GT Ans",
+                description="Total number of answerable questions in the ground truth.",
+                lower_is_better=False,
+                group=None,
+            ),
         ]

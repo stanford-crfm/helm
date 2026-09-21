@@ -7,7 +7,7 @@ from transformers import Qwen2AudioForConditionalGeneration, AutoProcessor
 
 from helm.common.cache import CacheConfig
 from helm.common.gpu_utils import get_torch_device_name
-from helm.common.hierarchical_logger import hlog, htrack_block
+from helm.common.hierarchical_logger import hexception, hlog, htrack_block
 from helm.common.media_object import TEXT_TYPE
 from helm.common.request import Request, RequestResult, GeneratedOutput, Token
 from helm.common.request import wrap_request_time
@@ -92,7 +92,7 @@ class Qwen2AudioLMClient(CachingClient):
                 assert media_object.is_local_file, "Only local audio files are supported"
                 query.append({"type": "audio", "audio_url": media_object.location})
 
-                prompt_text += f"<|im_start|>user\nAudio {media_num+1}: <|audio_bos|><|AUDIO|><|audio_eos|>\n"
+                prompt_text += f"<|im_start|>user\nAudio {media_num + 1}: <|audio_bos|><|AUDIO|><|audio_eos|>\n"
             elif media_object.is_type(TEXT_TYPE):
                 if media_object.text is None:
                     raise ValueError("MediaObject of text type has missing text field value")
@@ -161,6 +161,7 @@ class Qwen2AudioLMClient(CachingClient):
                     )
                     result, cached = self.cache.get(cache_key, wrap_request_time(do_it))
                 except RuntimeError as model_error:
+                    hexception(model_error)
                     return RequestResult(
                         success=False, cached=False, error=str(model_error), completions=[], embedding=[]
                     )

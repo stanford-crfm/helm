@@ -2,6 +2,7 @@ from typing import List
 import os
 import json
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -10,6 +11,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from tqdm import tqdm
 from datasets import load_dataset
@@ -78,3 +80,26 @@ class LibriSpeechScenario(Scenario):
             references = [Reference(Output(text=answer), tags=[CORRECT_TAG])]
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="librispeech",
+            display_name="LibriSpeech",
+            description="The LibriSpeech corpus (Vassil et al. 2015) is derived from audiobooks that "
+            "are part  of the LibriVox project, and contains 1000 hours of speech sampled "
+            "at 16 kHz. The  data has separately prepared language-model training data and "
+            "pre-built language models.  This corpus is one of the most widely-used ASR "
+            "corpus, which has been extended to many  applicaitons such as robust ASR and "
+            "multilingual ASR tasks.\n"
+            "The dataset contains the audio, transcriptions for all subsets  ([Vassil et "
+            "al. 2015](https://ieeexplore.ieee.org/document/7178964)).\n",
+            taxonomy=TaxonomyInfo(
+                task="audio recognition",
+                what="audio, transcripts of audio samples in daily scenarios",
+                when="2015",
+                who="real speakers",
+                language="English",
+            ),
+            main_metric="wer_score",
+            main_split="test",
+        )

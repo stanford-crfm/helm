@@ -151,7 +151,7 @@ class HuggingFaceTokenizer(CachingTokenizer):
                 with self.get_wrapped_tokenizer() as tokenizer:
                     tokens = tokenizer.tokenize(request["text"])
                 # Some tokenizers (e.g. Qwen/Qwen-7B) return the tokens as bytes, so we have to decode them to strings.
-                if tokens and type(tokens[0]) == bytes:
+                if tokens and isinstance(tokens[0], bytes):
                     tokens = [cast(bytes, token).decode(errors="ignore") for token in tokens]
                 tokens = cleanup_tokens(tokens, request["tokenizer"])
         return {"tokens": tokens}

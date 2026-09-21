@@ -6,7 +6,7 @@ from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.multimodal_request_utils import gather_generated_image_locations
@@ -55,3 +55,15 @@ class DetectionMetric(Metric):
             Stat(MetricName("detection_correct_frac")).add(mean(scores) if len(scores) > 0 else 0),
         ]
         return stats
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="detection_correct_frac",
+                display_name="Detection correct fraction",
+                short_display_name="Detection correct frac",
+                description="Fraction of correct images according to the ViTDet object detector with ViT-B backbone and detectron2 library to automatically detect objects specified in the prompts.",
+                lower_is_better=False,
+                group="heim_reasoning_metrics",
+            )
+        ]

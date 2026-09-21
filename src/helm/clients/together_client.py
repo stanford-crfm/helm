@@ -9,6 +9,7 @@ import requests
 from retrying import retry
 
 from helm.common.cache import CacheConfig
+from helm.common.hierarchical_logger import hexception
 from helm.common.media_object import IMAGE_TYPE, TEXT_TYPE
 from helm.common.object_spec import get_class_by_name
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -17,15 +18,12 @@ from helm.clients.client import CachingClient, truncate_sequence, cleanup_str
 
 try:
     from together import Together
-    from together.types import ChatCompletionResponse, CompletionResponse
 except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["together"])
 
 
 class _RewriteRequestTags:
     """Tags that indicate that the request for the model must be rewritten before sending to Together."""
-
-    # TODO: Convert to StrEnum after upgrading to Python 3.11
 
     ADD_EOS_TOKEN_AS_STOP_SEQUENCE = "ADD_EOS_TOKEN_AS_STOP_SEQUENCE"
     """Indicates that the EOS token should be added as an extra stop sequence.
@@ -101,7 +99,7 @@ class JobNotFinishedError(TogetherClientError):
     pass
 
 
-def _parse_thinking(input: str) -> Tuple[str, str]:
+def _parse_thinking_deepseek_r1(input: str) -> Tuple[str, str]:
     """Return a tuple of thinking text and output text."""
     match = re.match(r"<think>\n(.*)\n</think>\n{0,2}(.*)", input, re.DOTALL)
     if match:
@@ -112,6 +110,44 @@ def _parse_thinking(input: str) -> Tuple[str, str]:
         return (match.group(1), "")
 
     return (input, "")
+
+
+def _parse_thinking_qwen3(input: str) -> Tuple[str, str]:
+    """Return a tuple of thinking text and output text."""
+    match = re.match(r"<think>\n(.*)\n</think>\n{0,2}(.*)", input, re.DOTALL)
+    if match:
+        return (match.group(1), match.group(2))
+
+    match = re.match(r"<think>\n?(.*)", input, re.DOTALL)
+    if match:
+        return (match.group(1), "")
+
+    return (input, "")
+
+
+def _parse_thinking_glm_4_5(input: str) -> Tuple[str, str]:
+    """Return a tuple of thinking text and output text."""
+    match = re.match(r"\n<think>(.*)</think>(.*)", input, re.DOTALL)
+    if match:
+        return (match.group(1), match.group(2))
+
+    match = re.match(r"\n<think>(.*)", input, re.DOTALL)
+    if match:
+        return (match.group(1), "")
+
+    return (input, "")
+
+
+def _parse_thinking(input: str, model_name: str) -> Tuple[str, str]:
+    # TODO: Come up with a more sustainable extensible way of doing this.
+    if "deepseek-r1" in model_name:
+        return _parse_thinking_deepseek_r1(input)
+    elif "qwen3" in model_name:
+        return _parse_thinking_qwen3(input)
+    elif "glm-4.5" in model_name:
+        return _parse_thinking_glm_4_5(input)
+    else:
+        raise Exception(f"No thinking parser available for model {model_name}")
 
 
 class TogetherClient(CachingClient):
@@ -237,6 +273,7 @@ class TogetherClient(CachingClient):
             try:
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it_sync))
             except Exception as error:
+                hexception(error)
                 return RequestResult(
                     success=False,
                     cached=False,
@@ -247,6 +284,7 @@ class TogetherClient(CachingClient):
 
         # Expect the result to be structured the same way as a response from OpenAI API.
         completions: List[GeneratedOutput] = []
+
         for raw_completion in response["choices"]:
             sequence_logprob = 0
             tokens: List[Token] = []
@@ -330,6 +368,8 @@ class TogetherRawChatRequest(TypedDict):
     echo: bool
     n: int
     response_format: NotRequired[Dict[str, Any]]
+    reasoning: NotRequired[Dict[str, Any]]
+    reasoning_effort: NotRequired[str]
 
 
 class TogetherChatClient(CachingClient):
@@ -343,14 +383,15 @@ class TogetherChatClient(CachingClient):
         disable_logprobs: Optional[bool] = None,
         output_processor: Optional[str] = None,
         parse_thinking: Optional[bool] = None,
+        reasoning_effort: Optional[str] = None,
     ):
         super().__init__(cache_config=cache_config)
         self._client = Together(api_key=api_key)
         self._together_model = together_model
         self._disable_logprobs = bool(disable_logprobs)
-        # self.output_processor is actually a function, not a class
         self._parse_thinking = bool(parse_thinking)
-
+        self._reasoning_effort = reasoning_effort
+        # self.output_processor is actually a function, not a class
         self.output_processor: Optional[Callable[[str], str]] = (
             get_class_by_name(output_processor) if output_processor else None
         )
@@ -406,6 +447,11 @@ class TogetherChatClient(CachingClient):
                 "type": "json_object",
                 "schema": request.response_format.json_schema,
             }
+        if self._reasoning_effort:
+            if self._reasoning_effort == "none":
+                raw_chat_request["reasoning"] = {"enabled": False}
+            else:
+                raw_chat_request["reasoning_effort"] = self._reasoning_effort
         return raw_chat_request
 
     def make_request(self, request: Request) -> RequestResult:
@@ -413,53 +459,49 @@ class TogetherChatClient(CachingClient):
         cache_key = CachingClient.make_cache_key(raw_request, request)
 
         def do_it() -> Dict[Any, Any]:
-            response = self._client.chat.completions.create(**raw_request)
-            return response.model_dump(mode="json")
+            return self._client.chat.completions.create(**raw_request).model_dump(mode="json")
 
-        try:
-            raw_response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-            response = ChatCompletionResponse.model_validate(raw_response)
-        except Exception as error:
-            return RequestResult(
-                success=False,
-                cached=False,
-                error=str(error),
-                completions=[],
-                embedding=[],
-            )
+        # Previously, we converted the raw response into the Pydantic model
+        # using CompletionResponse.model_validate() for type safety.
+        # We stopped doing this because model validation is brittle.
+        # Validation can fail due to breaking changes in the Pydantic schema
+        # or schema errors in the API.
+        response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
 
         generated_outputs: List[GeneratedOutput] = []
-        for choice in response.choices:
+        for choice in response["choices"]:
             # NOTE: Together always returns None for choice.finish_reason
             # NOTE: Together does not return logprobs for the whole generated output, only for individual tokens
             tokens: List[Token] = []
-            if choice.logprobs:
+            if choice["logprobs"]:
                 for token_text, token_logprob in zip_longest(
-                    choice.logprobs.tokens or [], choice.logprobs.token_logprobs or []
+                    choice["logprobs"]["tokens"] or [], choice["logprobs"]["token_logprobs"] or []
                 ):
                     if token_text is None:
                         break
                     tokens.append(Token(text=token_text, logprob=token_logprob or 0.0))
             logprob = sum([token.logprob for token in tokens]) if tokens else 0.0
-            assert choice.message.role == "assistant"
-            output_text = choice.message.content
+            assert choice["message"]["role"] == "assistant"
+            output_text = choice["message"]["content"]
             if self.output_processor:
                 output_text = self.output_processor(output_text)
 
+            thinking: Optional[Thinking] = None
             if self._parse_thinking:
-                thinking_text, output_text = _parse_thinking(output_text)
-                generated_outputs.append(
-                    GeneratedOutput(
-                        text=output_text, logprob=logprob, tokens=tokens, thinking=Thinking(text=thinking_text)
-                    )
-                )
-            else:
-                generated_outputs.append(GeneratedOutput(text=output_text, logprob=logprob, tokens=tokens))
+                thinking_text, output_text = _parse_thinking(output_text, request.model)
+                thinking = Thinking(text=thinking_text)
+            elif choice["message"].get("reasoning_content") is not None:
+                thinking = Thinking(text=choice["message"]["reasoning_content"])
+            elif choice["message"].get("reasoning") is not None:
+                thinking = Thinking(text=choice["message"]["reasoning"])
+            generated_outputs.append(
+                GeneratedOutput(text=output_text, logprob=logprob, tokens=tokens, thinking=thinking)
+            )
         return RequestResult(
             success=True,
             cached=cached,
-            request_time=raw_response["request_time"],
-            request_datetime=raw_response["request_datetime"],
+            request_time=response["request_time"],
+            request_datetime=response["request_datetime"],
             completions=generated_outputs,
             embedding=[],
         )
@@ -520,13 +562,17 @@ class TogetherCompletionClient(CachingClient):
         cache_key = CachingClient.make_cache_key(raw_request, request)
 
         def do_it() -> Dict[Any, Any]:
-            response = self._client.completions.create(**raw_request)
-            return response.model_dump(mode="json")
+            return self._client.completions.create(**raw_request).model_dump(mode="json")
 
         try:
-            raw_response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
-            response = CompletionResponse.model_validate(raw_response)
+            # Previously, we converted the raw response into the Pydantic model
+            # using ChatCompletionResponse.model_validate() for type safety.
+            # We stopped doing this because model validation is brittle.
+            # Validation can fail due to breaking changes in the Pydantic schema
+            # or schema errors in the API.
+            response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except Exception as error:
+            hexception(error)
             return RequestResult(
                 success=False,
                 cached=False,
@@ -536,25 +582,25 @@ class TogetherCompletionClient(CachingClient):
             )
 
         generated_outputs: List[GeneratedOutput] = []
-        for choice in response.choices:
+        for choice in response["choices"]:
             # NOTE: Together always returns None for choice.finish_reason
             # NOTE: Together does not return logprobs for the whole generated output, only for individual tokens
             tokens: List[Token] = []
-            if choice.logprobs:
+            if choice["logprobs"]:
                 for token_text, token_logprob in zip_longest(
-                    choice.logprobs.tokens or [], choice.logprobs.token_logprobs or []
+                    choice["logprobs"]["tokens"] or [], choice["logprobs"]["token_logprobs"] or []
                 ):
                     if token_text is None:
                         break
                     tokens.append(Token(text=token_text, logprob=token_logprob or 0.0))
             logprob = sum([token.logprob for token in tokens]) if tokens else 0.0
             assert choice.text
-            generated_outputs.append(GeneratedOutput(text=choice.text, logprob=logprob, tokens=tokens))
+            generated_outputs.append(GeneratedOutput(text=choice["text"], logprob=logprob, tokens=tokens))
         return RequestResult(
             success=True,
             cached=cached,
-            request_time=raw_response["request_time"],
-            request_datetime=raw_response["request_datetime"],
+            request_time=response["request_time"],
+            request_datetime=response["request_datetime"],
             completions=generated_outputs,
             embedding=[],
         )

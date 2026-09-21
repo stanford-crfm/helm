@@ -1,6 +1,7 @@
 from typing import List
 import os
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -9,6 +10,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from tqdm import tqdm
 from datasets import load_dataset
@@ -78,3 +80,24 @@ class MultilingualLibriSpeechScenario(Scenario):
             references = [Reference(Output(text=str(answer)), tags=[CORRECT_TAG])]
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="multilingual_librispeech",
+            display_name="Multilingual Librispeech",
+            description="Multilingual Librispeech is derived from read audiobooks from LibriVox and "
+            "consists of 8 languages,  including about 44.5K hours of English and a total "
+            "of about 6K hours for other languages. \n"
+            "The dataset contains the audio and transcriptions in the following languages: "
+            'Dutch, German, French, Spanish, Italian, Portuguese", Polish ([Pratap et al, '
+            "2022](https://arxiv.org/abs/2012.03411)).\n",
+            taxonomy=TaxonomyInfo(
+                task="audio captioning",
+                what="audio and transcriptions in 8 languages",
+                when="2020",
+                who="real speakers",
+                language="8 languages",
+            ),
+            main_metric="wer_score",
+            main_split="test",
+        )

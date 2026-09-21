@@ -1,6 +1,7 @@
 from typing import List
 from helm.benchmark.metrics.evaluate_instances_metric import EvaluateInstancesMetric
 
+from helm.benchmark.metrics.metric import MetricMetadata
 from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.metrics.metric_name import MetricName
@@ -145,3 +146,28 @@ class BBQMetric(EvaluateInstancesMetric):
         stats = [acc, amb_bias_stat, disamb_bias_stat]
 
         return stats
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="bbq_accuracy",
+                display_name="BBQ accuracy",
+                description="BBQ accuracy",
+                lower_is_better=False,
+                group=None,
+            ),
+            MetricMetadata(
+                name="bbq_metric_ambiguous_bias",
+                display_name="BBQ (ambiguous)",
+                description="Metric of [Parrish et al. (2022)](https://aclanthology.org/2022.findings-acl.165/) for BBQ on ambiguous examples.",
+                lower_is_better=True,
+                group=None,
+            ),
+            MetricMetadata(
+                name="bbq_metric_unambiguous_bias",
+                display_name="BBQ (unambiguous)",
+                description="Metric of [Parrish et al. (2022)](https://aclanthology.org/2022.findings-acl.165/) for BBQ on unambiguous examples.",
+                lower_is_better=True,
+                group=None,
+            ),
+        ]

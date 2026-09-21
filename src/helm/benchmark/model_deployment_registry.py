@@ -1,17 +1,19 @@
-from typing import Dict, Optional, List
+import threading
+from typing import Callable, Dict, Optional, List, TypeVar
 from dataclasses import dataclass
 
 import cattrs
 import yaml
 
-from helm.common.hierarchical_logger import hlog, hwarn
-from helm.common.object_spec import ObjectSpec
 from helm.benchmark.model_metadata_registry import (
     ModelMetadata,
     get_model_metadata,
     get_unknown_model_metadata,
     register_model_metadata,
 )
+from helm.common.hierarchical_logger import hlog, hwarn
+from helm.common.object_spec import ObjectSpec
+from helm.common.plugins import import_all_modules_in_package
 
 
 class ClientSpec(ObjectSpec):
@@ -19,6 +21,10 @@ class ClientSpec(ObjectSpec):
 
 
 class WindowServiceSpec(ObjectSpec):
+    pass
+
+
+class ModelDeploymentNotFoundError(ValueError):
     pass
 
 
@@ -123,12 +129,37 @@ def register_model_deployments_from_path(path: str) -> None:
         register_model_deployment(model_deployment)
 
 
+_DISCOVER_MODEL_DEPLOYMENT_GENERATORS_LOCK = threading.Lock()
+_DISCOVER_MODEL_DEPLOYMENT_GENERATORS_DONE = False
+
+
+def discover_model_deployment_generators() -> None:
+    """Discover and register all model deployment generators in helm.benchmark.model_deployments"""
+    global _DISCOVER_MODEL_DEPLOYMENT_GENERATORS_DONE
+    with _DISCOVER_MODEL_DEPLOYMENT_GENERATORS_LOCK:
+        if _DISCOVER_MODEL_DEPLOYMENT_GENERATORS_DONE:
+            return
+        _DISCOVER_MODEL_DEPLOYMENT_GENERATORS_DONE = True
+
+        import helm.benchmark.model_deployments  # noqa
+
+        import_all_modules_in_package(helm.benchmark.model_deployments)
+
+
 def get_model_deployment(name: str, warn_deprecated: bool = False) -> ModelDeployment:
-    if name not in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
-        raise ValueError(f"Model deployment {name} not found")
-    deployment: ModelDeployment = DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[name]
+    deployment: Optional[ModelDeployment] = DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT.get(name)
+
+    if not deployment:
+        discover_model_deployment_generators()
+        for prefix, model_deployment_generator in _REGISTERED_MODEL_DEPLOYMENT_GENERATORS.items():
+            if name.startswith(prefix):
+                deployment = model_deployment_generator(name)
+
+    if not deployment:
+        raise ModelDeploymentNotFoundError(f"Model deployment {name} not found")
+
     if deployment.deprecated and warn_deprecated:
-        hwarn(f"DEPLOYMENT Model deployment {name} is deprecated")
+        hwarn(f"Model deployment {name} is deprecated")
     return deployment
 
 
@@ -157,12 +188,11 @@ def get_default_model_deployment_for_model(
     Example: "meta/llama-7b" => "together/llama-7b"
 
     The process to find a model deployment name is as follows:
-    1. If there is a model deployment with the same name as the model arg, use it.
-    2. If there is at least one deployment for the model, use the first one that is available.
-    3. If there are no deployments for the model, returns None.
+    1. If there is at least one deployment for the model, use the last one that is available.
+    2. If there are no deployments for the model, returns None.
 
     This function will also try to find a model deployment name that is not deprecated.
-    If there are no non-deprecated deployments, it will return the first deployment (even if it's deprecated).
+    If there are no non-deprecated deployments, it will return the last deployment (even if it's deprecated).
     If ignore_deprecated is True, this function will return None if the model deployment is deprecated.
 
     If warn_arg_deprecated is True, this function will print a warning if the model deployment name is not the same
@@ -175,16 +205,7 @@ def get_default_model_deployment_for_model(
         ignore_deprecated: Whether to return None if the model deployment is deprecated.
     """
 
-    # If there is a model deployment with the same name as the model arg, use it.
-    if model_name in DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT:
-        deployment: ModelDeployment = DEPLOYMENT_NAME_TO_MODEL_DEPLOYMENT[model_name]
-        if deployment.deprecated and ignore_deprecated:
-            if warn_arg_deprecated:
-                hwarn(f"Model deployment {model_name} is deprecated")
-            return None
-        return deployment.name
-
-    # If there is at least one deployment for the model, use the first one that is available.
+    # If there is at least one deployment for the model, use the last one that is available.
     available_deployments: List[ModelDeployment] = [
         deployment for deployment in ALL_MODEL_DEPLOYMENTS if deployment.model_name == model_name
     ]
@@ -199,24 +220,54 @@ def get_default_model_deployment_for_model(
             deployment for deployment in available_deployments if not deployment.deprecated
         ]
         if len(non_deprecated_deployments) > 0:
-            chosen_deployment = non_deprecated_deployments[0]
+            chosen_deployment = non_deprecated_deployments[-1]
         # There are no non-deprecated deployments, so there are two options:
         # 1. If we can return an empty string, return it. (no model deployment is available)
-        # 2. If we can't return an empty string, return the first deployment (even if it's deprecated).
+        # 2. If we can't return an empty string, return the last deployment (even if it's deprecated).
         elif ignore_deprecated:
             return None
-        else:
-            chosen_deployment = available_deployments[0]
+        elif len(available_deployments) > 0:
+            chosen_deployment = available_deployments[-1]
             if warn_arg_deprecated:
                 hwarn(f"All model deployments for model {model_name} are deprecated.")
+        else:
+            return None
         if warn_arg_deprecated:
             hlog(
-                f"Choosing {chosen_deployment.name} (the first one) as "
+                f"Choosing {chosen_deployment.name} (the last one) as "
                 f"the default model deployment for model {model_name}"
             )
             hlog("If you want to use a different model deployment, please specify it explicitly.")
         return chosen_deployment.name
 
-    # Some models are added but have no deployments yet.
-    # In this case, we return None.
-    return None
+    # See if we can auto-generate a model deployment for this model.
+    # Use the model deployment as the default model deployment if so.
+    # Otherwise, return None.
+    try:
+        return get_model_deployment(model_name).name
+    except ValueError:
+        return None
+
+
+ModelDeploymentGenerator = Callable[[str], ModelDeployment]
+"""A function that takes in a model name and returns a ModelDeployment"""
+
+
+_REGISTERED_MODEL_DEPLOYMENT_GENERATORS: Dict[str, ModelDeploymentGenerator] = {}
+"""Dict of prefixes to ModelDeploymentGenerators."""
+
+
+F = TypeVar("F", bound=ModelDeploymentGenerator)
+
+
+def model_deployment_generator(prefix: str) -> Callable[[F], F]:
+    """Register the ModelDeploymentGenerator for the given model name prefix."""
+
+    def wrap(func: F) -> F:
+        key = prefix.strip("/") + "/"
+        if key in _REGISTERED_MODEL_DEPLOYMENT_GENERATORS:
+            raise ValueError(f"A ModelDeploymentGenerator with prefix {key} already exists")
+        _REGISTERED_MODEL_DEPLOYMENT_GENERATORS[key] = func
+        return func
+
+    return wrap

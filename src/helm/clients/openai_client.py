@@ -1,21 +1,19 @@
 # mypy: check_untyped_defs = False
 from dataclasses import replace
-from typing import Any, Dict, List, Optional, cast, Union, Callable
+import re
+from typing import Any, Dict, List, Optional, Union, Callable
+
+from openai import OpenAIError
 
 from helm.benchmark.model_metadata_registry import is_vlm
 from helm.common import multimodal_request_utils
 from helm.common.cache import CacheConfig
 from helm.common.media_object import TEXT_TYPE, MultimediaObject, MediaObject
 from helm.common.request import ErrorFlags, Thinking, wrap_request_time, Request, RequestResult, GeneratedOutput, Token
-from helm.common.hierarchical_logger import hlog, hwarn
+from helm.common.hierarchical_logger import hlog, hwarn, hexception
 from helm.common.object_spec import get_class_by_name
 from helm.common.optional_dependencies import handle_module_not_found_error
-from helm.common.tokenization_request import (
-    TokenizationRequest,
-    TokenizationRequestResult,
-)
 from helm.clients.client import Client, CachingClient, truncate_sequence, generate_uid_for_multimodal_prompt
-from helm.tokenizers.tokenizer import Tokenizer
 
 try:
     import openai
@@ -24,10 +22,18 @@ except ModuleNotFoundError as e:
     handle_module_not_found_error(e, ["openai"])
 
 
-class OpenAIClient(CachingClient):
-    END_OF_TEXT: str = "<|endoftext|>"
+class OpenAIClientUtils:
+    """Methods used by both the chat completions client and the responses API client"""
+
+    @classmethod
+    def is_reasoning_model(cls, model_engine: str) -> bool:
+        # All OpenAI  reasoning models start "o[somenumber]", so we regexp for that to future proof things
+        return bool(re.match(r"^o\d+", model_engine)) or bool(re.match(r"^gpt-5", model_engine))
 
     # Error OpenAI throws when the image in the prompt violates their content policy
+    HARMFUL_INFORMATION_ERROR: str = (
+        "Invalid prompt: we've limited access to this content for safety reasons. This type of information may be used to benefit or to harm people."  # noqa: E501
+    )
     INAPPROPRIATE_IMAGE_ERROR: str = "Your input image may contain content that is not allowed by our safety system"
     INAPPROPRIATE_PROMPT_ERROR: str = "Invalid prompt: your prompt was flagged"
     INAPPROPRIATE_PROMPT_AZURE_ERROR: str = (
@@ -36,12 +42,10 @@ class OpenAIClient(CachingClient):
     INAPPROPRIATE_PROMPT_MICROSOFT_ERROR: str = (
         "The response was filtered due to the prompt triggering Microsoft's content management policy."
     )
-
-    # OpenAI server error
-    OPENAI_SERVER_ERROR: str = (
-        "The server had an error processing your request. Sorry about that! You can retry your request, "
-        "or contact us through our help center at help.openai.com if you keep seeing this error."
-    )
+    # Grok content safety guidelines error message
+    # TODO: Refactor so that this is owned by the Grok client instead.
+    SAFETY_GUIDELINES_GROK_ERROR: str = "Content violates safety guidelines."
+    USAGE_GUIDELINES_GROK_ERROR: str = "Content violates usage guidelines."
 
     # Set the finish reason to this if the prompt violates OpenAI's content policy
     CONTENT_POLICY_VIOLATED_FINISH_REASON: str = (
@@ -49,10 +53,70 @@ class OpenAIClient(CachingClient):
         "See https://labs.openai.com/policies/content-policy for more information."
     )
 
+    @classmethod
+    def handle_openai_error(cls, e: OpenAIError, request: Request):
+        if cls.INAPPROPRIATE_IMAGE_ERROR in str(e) or cls.INAPPROPRIATE_PROMPT_ERROR in str(e):
+            hwarn(f"Failed safety check: {str(request)}")
+            empty_completion = GeneratedOutput(
+                text="",
+                logprob=0,
+                tokens=[],
+                finish_reason={"reason": cls.CONTENT_POLICY_VIOLATED_FINISH_REASON},
+            )
+            return RequestResult(
+                success=True,
+                cached=False,
+                request_time=0,
+                completions=[empty_completion] * request.num_completions,
+                embedding=[],
+            )
+        elif cls.HARMFUL_INFORMATION_ERROR in str(e):
+            return RequestResult(
+                success=False,
+                cached=False,
+                error="Prompt blocked by OpenAI's safety filter",
+                completions=[],
+                embedding=[],
+                error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+            )
+        elif cls.INAPPROPRIATE_PROMPT_AZURE_ERROR in str(e) or cls.INAPPROPRIATE_PROMPT_MICROSOFT_ERROR in str(e):
+            return RequestResult(
+                success=False,
+                cached=False,
+                error="Content blocked by Azure's content management filter",
+                completions=[],
+                embedding=[],
+                error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+            )
+        elif cls.SAFETY_GUIDELINES_GROK_ERROR in str(e):
+            return RequestResult(
+                success=False,
+                cached=False,
+                error="Grok API error: Content violates safety guidelines",
+                completions=[],
+                embedding=[],
+                error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+            )
+        elif cls.USAGE_GUIDELINES_GROK_ERROR in str(e):
+            return RequestResult(
+                success=False,
+                cached=False,
+                error="Grok API error: Content violates usage guidelines",
+                completions=[],
+                embedding=[],
+                error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
+            )
+
+        hexception(e)
+        error: str = f"OpenAI error: {e}"
+        return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
+
+
+class OpenAIClient(CachingClient):
+    END_OF_TEXT: str = "<|endoftext|>"
+
     def __init__(
         self,
-        tokenizer: Tokenizer,
-        tokenizer_name: str,
         cache_config: CacheConfig,
         api_key: Optional[str] = None,
         org_id: Optional[str] = None,
@@ -60,11 +124,10 @@ class OpenAIClient(CachingClient):
         reasoning_effort: Optional[str] = None,
         openai_model_name: Optional[str] = None,
         output_processor: Optional[str] = None,
+        **kwargs,
     ):
         super().__init__(cache_config=cache_config)
-        self.tokenizer = tokenizer
-        self.tokenizer_name = tokenizer_name
-        self.client = OpenAI(api_key=api_key, organization=org_id, base_url=base_url)
+        self.client = OpenAI(api_key=api_key, organization=org_id, base_url=base_url, **kwargs)
         self.reasoning_effort = reasoning_effort
         self.openai_model_name = openai_model_name
         self.output_processor: Optional[Callable[[str], str]] = (
@@ -99,6 +162,7 @@ class OpenAIClient(CachingClient):
             cache_key = self._get_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.OpenAIError as e:
+            hexception(e)
             error: str = f"OpenAI error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
@@ -223,13 +287,12 @@ class OpenAIClient(CachingClient):
         # Refer to the "Reasoning models" documentation further discussion of o1 model limitations:
         # https://platform.openai.com/docs/guides/reasoning
         model_engine: str = request.model_engine
-        if model_engine.startswith("o1") or model_engine.startswith("o3") or model_engine.startswith("o4"):
+        if OpenAIClientUtils.is_reasoning_model(model_engine):
             # Avoid error:
             # "Unsupported parameter: 'max_tokens' is not supported with this model. Use 'max_completion_tokens' instead."  # noqa: E501
             # Note that openai>=1.45 is needed for this
             if raw_request["max_tokens"]:
-                # Even max_completion_token causes an error with some o-series models, so I commented it out.
-                # raw_request["max_completion_tokens"] = raw_request["max_tokens"]
+                raw_request["max_completion_tokens"] = raw_request["max_tokens"]
                 raw_request.pop("max_tokens")
             # Avoid error:
             # "Invalid type for 'stop': expected an unsupported value, but got null instead."
@@ -276,49 +339,7 @@ class OpenAIClient(CachingClient):
             cache_key = self._get_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.OpenAIError as e:
-            if self.INAPPROPRIATE_IMAGE_ERROR in str(e) or self.INAPPROPRIATE_PROMPT_ERROR in str(e):
-                hlog(f"Failed safety check: {str(request)}")
-                empty_completion = GeneratedOutput(
-                    text="",
-                    logprob=0,
-                    tokens=[],
-                    finish_reason={"reason": self.CONTENT_POLICY_VIOLATED_FINISH_REASON},
-                )
-                return RequestResult(
-                    success=True,
-                    cached=False,
-                    request_time=0,
-                    completions=[empty_completion] * request.num_completions,
-                    embedding=[],
-                )
-            elif self.OPENAI_SERVER_ERROR in str(e):
-                # Handle these errors by returning an empty completion to unblock
-                hlog(f"OpenAI server error for request: {str(request)}")
-                empty_completion = GeneratedOutput(
-                    text="",
-                    logprob=0,
-                    tokens=[],
-                    finish_reason={"reason": self.OPENAI_SERVER_ERROR},
-                )
-                return RequestResult(
-                    success=True,
-                    cached=False,
-                    request_time=0,
-                    completions=[empty_completion] * request.num_completions,
-                    embedding=[],
-                )
-            elif self.INAPPROPRIATE_PROMPT_AZURE_ERROR in str(e) or self.INAPPROPRIATE_PROMPT_MICROSOFT_ERROR in str(e):
-                return RequestResult(
-                    success=False,
-                    cached=False,
-                    error="Content blocked by Azure's content management filter",
-                    completions=[],
-                    embedding=[],
-                    error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
-                )
-
-            error: str = f"OpenAI error: {e}"
-            return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
+            return OpenAIClientUtils.handle_openai_error(e, request)
 
         completions: List[GeneratedOutput] = []
         for raw_completion in response["choices"]:
@@ -340,17 +361,23 @@ class OpenAIClient(CachingClient):
             if self.output_processor:
                 raw_completion_content = self.output_processor(raw_completion_content)
             text: str = request.prompt + raw_completion_content if request.echo_prompt else raw_completion_content
-            # The OpenAI chat completion API doesn't return us tokens or logprobs, so we tokenize ourselves.
-            tokenization_result: TokenizationRequestResult = self.tokenizer.tokenize(
-                TokenizationRequest(text, tokenizer=self.tokenizer_name)
-            )
             # Log probs are not currently not supported by the OpenAI chat completion API, so set to 0 for now.
-            tokens: List[Token] = [
-                Token(text=cast(str, raw_token), logprob=0) for raw_token in tokenization_result.raw_tokens
-            ]
             # vLLM has a optional `reasoning_content` field in the message
             # that is not in the standard OpenAI API.
             # This field is also used by some model providers such as Grok.
+            tokens: List[Token] = []
+            if "logprobs" in raw_completion and raw_completion["logprobs"]:
+                raw_completion_logprobs = raw_completion["logprobs"]
+                if "content" in raw_completion_logprobs and raw_completion_logprobs["contents"]:
+                    for raw_completion_token in raw_completion_logprobs["contents"]:
+                        tokens.append(
+                            Token(
+                                text=raw_completion_token["token"],
+                                logprob=raw_completion_token["logprob"],
+                            )
+                        )
+            logprob = sum([token.logprob for token in tokens])
+
             thinking = (
                 Thinking(text=raw_completion["message"]["reasoning_content"])
                 if "reasoning_content" in raw_completion["message"]
@@ -358,7 +385,7 @@ class OpenAIClient(CachingClient):
             )
             completion = GeneratedOutput(
                 text=text,
-                logprob=0,  # OpenAI does not provide logprobs
+                logprob=logprob,
                 tokens=tokens,
                 finish_reason={"reason": raw_completion["finish_reason"]},
                 thinking=thinking,
@@ -408,6 +435,7 @@ class OpenAIClient(CachingClient):
             cache_key = self._get_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.OpenAIError as e:
+            hexception(e)
             error: str = f"OpenAI error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
@@ -463,6 +491,7 @@ class OpenAIClient(CachingClient):
             cache_key = self._get_cache_key({"audio": audio_path, "model": model}, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except openai.OpenAIError as e:
+            hexception(e)
             error: str = f"OpenAI error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
@@ -501,15 +530,11 @@ class OpenAITranscriptionThenCompletionClient(Client):
 
     def __init__(
         self,
-        tokenizer: Tokenizer,
-        tokenizer_name: str,
         cache_config: CacheConfig,
         api_key: Optional[str] = None,
         org_id: Optional[str] = None,
     ):
         self._openai_client = OpenAIClient(
-            tokenizer=tokenizer,
-            tokenizer_name=tokenizer_name,
             cache_config=cache_config,
             api_key=api_key,
             org_id=org_id,

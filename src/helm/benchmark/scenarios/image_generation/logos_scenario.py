@@ -1,6 +1,7 @@
 from typing import List
 
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT, ScenarioMetadata
 
 
 class LogosScenario(Scenario):
@@ -221,3 +222,13 @@ class LogosScenario(Scenario):
             Instance(Input(text=f"a logo of {description}"), references=[], split=TEST_SPLIT)
             for description in self.COMPANY_DESCRIPTIONS
         ]
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="logos",
+            display_name="Logos",
+            description="Prompts to generate logos for brands and companies",
+            taxonomy=TaxonomyInfo(task="Originality", what=None, when=None, who=None, language=None),
+            main_metric="unknown",
+            main_split="test",
+        )

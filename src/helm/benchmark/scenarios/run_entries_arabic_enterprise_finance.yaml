@@ -1,0 +1,7 @@
+# run entries for Arabic Enterprise (finance only)
+
+entries: [
+  {description: "arabic_finance_bool"},
+  {description: "arabic_finance_calculation"},
+  {description: "arabic_finance_mcq"},
+]

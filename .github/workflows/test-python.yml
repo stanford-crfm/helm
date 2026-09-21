@@ -1,0 +1,68 @@
+name: Test Python
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - 'helm-frontend/**'
+  pull_request:
+    paths-ignore:
+      - 'helm-frontend/**'
+
+jobs:
+  install:
+    # Tests that the HELM CLI commands work when only installing required dependencies
+    # without optional extra dependencies.
+    name: Run HELM with minimal dependencies only
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.9.4"
+      - name: Build
+        run: uv build
+      - name: helm-run
+        run: uv run --isolated --no-project --with dist/*.whl helm-run --run-entries simple1:model=simple/model1 --max-eval-instances 10 --suite test
+      - name: helm-summarize
+        run: uv run --isolated --no-project --with dist/*.whl helm-summarize --suite test
+      - name: helm-server
+        run: uv run --isolated --no-project --with dist/*.whl helm-server --help
+ 
+  test:
+    name: Run all tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.9.4"
+      - name: Install dependencies
+        run: uv sync --extra ci
+      - name: Run pre-commit
+        run: ./pre-commit.sh
+      - name: Run tests
+        run: uv run pytest --durations=20
+        env:
+          TEST: ${{ matrix.test }}
+          VERSION: ${{ github.head_ref || 'main' }}
+      - name: Run entire pipeline quickly without any data
+        # Checking RunSpecs with openai/davinci should be comprehensive enough
+        run: uv run helm-run --suite test -m 100 --skip-instances --models-to-run openai/davinci --exit-on-error

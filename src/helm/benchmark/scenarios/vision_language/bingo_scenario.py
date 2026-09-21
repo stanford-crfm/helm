@@ -4,6 +4,7 @@ from typing import List
 from datasets import load_dataset
 from tqdm import tqdm
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
+    ScenarioMetadata,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
@@ -101,3 +103,21 @@ class BingoScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="bingo",
+            display_name="Bingo",
+            description="Open-ended questions about biased images and hallucinations-inducing images "
+            "([Cui et al., 2023](https://arxiv.org/abs/2311.03287)).",
+            taxonomy=TaxonomyInfo(
+                task="short-answer question answering",
+                what="Biased images about Region, OCR, Factual, Text-to-Image and "
+                "Image-to-Image inference challenges",
+                when="2023",
+                who="Human experts",
+                language="English, Chinese, Japanese, etc.",
+            ),
+            main_metric="prometheus_vision",
+            main_split="test",
+        )

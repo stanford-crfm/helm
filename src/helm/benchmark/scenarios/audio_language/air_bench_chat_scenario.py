@@ -1,6 +1,7 @@
 from typing import List
 import os
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     Scenario,
     Instance,
@@ -9,6 +10,7 @@ from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     Input,
     Output,
+    ScenarioMetadata,
 )
 from tqdm import tqdm
 from helm.common.media_object import MediaObject, MultimediaObject
@@ -128,3 +130,31 @@ class AirBenchChatScenario(Scenario):
             references = [Reference(Output(text=audio_meda_data_valid["answer_gt"]), tags=[CORRECT_TAG])]
             instances.append(Instance(input=input, references=references, split=TEST_SPLIT))
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        if self._subject in ["mix", "speech"]:
+            group = "reasoning"
+        elif self._subject in ["sound", "music"]:
+            group = "knowledge"
+        else:
+            raise ValueError(f"Invalid subject. Valid subjects are: {AirBenchChatScenario.SUJECTS}")
+        return ScenarioMetadata(
+            name=f"air_bench_chat_{group}",
+            display_name=f"Air-Bench Chat ({group} subsets)",
+            description="Air-Bench (Yang et al, 2024) encompasses two dimensions: foundation and chat "
+            "benchmarks. The former consists of 19 tasks with  approximately 19k "
+            "single-choice questions. The latter one contains 2k instances of open-ended "
+            "question-and-answer data.  We consider the chat benchmark in this scenario.\n"
+            "The dataset contains the audio question answering task in four subjects: "
+            "sound, speech, music, and mixed. ([Yang et al, "
+            "2024](https://aclanthology.org/2024.acl-long.109.pdf)).\n",
+            taxonomy=TaxonomyInfo(
+                task="audio question answering",
+                what="audio, question, and answer of audio samples",
+                when="2024",
+                who="real speakers",
+                language="English",
+            ),
+            main_metric="gpt4_audio_critique",
+            main_split="test",
+        )

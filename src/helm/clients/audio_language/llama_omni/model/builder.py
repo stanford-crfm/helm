@@ -16,7 +16,7 @@ def load_pretrained_model(
     load_4bit=False,
     device="cuda",
     use_flash_attn=False,
-    **kwargs
+    **kwargs,
 ):
     if load_8bit:
         kwargs["load_in_8bit"] = True

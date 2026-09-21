@@ -4,6 +4,7 @@ from typing import List
 from datasets import load_dataset
 from tqdm import tqdm
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
+    ScenarioMetadata,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_directory_exists
@@ -96,3 +98,21 @@ class VibeEvalScenario(Scenario):
             )
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="vibe_eval",
+            display_name="Vibe Eval",
+            description="A difficult evaluation suite for measuring progress of multimodal language "
+            "models with day-to-day tasks ([Padlewski et al., "
+            "2024](https://arxiv.org/abs/2405.02287)).",
+            taxonomy=TaxonomyInfo(
+                task="short-answer question answering",
+                what="Knowledge intensive",
+                when="2024",
+                who="Human experts",
+                language="English",
+            ),
+            main_metric="prometheus_vision",
+            main_split="test",
+        )

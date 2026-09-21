@@ -1,10 +1,16 @@
 from typing import List
 import os
 
+import pytest
+
 from helm.benchmark.metrics.image_generation.watermark.watermark_detector import WatermarkDetector
 
 
 def test_compute_watermark_probability():
+    try:
+        import timm  # noqa: F401
+    except ModuleNotFoundError:
+        pytest.skip("Optional dependency timm required for test is not installed")
     watermark_detector = WatermarkDetector()
 
     # These test images are from https://github.com/LAION-AI/LAION-5B-WatermarkDetection

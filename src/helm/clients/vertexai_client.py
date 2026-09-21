@@ -1,9 +1,10 @@
 import requests
 from abc import ABC, abstractmethod
 from threading import Lock
-from typing import Any, Dict, Mapping, Optional, List, Union
+from typing import Any, Dict, Mapping, Optional, List, Union, cast
 
 from helm.common.cache import CacheConfig
+from helm.common.hierarchical_logger import hexception
 from helm.common.multimodal_request_utils import get_contents_as_bytes
 from helm.common.media_object import TEXT_TYPE
 from helm.common.optional_dependencies import handle_module_not_found_error
@@ -107,9 +108,9 @@ class VertexAITextClient(VertexAIClient):
 
     def make_request(self, request: Request) -> RequestResult:
         """Make a request"""
-        parameters = {
+        parameters: Dict[str, Any] = {
             "temperature": request.temperature,
-            "max_output_tokens": None, # request.max_tokens,
+            "max_output_tokens": request.max_tokens,
             "top_k": request.top_k_per_token,
             "top_p": request.top_p,
             "stop_sequences": request.stop_sequences,
@@ -152,6 +153,7 @@ class VertexAITextClient(VertexAIClient):
 
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except (requests.exceptions.RequestException, AssertionError) as e:
+            hexception(e)
             error: str = f"VertexAITextClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
@@ -207,23 +209,25 @@ class VertexAIChatClient(VertexAIClient):
 
     def make_request(self, request: Request) -> RequestResult:
         """Make a request"""
-        contents = [request.prompt]
+        # mypy is unhappy without this cast
+        contents: Union[List[Union[str, Image, Part]], List[Content]] = cast(
+            List[Union[str, Image, Part]], [request.prompt]
+        )
 
         # For the multimodal case, build up the content with the media objects of `request.multimodal_prompt`
         if request.multimodal_prompt is not None:
             return self._make_multimodal_request(request)
 
         if request.messages is not None:
-            contents = []
             role_mapping = {"user": "user", "assistant": "model"}
-            for msg in request.messages:
-                contents.append(
-                    Content(role=role_mapping.get(msg["role"], "user"), parts=[Part.from_text(msg["content"])])
-                )
+            contents = [
+                Content(role=role_mapping.get(msg["role"], "user"), parts=[Part.from_text(msg["content"])])
+                for msg in request.messages
+            ]
 
-        parameters = {
+        parameters: Dict[str, Any] = {
             "temperature": request.temperature,
-            "max_output_tokens": None, # request.max_tokens,
+            "max_output_tokens": request.max_tokens,
             "top_k": request.top_k_per_token,
             "top_p": request.top_p,
             "stop_sequences": request.stop_sequences,
@@ -274,8 +278,14 @@ class VertexAIChatClient(VertexAIClient):
                     if not candidate.content:
                         raise VertexAIContentBlockedError(f"No content in candidate: {candidate}")
                     if not candidate.content.parts:
-                        raise VertexAIContentBlockedError(f"No content parts in candidate: {candidate}")
-                    predictions.append({"text": candidate.content.text})
+                        if candidate.finish_reason == 2:  # MAX_TOKENS
+                            # This means that there is no text output because the maximum number of tokens were
+                            # reached during thinking.
+                            predictions.append({"text": ""})
+                        else:
+                            raise VertexAIContentBlockedError(f"No content parts in candidate: {candidate}")
+                    else:
+                        predictions.append({"text": candidate.content.text})
                     # TODO: Extract more information from the response
                 return {"predictions": predictions}
 
@@ -302,6 +312,7 @@ class VertexAIChatClient(VertexAIClient):
                 error_flags=ErrorFlags(is_retriable=False, is_fatal=False),
             )
         except (requests.exceptions.RequestException, AssertionError) as e:
+            hexception(e)
             error: str = f"VertexAITextClient error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
@@ -379,7 +390,7 @@ class VertexAIChatClient(VertexAIClient):
 
         parameters = {
             "temperature": request.temperature,
-            "max_output_tokens": None, # request.max_tokens,
+            "max_output_tokens": request.max_tokens,
             "top_k": request.top_k_per_token,
             "top_p": request.top_p,
             "stop_sequences": request.stop_sequences,
@@ -432,6 +443,7 @@ class VertexAIChatClient(VertexAIClient):
                 cache_key = self.make_cache_key_with_safety_settings_preset(raw_cache_key, request)
                 response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
             except requests.exceptions.RequestException as e:
+                hexception(e)
                 error: str = f"Gemini Vision error: {e}"
                 return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
             except VertexAIContentBlockedError as e:

@@ -1,4 +1,9 @@
-from helm.benchmark.adaptation.adapter_spec import ADAPT_CHAT, ADAPT_GENERATION, AdapterSpec
+from helm.benchmark.adaptation.adapter_spec import (
+    ADAPT_CHAT,
+    ADAPT_GENERATION,
+    ADAPT_MULTIPLE_CHOICE_JOINT,
+    AdapterSpec,
+)
 from helm.benchmark.metrics.common_metric_specs import (
     get_exact_match_metric_specs,
     get_open_ended_generation_metric_specs,
@@ -19,6 +24,27 @@ def _get_long_context_generation_adapter_spec(max_tokens: int) -> AdapterSpec:
         reference_prefix="A. ",
         reference_suffix="",
         output_prefix="",
+        output_suffix="",
+        instance_prefix="",
+        max_train_instances=0,
+        num_outputs=1,
+        temperature=0.0,
+        max_tokens=max_tokens,
+        stop_sequences=[],
+    )
+
+
+def _get_long_context_multiple_choice_adapter_spec(max_tokens: int) -> AdapterSpec:
+    return AdapterSpec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        global_prefix="",
+        global_suffix="",
+        instructions="Read the passage and answer the following question. Respond with only a single letter corresponding to your choice. Do not include a period in your answer.\n\n",  # noqa: E501
+        input_prefix="",
+        input_suffix="\n",
+        reference_prefix="A. ",
+        reference_suffix="\n",
+        output_prefix="\nAnswer the question above based on the passage. Respond with only a single letter corresponding to your choice. Do not include a period in your answer.\n",  # noqa: E501
         output_suffix="",
         instance_prefix="",
         max_train_instances=0,
@@ -96,6 +122,27 @@ def get_infinite_bench_en_qa_spec(max_num_words: int = 131072) -> RunSpec:
     )
 
 
+@run_spec_function("infinite_bench_en_mc")
+def get_infinite_bench_en_mc_spec(max_num_words: int = 131072) -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.infinite_bench_en_mc_scenario.InfiniteBenchEnMCScenario",
+        args={
+            "max_num_words": max_num_words,
+        },
+    )
+
+    adapter_spec = _get_long_context_multiple_choice_adapter_spec(max_tokens=40)
+    metric_specs = get_exact_match_metric_specs()
+
+    return RunSpec(
+        name=f"infinite_bench_en_mc:max_num_words={max_num_words}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["infinite_bench_en_mc"],
+    )
+
+
 @run_spec_function("infinite_bench_en_sum")
 def get_infinite_bench_en_sum_spec(max_num_words: int = 131072) -> RunSpec:
 
@@ -138,4 +185,50 @@ def get_openai_mrcr_spec(needles: int, max_num_words: int = 131072) -> RunSpec:
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
         groups=["openai_mrcr"],
+    )
+
+
+DEEPMIND_MRCR_V2_NEEDLES_OPTIONS = [2, 4, 8]
+
+
+DEEPMIND_MRCR_V2_TOKENS_OPTIONS = [
+    "upto_128K",
+    "in_4096_8192",
+    "in_8192_16384",
+    "in_16384_32768",
+    "in_32768_65536",
+    "in_65536_131072",
+    "in_131072_262144",
+    "in_262144_524288",
+    "in_524288_1048576",
+    "in_1048576_2097152",
+    "in_2097152_4194304",
+    "in_4194304_8388608",
+]
+
+
+@run_spec_function("deepmind_mrcr_v2")
+def get_deepmind_mrcr_v2_spec(needles: int = 8, tokens: str = "upto_128K") -> RunSpec:
+    if needles not in DEEPMIND_MRCR_V2_NEEDLES_OPTIONS:
+        raise ValueError(f"deepmind_mrcr_v2 needles must be one of the following: {DEEPMIND_MRCR_V2_NEEDLES_OPTIONS}")
+
+    if tokens not in DEEPMIND_MRCR_V2_TOKENS_OPTIONS:
+        raise ValueError(f"deepmind_mrcr_v2 tokens must be one of the following: {DEEPMIND_MRCR_V2_TOKENS_OPTIONS}")
+
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.deepmind_mrcr_v2_scenario.DeepMindMRCRV2Scenario",
+        args={"needles": needles, "tokens": tokens},
+    )
+
+    adapter_spec = _get_long_context_generation_adapter_spec(max_tokens=1000)
+    metric_specs = get_exact_match_metric_specs() + [
+        MetricSpec(class_name="helm.benchmark.metrics.deepmind_mrcr_v2_metric.DeepMindMRCRV2Metric")
+    ]
+
+    return RunSpec(
+        name=f"deepmind_mrcr_v2:needles={needles},tokens={tokens}",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=metric_specs,
+        groups=["deepmind_mrcr_v2"],
     )

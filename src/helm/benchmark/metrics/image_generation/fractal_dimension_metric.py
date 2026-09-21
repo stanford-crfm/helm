@@ -6,7 +6,7 @@ from helm.common.request import RequestResult
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.multimodal_request_utils import gather_generated_image_locations
@@ -48,3 +48,15 @@ class FractalDimensionMetric(Metric):
         if len(fractal_dimension_losses) > 0:
             stats.append(Stat(MetricName("fractal_dimension_loss")).add(mean(fractal_dimension_losses)))
         return stats
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="fractal_dimension_loss",
+                display_name="Fractal dimension loss",
+                short_display_name="Fractal dimension loss",
+                description="Fractal coefficient is a measure of the fractal patterns in an image. The ideal value is 1.4.",
+                lower_is_better=True,
+                group="heim_aesthetics_automated_metrics",
+            )
+        ]

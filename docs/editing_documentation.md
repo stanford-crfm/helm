@@ -4,16 +4,16 @@ The documentation that you are reading now is an invaluable resource for newcome
 
 We currently use the [MkDocs](https://www.mkdocs.org/) as our static site generator and [ReadTheDocs](https://readthedocs.org/) as our web host.
 
-To edit the documentation, first clone the repository locally, then install HELM from the repository by following the [Developer Setup](developer_setup.md) instructions. After that, install the MkDocs dependencies by running the following from the root of the repository:
+To edit the documentation, first clone the repository locally, then use uv to install HELM's docs dependency group:
 
 ```sh
-pip install -r docs/requirements.txt
+uv sync --group docs
 ```
 
-You should now be able to run MkDocs from the root of the repository:
+You should now be able to run MkDocs using uv:
 
 ```sh
-mkdocs serve
+uv run mkdocs serve
 ```
 
 Then navigate to [http://localhost:8000/](http://localhost:8000/) to view your locally-built documentation.

@@ -22,7 +22,7 @@ In the second case, if you want to add a model to HELM, you can directly do it i
 * Include any link justifying the metadata used in `ModelMetadata` such as the release data, number of parameters, capabilities and so on (you should not infer anything).
 * Check that you are respecting the format used in those files (`ModelMetadata` should be named as `<CREATOR-ORGANIZATION>/<MODEL-NAME>` and the `ModelDeployment` should be named as `<HOST-ORGANIZATION>/<MODEL-NAME>`, for example `ModelMetadata`: `openai/gpt2` and `ModelDeployment`: `huggingface/gpt2`). Add the appropriate comments and so on.
 * Run `helm-run --run-entries "mmlu:subject=anatomy,model_deployment=<YOUR-DEPLOYMENT>" --suite v1 --max-eval-instances 10` and make sure that everything works. Include the logs from the terminal in your PR.
-* Not create unnecessary objects (`Client` `TokenizerCOnfig`, `WindowService`) and if you have to create one of these objects, document in your PR why you had to. Make them general enough so that they could be re-used by other models (especially the `Client`).
+* Not create unnecessary objects (`Client` `TokenizerConfig`, `WindowService`) and if you have to create one of these objects, document in your PR why you had to. Make them general enough so that they could be re-used by other models (especially the `Client`).
 
 
 ## Example

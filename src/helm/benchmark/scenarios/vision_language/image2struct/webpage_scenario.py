@@ -1,7 +1,8 @@
 from typing import Dict, List, Any, Optional
 
 from helm.benchmark.annotation.image2struct.image_compiler_annotator import CompilationError
-from helm.benchmark.scenarios.scenario import VALID_SPLIT
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
+from helm.benchmark.scenarios.scenario import VALID_SPLIT, ScenarioMetadata
 from helm.benchmark.scenarios.vision_language.image2struct.image2struct_scenario import (
     Image2StructureScenario,
     PROCESSED,
@@ -254,3 +255,19 @@ class WebpageScenario(Image2StructureScenario):
         if "repo_path" in row:
             repo_path: str = row["repo_path"]
             shutil.rmtree(repo_path)
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="image2webpage",
+            display_name="Image2webpage",
+            description="The Image2webpage benchmark for converting images of webpages to " "HTML/CSS/Javascript.",
+            taxonomy=TaxonomyInfo(
+                task="image-to-text",
+                what="css, html, javascript",
+                when="2024",
+                who="dataset authors",
+                language="English",
+            ),
+            main_metric="earth_mover_similarity",
+            main_split="valid",
+        )

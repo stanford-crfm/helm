@@ -2,9 +2,21 @@ import csv
 import os
 from typing import Dict, List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
-from .scenario import Scenario, Instance, Reference, TRAIN_SPLIT, VALID_SPLIT, TEST_SPLIT, CORRECT_TAG, Input, Output
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Reference,
+    TRAIN_SPLIT,
+    VALID_SPLIT,
+    TEST_SPLIT,
+    CORRECT_TAG,
+    Input,
+    Output,
+    ScenarioMetadata,
+)
 
 
 class Winogrande_Afr_Scenario(Scenario):
@@ -15,6 +27,20 @@ class Winogrande_Afr_Scenario(Scenario):
     name = "winogrande_afr"
     description = "Winogrande (S) translated into 11 African low-resource languages"
     tags = ["knowledge", "multiple_choice", "low_resource_languages"]
+
+    _LANGUAGE_CODE_TO_NAME = {
+        "af": "Afrikaans",
+        "am": "Amharic",
+        "bm": "Bambara",
+        "ig": "Igbo",
+        "nso": "Sepedi",
+        "sn": "Shona",
+        "st": "Sesotho",
+        "tn": "Setswana",
+        "ts": "Tsonga",
+        "xh": "Xhosa",
+        "zu": "Zulu",
+    }
 
     def __init__(self, lang: str = "af"):
         super().__init__()
@@ -76,3 +102,23 @@ class Winogrande_Afr_Scenario(Scenario):
             instances.extend(self.process_csv(csv_path, splits[split], split))
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        language = self._LANGUAGE_CODE_TO_NAME[self.lang]
+        return ScenarioMetadata(
+            name=f"winogrande_afr_{self.lang}",
+            display_name=f"Winogrande ({language})",
+            short_display_name=f"Winogrande ({language})",
+            description="The multiple-choice reasoning benchmark Winogrande ([Sakaguchi et al. "
+            f"2021](https://arxiv.org/abs/1907.10641)) translated to {language} by human "
+            "translators",
+            taxonomy=TaxonomyInfo(
+                task="multiple-choice reasoning",
+                what="pronoun resolution",
+                when="before 2019",
+                who="workers on Amazon Mechanical Turk",
+                language=language,
+            ),
+            main_metric="exact_match",
+            main_split="test",
+        )

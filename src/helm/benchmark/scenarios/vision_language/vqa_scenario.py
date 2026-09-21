@@ -2,6 +2,7 @@ from typing import Dict, List
 import json
 import os
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
@@ -12,6 +13,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
+    ScenarioMetadata,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_directory_exists, ensure_file_downloaded
@@ -125,3 +127,20 @@ class VQAScenario(Scenario):
                 )
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="vqa",
+            display_name="VQAv2",
+            description="Open-ended questions about real-world images ([Goyal et al., "
+            "2017](https://arxiv.org/abs/1612.00837)).",
+            taxonomy=TaxonomyInfo(
+                task="short-answer question answering",
+                what="Real-world images",
+                when="2017",
+                who="Human experts",
+                language="English",
+            ),
+            main_metric="quasi_prefix_exact_match",
+            main_split="valid",
+        )

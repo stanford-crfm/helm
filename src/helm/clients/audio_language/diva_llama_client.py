@@ -6,6 +6,7 @@ from transformers import AutoModel, PreTrainedModel
 
 from helm.clients.client import CachingClient
 from helm.common.cache import CacheConfig
+from helm.common.hierarchical_logger import hexception
 from helm.common.media_object import TEXT_TYPE
 from helm.common.request import (
     GeneratedOutput,
@@ -105,6 +106,7 @@ class DivaLlamaClient(CachingClient):
             cache_key = CachingClient.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except Exception as e:  # Do something if error is encountered.
+            hexception(e)
             error: str = f"HuggingFace error: {e}"
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 

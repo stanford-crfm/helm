@@ -34,6 +34,46 @@ helm-server --suite $SUITE_NAME
 
 The following specifies the appropriate parameters and configuration files for a leaderboard, given its project and version number.
 
+### Capabilities
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_capabilities_reasoning_v2.conf
+export SCHEMA_PATH=schema_capabilities.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```
+
+### Safety
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_safety.conf
+export SCHEMA_PATH=schema_safety.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```
+
+### AIR-Bench (for reasoning models)
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_air_bench_reasoning.conf
+export SCHEMA_PATH=schema_air_bench.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=10000
+export PRIORITY=2
+```
+
+### AIR-Bench (for non-reasoning models)
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_air_bench.conf
+export SCHEMA_PATH=schema_air_bench.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=10000
+export PRIORITY=2
+```
+
 ### Lite for non-instruction-following models
 
 ```bash
@@ -114,26 +154,6 @@ export NUM_EVAL_INSTANCES=1000
 export PRIORITY=2
 ```
 
-### AIR-Bench
-
-```bash
-export RUN_ENTRIES_CONF_PATH=run_entries_air_bench.conf
-export SCHEMA_PATH=schema_air_bench.yaml
-export NUM_TRAIN_TRIALS=1
-export NUM_EVAL_INSTANCES=10000
-export PRIORITY=2
-```
-
-### Safety
-
-```bash
-export RUN_ENTRIES_CONF_PATH=run_entries_safety.conf
-export SCHEMA_PATH=schema_safety.yaml
-export NUM_TRAIN_TRIALS=1
-export NUM_EVAL_INSTANCES=1000
-export PRIORITY=2
-```
-
 ### ToRR
 
 ```bash
@@ -144,11 +164,45 @@ export NUM_EVAL_INSTANCES=100
 export PRIORITY=2
 ```
 
+### Arabic
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_arabic.conf
+export SCHEMA_PATH=schema_arabic.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```
+
 ### SEA-HELM
 
 ```bash
 export RUN_ENTRIES_CONF_PATH=run_entries_seahelm_zero_shot.conf
 export SCHEMA_PATH=schema_seahelm.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```
+
+### ViLLM
+
+ViLLM is experimental and is not intended for production use yet.
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_melt.conf
+export SCHEMA_PATH=schema_melt.yaml
+export NUM_TRAIN_TRIALS=1
+export NUM_EVAL_INSTANCES=1000
+export PRIORITY=2
+```
+
+### SLPHelm
+
+SLPHelm is experimental and is not intended for production use yet.
+
+```bash
+export RUN_ENTRIES_CONF_PATH=run_entries_slphelm.conf
+export SCHEMA_PATH=schema_slphelm.yaml
 export NUM_TRAIN_TRIALS=1
 export NUM_EVAL_INSTANCES=1000
 export PRIORITY=2
@@ -190,30 +244,6 @@ Benchmarks accessible only to specific organizations.
 ```bash
 export RUN_ENTRIES_CONF_PATH=run_entries_medhelm_private_{organization}.conf
 export SCHEMA_PATH=schema_medhelm.yaml
-export NUM_TRAIN_TRIALS=1
-export NUM_EVAL_INSTANCES=1000
-export PRIORITY=2
-```
-
-### ViLLM
-
-ViLLM is experimental and is not intended for production use yet.
-
-```bash
-export RUN_ENTRIES_CONF_PATH=run_entries_melt.conf
-export SCHEMA_PATH=schema_melt.yaml
-export NUM_TRAIN_TRIALS=1
-export NUM_EVAL_INSTANCES=1000
-export PRIORITY=2
-```
-
-### SLPHelm
-
-SLPHelm is experimental and is not intended for production use yet.
-
-```bash
-export RUN_ENTRIES_CONF_PATH=run_entries_slphelm.conf
-export SCHEMA_PATH=schema_slphelm.yaml
 export NUM_TRAIN_TRIALS=1
 export NUM_EVAL_INSTANCES=1000
 export PRIORITY=2

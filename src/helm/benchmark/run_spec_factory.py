@@ -24,8 +24,8 @@ from helm.benchmark.model_metadata_registry import (
     NO_NEWLINES_TAG,
     VISION_LANGUAGE_MODEL_TAG,
     IDEFICS_MODEL_TAG,
-    ModelMetadata,
     get_model_metadata,
+    get_unknown_model_metadata,
 )
 from helm.benchmark.run_expander import (
     RUN_EXPANDERS,
@@ -43,6 +43,7 @@ from helm.benchmark.run_expander import (
 )
 from helm.benchmark.run_spec import RunSpec, get_run_spec_function
 from helm.common.general import singleton
+from helm.common.hierarchical_logger import hwarn
 from helm.common.object_spec import ObjectSpec
 
 
@@ -102,7 +103,13 @@ def construct_run_specs(spec: ObjectSpec) -> List[RunSpec]:
         assert run_spec.adapter_spec.model_deployment
         assert run_spec.adapter_spec.model
 
-        model: ModelMetadata = get_model_metadata(run_spec.adapter_spec.model)
+        try:
+            model = get_model_metadata(run_spec.adapter_spec.model)
+        except ValueError:
+            hwarn(
+                f"Could not find model metadata for model {run_spec.adapter_spec.model} in any model_metadata.yaml configuration file; falling back to default model metadata"
+            )
+            model = get_unknown_model_metadata(run_spec.adapter_spec.model)
         deployment: ModelDeployment = get_model_deployment(run_spec.adapter_spec.model_deployment)
         if run_spec.adapter_spec.model != deployment.model_name:
             raise ValueError(

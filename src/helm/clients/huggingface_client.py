@@ -8,7 +8,7 @@ from transformers.generation.stopping_criteria import (
 from typing import Any, Dict, List, Optional, TypedDict
 
 from helm.common.cache import CacheConfig
-from helm.common.hierarchical_logger import htrack_block, hlog
+from helm.common.hierarchical_logger import hexception, htrack_block, hlog
 from helm.common.optional_dependencies import handle_module_not_found_error
 from helm.common.request import (
     wrap_request_time,
@@ -18,6 +18,7 @@ from helm.common.request import (
     GeneratedOutput,
     Token,
 )
+from helm.proxy.retry import NonRetriableException
 from helm.tokenizers.tokenizer import Tokenizer
 from helm.clients.client import CachingClient, truncate_sequence
 from helm.tokenizers.huggingface_tokenizer import HuggingFaceTokenizer, WrappedPreTrainedTokenizer
@@ -83,12 +84,6 @@ class HuggingFaceServer:
             hlog('Hugging Face device set to "cpu" because CUDA is unavailable.')
             self.device = "cpu"
 
-        # Security issue: currently we trust remote code by default.
-        # We retain this temporarily to maintain reverse compatibility.
-        # TODO: Delete if-else and don't set trust_remote_code=True
-        if "trust_remote_code" not in kwargs:
-            kwargs["trust_remote_code"] = True
-
         with htrack_block(f"Loading Hugging Face model {pretrained_model_name_or_path}"):
             # WARNING this may fail if your GPU does not have enough memory
             if self.device is None:
@@ -97,7 +92,7 @@ class HuggingFaceServer:
                 self.model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path, **kwargs)
             else:
                 self.model = AutoModelForCausalLM.from_pretrained(pretrained_model_name_or_path, **kwargs).to(
-                    self.device
+                    self.device  # type: ignore
                 )
         self.wrapped_tokenizer = wrapped_tokenizer
 
@@ -106,6 +101,7 @@ class HuggingFaceServer:
             encoded_input = tokenizer(raw_request["prompt"], return_tensors="pt", return_token_type_ids=False).to(
                 0 if self.device is None else self.device
             )
+            pad_token_id = tokenizer.eos_token_id
         stopping_criteria: Optional[StoppingCriteriaList] = None
         optional_args = {}
         if len(raw_request["stop_sequences"]) > 0:
@@ -145,9 +141,10 @@ class HuggingFaceServer:
                 output_scores=True,
                 **optional_args,
                 stopping_criteria=stopping_criteria,
+                pad_token_id=pad_token_id,
             )
-            sequences = output.sequences
-            scores = output.scores
+            sequences = output.sequences  # type: ignore
+            scores = output.scores  # type: ignore
 
         prompt_tokens_logprobs = []
         if compute_logprobs_only:
@@ -256,6 +253,7 @@ class HuggingFaceClient(CachingClient):
         tokenizer: Tokenizer,
         pretrained_model_name_or_path: Optional[str] = None,
         end_of_text_token: Optional[str] = None,
+        apply_chat_template: Optional[bool] = None,
         **kwargs,
     ):
         super().__init__(cache_config=cache_config)
@@ -266,9 +264,46 @@ class HuggingFaceClient(CachingClient):
                 "but instead it is {tokenizer}"
             )
         self._wrapped_tokenizer: WrappedPreTrainedTokenizer = tokenizer.get_wrapped_tokenizer()
-        self._tokenizer = tokenizer
         self._kwargs = _process_huggingface_client_kwargs(kwargs)
         self._end_of_text_token = end_of_text_token
+        # If the user did not explicitly configure whether the model is a chat model with `apply_chat_template` arg,
+        # auto-infer if the model is a chat model based on whether the tokenizer has a chat template.
+        # Note: Auto-inference is incorrect for some non-chat models that still have chat templates
+        # e.g. Qwen2, Qwen 2.5.
+        # For these models, the `apply_chat_template` arg should be explicitly set to false.
+        if apply_chat_template is not None:
+            self._apply_chat_template = apply_chat_template
+        else:
+            with self._wrapped_tokenizer as hf_tokenizer:
+                self._apply_chat_template = bool(hf_tokenizer.chat_template)
+                hlog(
+                    f"Automatically set `apply_chat_template` to {self._apply_chat_template} based on "
+                    "whether the tokenizer has a chat template. "
+                    "If this is incorrect, please explicitly set `apply_chat_template`."
+                )
+
+    def get_prompt(self, request: Request) -> str:
+        if request.prompt and request.messages:
+            raise NonRetriableException(f"More than one of `prompt` and `messages` was set in request: {request}")
+        # Chat model expects a list of messages as input
+        if self._apply_chat_template:
+            with self._wrapped_tokenizer as tokenizer:
+                if request.messages:
+                    prompt = tokenizer.apply_chat_template(request.messages, tokenize=False, add_generation_prompt=True)
+                    assert isinstance(prompt, str)
+                    return prompt
+                else:
+                    prompt = tokenizer.apply_chat_template(
+                        [{"role": "user", "content": request.prompt}], tokenize=False, add_generation_prompt=True
+                    )
+                    assert isinstance(prompt, str)
+                    return prompt
+        # Base non-chat model expects a string as input
+        else:
+            if request.messages:
+                raise NonRetriableException("Chat mesages not supported by non-chat model")
+            else:
+                return request.prompt
 
     def make_request(self, request: Request) -> RequestResult:
         # Embedding not supported for this model
@@ -277,7 +312,7 @@ class HuggingFaceClient(CachingClient):
 
         raw_request: HuggingFaceRequest = {
             "engine": request.model_engine,
-            "prompt": request.prompt,
+            "prompt": self.get_prompt(request),
             "temperature": 1e-7 if request.temperature == 0 else request.temperature,
             "num_return_sequences": request.num_completions,
             "max_new_tokens": request.max_tokens,
@@ -290,22 +325,23 @@ class HuggingFaceClient(CachingClient):
         pretrained_model_name_or_path = (
             self._pretrained_model_name_or_path if self._pretrained_model_name_or_path else request.model
         )
-        huggingface_model: HuggingFaceServer = HuggingFaceServerFactory.get_server(
-            helm_model_name=request.model,
-            pretrained_model_name_or_path=pretrained_model_name_or_path,
-            wrapped_tokenizer=self._wrapped_tokenizer,
-            **self._kwargs,
-        )
 
         try:
 
             def do_it() -> Dict[str, Any]:
+                huggingface_model: HuggingFaceServer = HuggingFaceServerFactory.get_server(
+                    helm_model_name=request.model,
+                    pretrained_model_name_or_path=pretrained_model_name_or_path,
+                    wrapped_tokenizer=self._wrapped_tokenizer,
+                    **self._kwargs,
+                )
                 return huggingface_model.serve_request(raw_request)
 
             cache_key = CachingClient.make_cache_key(raw_request, request)
             response, cached = self.cache.get(cache_key, wrap_request_time(do_it))
         except Exception as e:  # Do something if error is encountered.
             error: str = f"HuggingFace error: {e}"
+            hexception(e)
             return RequestResult(success=False, cached=False, error=error, completions=[], embedding=[])
 
         completions = []

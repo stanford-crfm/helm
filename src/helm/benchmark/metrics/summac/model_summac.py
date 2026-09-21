@@ -1,3 +1,5 @@
+# mypy: ignore-errors
+
 ###############################################
 # Source: https://github.com/tingofurro/summac
 ###############################################
@@ -13,7 +15,9 @@ import json
 from helm.benchmark.metrics.summac import utils_misc
 
 model_map = {
+    # boychaboy/SNLI_roberta-base no longer exists
     "snli-base": {"model_card": "boychaboy/SNLI_roberta-base", "entailment_idx": 0, "contradiction_idx": 2},
+    # boychaboy/SNLI_roberta-large no longer exists
     "snli-large": {"model_card": "boychaboy/SNLI_roberta-large", "entailment_idx": 0, "contradiction_idx": 2},
     "mnli-base": {"model_card": "microsoft/deberta-base-mnli", "entailment_idx": 2, "contradiction_idx": 0},
     "mnli": {"model_card": "roberta-large-mnli", "entailment_idx": 2, "contradiction_idx": 0},
@@ -22,8 +26,11 @@ model_map = {
         "entailment_idx": 0,
         "contradiction_idx": 2,
     },
+    # tals/albert-base-vitaminc-mnli depends on sentencepiece and protobuf
     "vitc-base": {"model_card": "tals/albert-base-vitaminc-mnli", "entailment_idx": 0, "contradiction_idx": 1},
+    # tals/albert-xlarge-vitaminc-mnli depends on sentencepiece and protobuf
     "vitc": {"model_card": "tals/albert-xlarge-vitaminc-mnli", "entailment_idx": 0, "contradiction_idx": 1},
+    # tals/albert-xlarge-vitaminc depends on sentencepiece and protobuf
     "vitc-only": {"model_card": "tals/albert-xlarge-vitaminc", "entailment_idx": 0, "contradiction_idx": 1},
     # "decomp": 0,
 }
@@ -48,7 +55,14 @@ def get_neutral_idx(ent_idx, con_idx):
 
 class SummaCImager:
     def __init__(
-        self, model_name="mnli", granularity="paragraph", use_cache=True, max_doc_sents=100, device="cuda", **kwargs
+        self,
+        model_name="mnli",
+        granularity="paragraph",
+        use_cache=True,
+        max_doc_sents=100,
+        device="cuda",
+        new_line_split=False,
+        **kwargs,
     ):
         self.grans = granularity.split("-")
 
@@ -74,6 +88,7 @@ class SummaCImager:
         self.device = device
         self.cache = {}
         self.model = None  # Lazy loader
+        self.new_line_split = new_line_split
 
     def load_nli(self):
         if self.model_name == "decomp":
@@ -90,8 +105,20 @@ class SummaCImager:
             self.model.to(self.device).half()
 
     def split_sentences(self, text):
-        sentences = nltk.tokenize.sent_tokenize(text)
-        sentences = [sent for sent in sentences if len(sent) > 10]
+        lines = text.split("\n")
+        if self.new_line_split:
+            sentences = []
+            for line in lines:
+                line = line.strip()
+                if not line:
+                    continue
+                for sentence in nltk.tokenize.sent_tokenize(line):
+                    sentence = sentence.strip()
+                    if len(sentence) > 10:
+                        sentences.append(sentence)
+        else:
+            sentences = nltk.tokenize.sent_tokenize(text)
+            sentences = [sent for sent in sentences if len(sent) > 10]
         return sentences
 
     def split_2sents(self, text):
@@ -219,7 +246,7 @@ class SummaCConv(torch.nn.Module):
         imager_load_cache=True,
         agg="mean",
         norm_histo=False,
-        **kwargs
+        **kwargs,
     ):
         # `bins` should be `even%d` or `percentiles`
         assert nli_labels in ["e", "c", "n", "ec", "en", "cn", "ecn"], "Unrecognized nli_labels argument %s" % (
@@ -240,7 +267,7 @@ class SummaCConv(torch.nn.Module):
 
         if "even" in bins:
             n_bins = int(bins.replace("even", ""))
-            self.bins = list(np.arange(0, 1, 1 / n_bins)) + [1.0]
+            self.bins = np.arange(0, 1, 1 / n_bins).tolist() + [1.0]
         elif bins == "percentile":
             self.bins = [
                 0.0,
@@ -405,12 +432,15 @@ class SummaCZS:
         use_con=True,
         imager_load_cache=True,
         device="cuda",
-        **kwargs
+        new_line_split=False,
+        **kwargs,
     ):
         assert op2 in ["min", "mean", "max"], "Unrecognized `op2`"
         assert op1 in ["max", "mean", "min"], "Unrecognized `op1`"
 
-        self.imager = SummaCImager(model_name=model_name, granularity=granularity, device=device, **kwargs)
+        self.imager = SummaCImager(
+            model_name=model_name, granularity=granularity, device=device, new_line_split=new_line_split, **kwargs
+        )
         if imager_load_cache:
             self.imager.load_cache()
         self.op2 = op2

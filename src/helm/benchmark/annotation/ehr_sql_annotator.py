@@ -77,7 +77,7 @@ class EhrSqlAnnotator(Annotator):
                     cursor = conn.cursor()
                     cursor.execute(predicted_sql)
                     predicted_result = cursor.fetchall()
-            except (sqlite3.OperationalError, sqlite3.Warning) as e:
+            except Exception as e:
                 query_error = str(e)
 
         return {

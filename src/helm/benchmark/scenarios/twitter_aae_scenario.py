@@ -2,9 +2,10 @@ import csv
 import os
 from typing import List
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
 from helm.common.hierarchical_logger import hlog
-from helm.benchmark.scenarios.scenario import Scenario, Instance, TEST_SPLIT, Input
+from helm.benchmark.scenarios.scenario import Scenario, Instance, TEST_SPLIT, Input, ScenarioMetadata
 
 CODALAB_URI_TEMPLATE: str = (
     "https://worksheets.codalab.org/rest/bundles/0x31485f8c37ad481fb9f4e9bf7ccff6e5/contents/blob/"
@@ -56,3 +57,21 @@ class TwitterAAEScenario(Scenario):
                 instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="twitter_aae",
+            display_name="TwitterAAE",
+            description="The TwitterAAE corpus of [Blodgett et al. "
+            "(2016)](https://aclanthology.org/D16-1120/) for measuring language model "
+            "performance in tweets as a function of speaker dialect.",
+            taxonomy=TaxonomyInfo(
+                task="language modeling",
+                what="?",
+                when="?",
+                who="?",
+                language="English (AAE-aligned and White-aligned)",
+            ),
+            main_metric="bits_per_byte",
+            main_split="test",
+        )

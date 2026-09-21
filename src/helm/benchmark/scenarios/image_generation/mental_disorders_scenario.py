@@ -1,6 +1,7 @@
 from typing import List
 
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, TEST_SPLIT, ScenarioMetadata
 
 
 class MentalDisordersScenario(Scenario):
@@ -44,3 +45,13 @@ class MentalDisordersScenario(Scenario):
             )
             for mental_disorder in self.MENTAL_DISORDERS
         ]
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="mental_disorders",
+            display_name="Mental Disorders",
+            description="Prompt text-to-image models with mental disorders listed by the World Health " "Organization",
+            taxonomy=TaxonomyInfo(task="Unbiasedness", what=None, when=None, who=None, language=None),
+            main_metric="unknown",
+            main_split="test",
+        )

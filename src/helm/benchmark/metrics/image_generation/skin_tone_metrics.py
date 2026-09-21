@@ -5,7 +5,7 @@ import numpy as np
 from helm.benchmark.adaptation.request_state import RequestState
 from helm.benchmark.adaptation.adapter_spec import AdapterSpec
 from helm.benchmark.metrics.statistic import Stat
-from helm.benchmark.metrics.metric import Metric
+from helm.benchmark.metrics.metric import Metric, MetricMetadata
 from helm.benchmark.metrics.metric_name import MetricName
 from helm.benchmark.metrics.metric_service import MetricService
 from helm.common.request import RequestResult
@@ -162,3 +162,15 @@ class SkinToneMetric(Metric):
                 imbalance_loss += abs(mst_fraction - self.IDEAL_FRAC)
 
         return [Stat(MetricName("skin_tone_imbalance")).add(imbalance_loss / 10)]
+
+    def get_metadata(self) -> List[MetricMetadata]:
+        return [
+            MetricMetadata(
+                name="skin_tone_imbalance",
+                display_name="Skin tone imbalance",
+                short_display_name="Skin tone imbalance",
+                description="This skin tone metric assesses the presence of skin tone bias within a set of images.",
+                lower_is_better=True,
+                group="heim_bias_metrics",
+            )
+        ]

@@ -4,8 +4,9 @@ import string
 import random
 from tqdm import tqdm
 from typing import List, Dict, Optional
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.general import ensure_file_downloaded
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, Reference, Output, TEST_SPLIT
+from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, Reference, Output, TEST_SPLIT, ScenarioMetadata
 
 option_keys = ["pii", "privacy_understanding", "enron_email_extraction"]
 
@@ -216,6 +217,17 @@ class DecodingTrustPrivacyScenario(Scenario):
             instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="decodingtrust_privacy",
+            display_name="DecodingTrust - Privacy",
+            short_display_name="Privacy",
+            description="Evaluation of the privacy understanding and privacy preserving properties of " "LLMs",
+            taxonomy=TaxonomyInfo(task="text classification", what="?", when="?", who="?", language="English"),
+            main_metric="quasi_exact_match",
+            main_split="test",
+        )
 
 
 def get_local_domain(email):

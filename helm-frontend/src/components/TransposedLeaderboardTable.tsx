@@ -24,8 +24,9 @@ export default function LeaderboardTable({
   miniStyle = false,
 }: Props) {
   const [sortDirection, setSortDirection] = useState<number>(1);
-  const [selectedColumnIndex, setSelectedColumnIndex] =
-    useState<number>(sortColumnIndex);
+  const [selectedColumnIndex, setSelectedColumnIndex] = useState<number>(
+    Math.min(groupTable.header.length - 1, sortColumnIndex),
+  );
 
   const getHeaderValue = (headerValueObject: HeaderValue): string => {
     return headerValueObject.value;
@@ -139,8 +140,8 @@ export default function LeaderboardTable({
           idx === selectedColumnIndex
             ? "bg-gray-100"
             : idx % 2 === 0
-            ? "bg-gray-50"
-            : "bg-white"
+              ? "bg-gray-50"
+              : "bg-white"
         } ${idx === 0 ? "top-0 z-20" : "z-10"} ${
           headerValue.description
             ? "underline decoration-dashed decoration-gray-300"

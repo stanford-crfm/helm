@@ -123,7 +123,7 @@ def do_create_update_command(service: RemoteService, auth: Authentication, args)
 
     # Update quotas
     for quota_str in args.quotas:
-        m = re.match(f"(\w+)\.(\w+)=(\d+|{UNLIMITED_QUOTA})", quota_str)
+        m = re.match(rf"(\w+)\.(\w+)=(\d+|{UNLIMITED_QUOTA})", quota_str)
         if not m:
             raise Exception(
                 f"Invalid format: {quota_str}, expect <model_group>.<granularity>=<quota> "

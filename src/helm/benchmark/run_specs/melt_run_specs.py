@@ -1,7 +1,5 @@
 from typing import Optional
 
-import torch
-
 from helm.benchmark.run_spec import RunSpec, run_spec_function
 from helm.benchmark.scenarios.scenario import ScenarioSpec
 from helm.benchmark.adaptation.adapters.binary_ranking_adapter import BinaryRankingAdapter
@@ -107,6 +105,8 @@ def get_melt_question_answering_xquad_spec(prompt_style: str = "normal") -> RunS
 
 @run_spec_function("melt_summarization_vietnews")
 def get_melt_summarization_vietnews_spec(prompt_style: str = "normal", temperature: float = 1.0) -> RunSpec:
+    import torch
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.melt_scenarios.MELTSummarizationVietnewsScenario",
         args={
@@ -159,6 +159,8 @@ def get_melt_summarization_vietnews_spec(prompt_style: str = "normal", temperatu
 
 @run_spec_function("melt_summarization_wikilingua")
 def get_melt_summarization_wikilingua_spec(prompt_style: str = "normal", temperature: float = 1.0) -> RunSpec:
+    import torch
+
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.melt_scenarios.MELTSummarizationWikilinguaScenario",
         args={

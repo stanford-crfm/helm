@@ -3,9 +3,19 @@ from typing import List
 
 import pandas as pd
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.general import ensure_file_downloaded, shell
-from helm.benchmark.scenarios.scenario import Scenario, Instance, Input, Output, Reference, CORRECT_TAG, TEST_SPLIT
+from helm.benchmark.scenarios.scenario import (
+    Scenario,
+    Instance,
+    Input,
+    Output,
+    Reference,
+    CORRECT_TAG,
+    TEST_SPLIT,
+    ScenarioMetadata,
+)
 
 
 class CUB200Scenario(Scenario):
@@ -93,3 +103,16 @@ class CUB200Scenario(Scenario):
                 instances.append(instance)
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="cub200",
+            display_name="Caltech-UCSD Birds-200-2011",
+            description="Caltech-UCSD Birds-200-2011 is a challenging dataset of 200 bird species with "
+            "10 captions for each bird "
+            "([paper](https://authors.library.caltech.edu/27452/1/CUB_200_2011.pdf), "
+            "[paper](https://arxiv.org/abs/1711.10485)).",
+            taxonomy=TaxonomyInfo(task="Image quality", what=None, when=None, who=None, language=None),
+            main_metric="unknown",
+            main_split="test",
+        )

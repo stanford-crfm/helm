@@ -1,6 +1,6 @@
 import json
 from abc import ABC, abstractmethod
-from typing import List, Mapping, Optional, cast
+from typing import List, Mapping, Optional, Set, Tuple, cast
 
 from helm.common.hierarchical_logger import hwarn
 from helm.common.media_object import MultimediaObject, TEXT_TYPE
@@ -42,6 +42,10 @@ class CachingClient(Client):
             return {**raw_request, "random": request.random}
         else:
             return {**raw_request}
+
+
+_truncate_sequence_needs_to_strip_warnings: Set[Tuple[str, str]] = set()
+"""Set of (model, stop) tuples that have been warned about, for suppressing repeated warnings"""
 
 
 def truncate_sequence(
@@ -99,7 +103,13 @@ def truncate_sequence(
         new_logprob = sum(token.logprob for token in new_tokens)
 
         if print_warning:
-            hwarn(f"truncate_sequence needs to strip {json.dumps(stop)}")
+            warning_key = (request.model, stop)
+            if warning_key not in _truncate_sequence_needs_to_strip_warnings:
+                _truncate_sequence_needs_to_strip_warnings.add(warning_key)
+                hwarn(
+                    f"truncate_sequence needs to strip {json.dumps(stop)} "
+                    "(subsequent duplicate warnings will be suppressed)"
+                )
 
         sequence = GeneratedOutput(text=new_text, logprob=new_logprob, tokens=new_tokens)
 

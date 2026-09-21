@@ -4,6 +4,7 @@ import os
 from datasets import load_dataset
 from tqdm import tqdm
 
+from helm.benchmark.presentation.taxonomy_info import TaxonomyInfo
 from helm.benchmark.scenarios.scenario import (
     CORRECT_TAG,
     TEST_SPLIT,
@@ -13,6 +14,7 @@ from helm.benchmark.scenarios.scenario import (
     Output,
     Reference,
     Scenario,
+    ScenarioMetadata,
 )
 from helm.common.media_object import MediaObject, MultimediaObject
 from helm.common.images_utils import generate_hash
@@ -102,3 +104,22 @@ class ExamsVScenario(Scenario):
                 )
 
         return instances
+
+    def get_metadata(self) -> ScenarioMetadata:
+        return ScenarioMetadata(
+            name="exams_v",
+            display_name="Exams-V",
+            description="A multimodal and multilingual benchmark with knowledge-intensive exam "
+            "questions covering natural science, social science, and other miscellaneous "
+            "studies ([Das et al., 2024]( https://arxiv.org/abs/2403.10378)).",
+            taxonomy=TaxonomyInfo(
+                task="multiple-choice question answering",
+                what="Exam questions",
+                when="2024",
+                who="Human experts",
+                language="English, Chinese, Croation, Hungarian, Arabic, Serbian, "
+                "Bulgarian, English, German, French, Spanish, Polish",
+            ),
+            main_metric="quasi_prefix_exact_match",
+            main_split="test",
+        )
