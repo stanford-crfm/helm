@@ -1,10 +1,14 @@
 import pytest
 from helm.benchmark.metrics.evaluate_reference_metrics import (
     bleu_1,
+    cer_score,
     chinese_bleu_1,
     exact_match,
     exact_match_indicator,
     final_number_exact_match,
+    mer_score,
+    wer_score,
+    wip_score,
 )
 
 
@@ -37,6 +41,22 @@ def test_bleu_1():
     assert bleu_1("the quick brown fox jumped over the lazy dog", "the fox jumped over the dog") == pytest.approx(
         0.6065306597126334
     )
+
+
+@pytest.mark.parametrize("error_rate_score", [wer_score, mer_score, cer_score])
+def test_error_rate_scores_empty_prediction_is_worst(error_rate_score):
+    pytest.importorskip("jiwer")
+    gold = "the quick brown fox jumps over the lazy dog"
+    assert error_rate_score(gold, "") == 1.0
+    assert error_rate_score(gold, gold) == 0.0
+    assert error_rate_score(gold, "") >= error_rate_score(gold, "the quick brown fox")
+
+
+def test_wip_score_empty_prediction_is_worst():
+    pytest.importorskip("jiwer")
+    gold = "the quick brown fox jumps over the lazy dog"
+    assert wip_score(gold, "") == 0
+    assert wip_score(gold, gold) == 1.0
 
 
 def test_chinese_bleu_1():
