@@ -228,7 +228,7 @@ def wer_score(gold: str, pred: str) -> float:
         handle_module_not_found_error(e, ["audiolm"])
 
     if not pred:
-        return 0
+        return 1.0
     gold = normalize_text(gold, should_remove_articles=False)
     pred = normalize_text(pred, should_remove_articles=False)
     wer_ret = wer(gold, pred)
@@ -244,7 +244,7 @@ def mer_score(gold: str, pred: str) -> float:
         handle_module_not_found_error(e, ["audiolm"])
 
     if not pred:
-        return 0
+        return 1.0
 
     gold = normalize_text(gold, should_remove_articles=False)
     pred = normalize_text(pred, should_remove_articles=False)
@@ -278,7 +278,7 @@ def cer_score(gold: str, pred: str) -> float:
         handle_module_not_found_error(e, ["audiolm"])
 
     if not pred:
-        return 0
+        return 1.0
 
     gold = normalize_text(gold, should_remove_articles=False)
     pred = normalize_text(pred, should_remove_articles=False)
