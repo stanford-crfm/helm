@@ -10,9 +10,12 @@ def get_basic_generation_metric_specs(names: List[str]) -> List[MetricSpec]:
     ]
 
 
-def get_basic_reference_metric_specs() -> List[MetricSpec]:
+def get_basic_reference_metric_specs(tie_breaking_strategy: Optional[str] = None) -> List[MetricSpec]:
+    args: Dict[str, Any] = {}
+    if tie_breaking_strategy is not None:
+        args["tie_breaking_strategy"] = tie_breaking_strategy
     return [
-        MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.BasicReferenceMetric", args={}),
+        MetricSpec(class_name="helm.benchmark.metrics.basic_metrics.BasicReferenceMetric", args=args),
     ]
 
 
@@ -22,8 +25,12 @@ def get_generic_metric_specs() -> List[MetricSpec]:
     ]
 
 
-def get_basic_metric_specs(names: List[str]) -> List[MetricSpec]:
-    return get_basic_generation_metric_specs(names) + get_basic_reference_metric_specs() + get_generic_metric_specs()
+def get_basic_metric_specs(names: List[str], tie_breaking_strategy: Optional[str] = None) -> List[MetricSpec]:
+    return (
+        get_basic_generation_metric_specs(names)
+        + get_basic_reference_metric_specs(tie_breaking_strategy)
+        + get_generic_metric_specs()
+    )
 
 
 def get_exact_match_metric_specs() -> List[MetricSpec]:

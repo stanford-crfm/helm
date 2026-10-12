@@ -1,7 +1,7 @@
 from collections import defaultdict
 import math
 from dataclasses import dataclass
-from typing import List, Dict, Set
+from typing import List, Dict, Set, Optional
 from urllib.parse import unquote
 
 import numpy as np
@@ -240,13 +240,32 @@ class BasicReferenceMetric(ReferenceMetric):
     """
     Defines basic metrics for Scenarios that use one Request per Reference instead of
     one per Instance.
+
+    :param tie_breaking_strategy: Strategy for computing exact match when multiple references
+        tie for the highest score. Options:
+        - "first" (default, or "binary"): Binary exact match based on the predicted index
+          (first reference in argmax).
+        - "fractional": Backward-compatible fractional exact match based on the portion
+          of correct references in the argmax list.
     """
 
-    def __init__(self):
+    def __init__(self, tie_breaking_strategy: Optional[str] = None):
+        super().__init__()
+        strategy = (tie_breaking_strategy or "first").strip().lower()
+        if strategy == "binary":
+            strategy = "first"
+        if strategy not in ["first", "fractional"]:
+            raise ValueError(
+                f"Unknown tie_breaking_strategy: '{tie_breaking_strategy}'. "
+                "Supported strategies are: 'first', 'fractional' (or alias 'binary')."
+            )
+        self.tie_breaking_strategy: str = strategy
         self.efficiency_metric = EfficiencyMetric()
 
     def __repr__(self):
-        return "BasicReferenceMetric"
+        if self.tie_breaking_strategy == "first":
+            return "BasicReferenceMetric"
+        return f"BasicReferenceMetric(tie_breaking_strategy='{self.tie_breaking_strategy}')"
 
     def evaluate_references(
         self,
@@ -336,10 +355,19 @@ class BasicReferenceMetric(ReferenceMetric):
 
         # Multiple references may attain the same maximal score; in such cases,
         # we select the first reference within the argmax list as the `predicted_index`.
-        # Meanwhile, the "exact match" is calculated as the portion of correct references in the list.
+        # For exact match calculation:
+        # - "first" (default): binary exact match (1.0 if predicted_index is in answers else 0.0),
+        #   resolving issue #4363 where ties previously caused fractional exact_match scores.
+        # - "fractional": backward-compatible fractional score representing expected accuracy
+        #   under uniform random tie-breaking.
         argmax_references = np.flatnonzero(reference_scores >= np.max(reference_scores))
         predicted_index = argmax_references[0].item()
-        exact_match_score = len(set(answers).intersection(argmax_references)) / len(argmax_references)
+        if self.tie_breaking_strategy == "first":
+            exact_match_score = 1.0 if predicted_index in answers else 0.0
+        elif self.tie_breaking_strategy == "fractional":
+            exact_match_score = len(set(answers).intersection(argmax_references)) / len(argmax_references)
+        else:
+            raise ValueError(f"Unknown tie_breaking_strategy: {self.tie_breaking_strategy}")
 
         stats.extend(
             [
