@@ -1,7 +1,9 @@
 """Offline test for the zBench IVF scenario and grader: one real item from the release, no network."""
 
+import pytest
+
 from helm.benchmark.metrics.zbench_grader import grade
-from helm.benchmark.scenarios.zbench_scenario import ZBenchIVFScenario, item_from_record
+from helm.benchmark.scenarios.zbench_scenario import ZBenchIVFScenario, item_from_record, parse_layers
 
 RECORD = {
     "id": "IVF-V2-L2-TEST",
@@ -30,7 +32,9 @@ def test_instances_and_grader():
     assert len(instances) == 1
     assert "CDC record for this clinic" in instances[0].input.text
     assert instances[0].references[0].output.text == "7/14 (50.0%, small sample)"
-    item = instances[0].extra_data["item"]
+    extra = instances[0].extra_data
+    assert extra is not None
+    item = extra["item"]
     assert (
         grade(item, "CDC prints 7/14, a small sample: 7 live births from 14 intended retrievals.")["verdict"] == "Pass"
     )
@@ -40,3 +44,15 @@ def test_instances_and_grader():
 def test_layer_filter():
     sc = ZBenchIVFScenario(condition="closed", layers="1")
     assert sc.instances_from_items([item_from_record(RECORD)]) == []
+    assert (
+        len(ZBenchIVFScenario(condition="closed", layers="1+2").instances_from_items([item_from_record(RECORD)])) == 1
+    )
+    assert len(ZBenchIVFScenario(condition="closed", layers=2).instances_from_items([item_from_record(RECORD)])) == 1
+
+
+def test_parse_layers():
+    assert parse_layers(None) is None
+    assert parse_layers("1+2+6") == {1, 2, 6}
+    assert parse_layers(3) == {3}
+    with pytest.raises(ValueError):
+        parse_layers("none")

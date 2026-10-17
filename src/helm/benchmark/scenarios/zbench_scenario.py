@@ -10,11 +10,13 @@ support.
 Conditions:
   closed  the question alone
   record  the clinic's own CDC cells printed under the question (the control for evidence access)
+Layers: `layers=1+2+6` keeps those layers only (HELM run entries split on commas, so `+` separates the numbers).
 """
 
 import json
 import os
-from typing import Any, Dict, List, Optional
+import re
+from typing import Any, Dict, List, Optional, Set, Union
 
 from helm.benchmark.scenarios.scenario import CORRECT_TAG, TEST_SPLIT, Input, Instance, Output, Reference, Scenario
 from helm.common.general import ensure_directory_exists
@@ -84,6 +86,16 @@ def load_items(public_path: str, neighbours_path: Optional[str] = None) -> List[
     return [item_from_record(rec, nb.get(rec["id"])) for rec in read_jsonl(public_path)]
 
 
+def parse_layers(layers: Optional[Union[str, int]]) -> Optional[Set[int]]:
+    """`None` keeps every layer; otherwise the layer numbers in `layers` (`1+2+6`; a lone number arrives as an int)."""
+    if layers is None or layers == "":
+        return None
+    found = {int(x) for x in re.findall(r"\d+", str(layers))}
+    if not found:
+        raise ValueError("layers must be layer numbers separated by '+', for example layers=1+2+6")
+    return found
+
+
 class ZBenchIVFScenario(Scenario):
     """zBench IVF: questions generated from CDC's clinic-level ART tables; every answer key is a CDC row."""
 
@@ -94,12 +106,12 @@ class ZBenchIVFScenario(Scenario):
     )
     tags = ["healthcare", "facility_records", "question_answering", "administration_and_workflow"]
 
-    def __init__(self, condition: str = "closed", layers: Optional[str] = None):
+    def __init__(self, condition: str = "closed", layers: Optional[Union[str, int]] = None):
         super().__init__()
         if condition not in ("closed", "record"):
             raise ValueError("condition must be 'closed' or 'record'")
         self.condition = condition
-        self.layers = {int(x) for x in str(layers).split(",")} if layers else None
+        self.layers = parse_layers(layers)
 
     def _download(self, output_path: str) -> Dict[str, Optional[str]]:
         """The release's public and neighbours files, pinned to the dataset revision, cached under output_path."""

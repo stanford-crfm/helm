@@ -20,7 +20,7 @@ Public API: ``plain``, ``signals``, ``substitutions``, ``auto_verdict``, ``grade
 from __future__ import annotations
 
 import math
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable
 
 import regex
 
@@ -317,13 +317,25 @@ def _value_re(value: Any, loose: bool) -> "regex.Pattern[str]":
     return js_re(r"\b" + v.replace("/", r"\s*(?:/|of|out of)\s*", 1) + r"\b", "g")
 
 
+def _any_of(patterns: list[str]) -> Callable[[str], bool]:
+    return lambda seg: any(_test(p, seg) for p in patterns)
+
+
+def _year_in(year: Any) -> Callable[[str], bool]:
+    return lambda seg: _test(r"\b" + _num_str(year) + r"\b", seg, "")
+
+
+def _band_in(band: Any) -> Callable[[str], bool]:
+    return lambda seg: _test(BAND_WORDS.get(band, r"(?!)"), seg)
+
+
 def _attributed(text: str, x: dict[str, Any], item: dict[str, Any]) -> bool:
     if not text or x.get("rel") == "unknown":
         return False
     cells = (item.get("meta") or {}).get("cells") or []
     own = cells[0] if cells else {}
     parts = str(x["rel"]).replace(" (rounded)", "").split("+")
-    needs = []
+    needs: list[Callable[[str], bool]] = []
     for part in parts:
         if part == "measure":
             distinct = [
@@ -331,11 +343,11 @@ def _attributed(text: str, x: dict[str, Any], item: dict[str, Any]) -> bool:
                 for k, re in MEASURE_TOKENS
                 if _test(k, x.get("measure") or "", "") and not _test(k, own.get("m") or "", "")
             ]
-            needs.append(lambda seg, d=distinct: any(_test(re, seg) for re in d))
+            needs.append(_any_of(distinct))
         elif part == "year":
-            needs.append(lambda seg, y=x.get("year"): _test(r"\b" + _num_str(y) + r"\b", seg, ""))
+            needs.append(_year_in(x.get("year")))
         elif part == "band":
-            needs.append(lambda seg, b=x.get("band"): _test(BAND_WORDS.get(b, r"(?!)"), seg))
+            needs.append(_band_in(x.get("band")))
         elif part == "national":
             needs.append(lambda seg: _test(r"national|nationwide|U\.?S\.? (?:average|rate|figure)|all clinics", seg))
         else:
@@ -410,7 +422,9 @@ def substitutions(
             for k in range(1, 5):
                 f = f"{k}/{sp.group(1)}"
                 own.append(f)
-                own_nums.append(_frac_pct(f))
+                fp = _frac_pct(f)
+                if fp is not None:
+                    own_nums.append(fp)
     out: list[dict[str, Any]] = []
     for p in sig.get("percentages") or []:
         if any(_near(o, p) or (float(p).is_integer() and abs(o - p) < 0.51) for o in own_nums):

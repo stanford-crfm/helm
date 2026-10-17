@@ -1,10 +1,13 @@
 """Run specs for zBench IVF (zReports HealthCare Data Lab), MedHELM category Administration and Workflow.
 
-helm-run --run-entries zbench_ivf:condition=closed,model=openai/gpt-5 --suite zbench --max-eval-instances 500
-helm-run --run-entries zbench_ivf:condition=record,model=openai/gpt-5 --suite zbench --max-eval-instances 500
+helm-run --run-entries zbench_ivf:condition=closed,model=openai/gpt-5-2025-08-07 --suite zbench --max-eval-instances 500
+helm-run --run-entries zbench_ivf:condition=record,model=openai/gpt-5-2025-08-07 --suite zbench --max-eval-instances 500
+helm-run --run-entries zbench_ivf:condition=record,layers=1+2+6,model=openai/gpt-5-2025-08-07 --suite zbench
+
+`layers` keeps the listed layers only; the numbers are separated by `+` because run entry arguments split on commas.
 """
 
-from typing import Optional
+from typing import Optional, Union
 
 from helm.benchmark.adaptation.common_adapter_specs import get_generation_adapter_spec
 from helm.benchmark.metrics.common_metric_specs import get_basic_metric_specs
@@ -20,10 +23,11 @@ INSTRUCTIONS = (
 
 
 @run_spec_function("zbench_ivf")
-def get_zbench_ivf_spec(condition: str = "closed", layers: Optional[str] = None) -> RunSpec:
+def get_zbench_ivf_spec(condition: str = "closed", layers: Optional[Union[str, int]] = None) -> RunSpec:
+    layers_arg = str(layers) if layers not in (None, "") else None
     scenario_spec = ScenarioSpec(
         class_name="helm.benchmark.scenarios.zbench_scenario.ZBenchIVFScenario",
-        args={"condition": condition, **({"layers": layers} if layers else {})},
+        args={"condition": condition, **({"layers": layers_arg} if layers_arg else {})},
     )
     adapter_spec = get_generation_adapter_spec(
         instructions=INSTRUCTIONS,
@@ -38,7 +42,7 @@ def get_zbench_ivf_spec(condition: str = "closed", layers: Optional[str] = None)
         MetricSpec(class_name="helm.benchmark.metrics.zbench_metrics.ZBenchMetric", args={})
     ] + get_basic_metric_specs([])
     return RunSpec(
-        name="zbench_ivf:condition=%s%s" % (condition, (",layers=" + layers) if layers else ""),
+        name="zbench_ivf:condition=%s%s" % (condition, (",layers=" + layers_arg) if layers_arg else ""),
         scenario_spec=scenario_spec,
         adapter_spec=adapter_spec,
         metric_specs=metric_specs,
