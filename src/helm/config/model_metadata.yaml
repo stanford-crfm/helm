@@ -5690,3 +5690,21 @@ models:
     access: limited
     release_date: 2025-01-31
     tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]
+
+  - name: aiinstitutelncc/manaca-1b-base
+    display_name: Manacá (1.72B)
+    description: Manacá-1B is an open decoder-only language model of ~1.72 billion parameters, trained from scratch for Brazilian Portuguese with a fully containerized, reproducible pipeline.
+    creator_organization_name: AIInstituteLNCC
+    access: open
+    num_parameters: 1722951680
+    release_date: 2026-09-01
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG]
+
+  - name: aiinstitutelncc/manaca-1b-instruct
+    display_name: Manacá Instruct (1.72B)
+    description: Manacá-1B is a small language model of ~1.72 billion parameters, trained from scratch for Brazilian Portuguese with a fully containerized, reproducible pipeline. This is the fine yuned version of the Manacá Base model. It was trained using SFT and a safety allingment safety-SFT.
+    creator_organization_name: AIInstituteLNCC
+    access: open
+    num_parameters: 1722951680
+    release_date: 2026-09-03
+    tags: [TEXT_MODEL_TAG, LIMITED_FUNCTIONALITY_TEXT_MODEL_TAG, INSTRUCTION_FOLLOWING_MODEL_TAG]

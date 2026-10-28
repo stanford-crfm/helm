@@ -5552,3 +5552,23 @@ model_deployments:
         dspy_module: ChainOfThought
         dspy_api_model: openai/o3-mini-2025-01-31
         dspy_api_base: null
+
+  - name: huggingface/manaca-1b-base
+    model_name: aiinstitutelncc/manaca-1b-base
+    tokenizer_name: aiinstitutelncc/manaca-1b-base
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: AIInstituteLNCC/manaca-1b-base
+        torch_dtype: "bfloat16"
+  
+  - name: huggingface/manaca-1b-instruct
+    model_name: aiinstitutelncc/manaca-1b-instruct
+    tokenizer_name: aiinstitutelncc/manaca-1b-instruct
+    max_sequence_length: 4096
+    client_spec:
+      class_name: "helm.clients.huggingface_client.HuggingFaceClient"
+      args:
+        pretrained_model_name_or_path: AIInstituteLNCC/manaca-1b-instruct
+        torch_dtype: "bfloat16"
