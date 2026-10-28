@@ -820,6 +820,7 @@ class Summarizer:
                 num_references: List[Stat] = []
                 num_prompt_tokens: List[Stat] = []
                 num_completion_tokens: List[Stat] = []
+                seen_run_paths: Set[str] = set()
 
                 # Go over all the matching runs
                 for subgroup in self.expand_subgroups(group):
@@ -828,6 +829,9 @@ class Summarizer:
                         models.add(adapter_spec.model_deployment)
                         methods.add(adapter_spec.method)
                         for run in filtered_runs:
+                            if run.run_path in seen_run_paths:
+                                continue
+                            seen_run_paths.add(run.run_path)
                             num_instances.extend(get_all_stats_by_name(run.stats, "num_instances"))
                             num_references.extend(get_all_stats_by_name(run.stats, "num_references"))
                             num_prompt_tokens.extend(get_all_stats_by_name(run.stats, "num_prompt_tokens"))
@@ -1187,12 +1191,16 @@ class Summarizer:
         tables: List[Table] = []
         adapter_to_runs: Dict[AdapterSpec, List[Run]] = defaultdict(list)
         subgroups = self.expand_subgroups(group)
+        seen_run_paths: Set[str] = set()
         for subgroup in subgroups:
             for adapter_spec, runs in self.group_adapter_to_runs[subgroup.name].items():
                 coarse_adapter_spec = get_coarse_adapter_spec(adapter_spec, adapter_keys_shown=group.adapter_keys_shown)
                 filtered_runs = self.filter_runs_by_visibility(runs, group)
-                if filtered_runs:
-                    adapter_to_runs[coarse_adapter_spec].extend(filtered_runs)
+                for run in filtered_runs:
+                    # A run can belong to several subgroups, but contributes only once.
+                    if run.run_path not in seen_run_paths:
+                        adapter_to_runs[coarse_adapter_spec].append(run)
+                        seen_run_paths.add(run.run_path)
 
         all_metric_groups: List[str] = []
         if group.metric_groups:  # if the group specifies the metric groups, use them
