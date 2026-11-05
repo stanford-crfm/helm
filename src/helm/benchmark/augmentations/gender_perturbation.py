@@ -193,8 +193,8 @@ class GenderPerturbation(TextPerturbation):
             return [tuple([str(e).lower() for e in t]) for t in loaded_json]
 
     def substitute_word(self, text: str, word: str, synonym: str, rng: Random) -> str:
-        """Substitute the occurences of word in text with its synonym with self.probability"""
-        # Pattern capturing any occurence of given word in the text, surrounded by non-alphanumeric characters
+        """Substitute the occurrences of word in text with its synonym with self.probability"""
+        # Pattern capturing any occurrence of given word in the text, surrounded by non-alphanumeric characters
         pattern = f"[^\\w]({word})[^\\w]"
 
         # Substitution function

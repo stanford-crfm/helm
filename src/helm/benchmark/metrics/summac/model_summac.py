@@ -304,7 +304,7 @@ class SummaCConv(torch.nn.Module):
         self.n_depth = len(self.imagers) * len(self.nli_labels)
         self.full_size = self.n_depth * self.n_bins
         if self.norm_histo:
-            self.full_size += 2  # Will explicitely give the count of originals and generateds
+            self.full_size += 2  # Will explicitly give the count of originals and generated
 
         self.agg = agg
 

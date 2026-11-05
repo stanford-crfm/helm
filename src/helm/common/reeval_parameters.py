@@ -9,4 +9,4 @@ class REEvalParameters:
     """
 
     model_ability: Optional[float] = None
-    """The inital ability of the model to perform the task. Used for reeval evaluation."""
+    """The initial ability of the model to perform the task. Used for reeval evaluation."""

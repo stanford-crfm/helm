@@ -35,7 +35,7 @@ Locations of the `benchmark_output` folders for each project:
 
 ## Download a whole project
 
-Warning: Downloading a whole HELM project requires a very large amounts of disk space - a few hundred GB for most projects, and more than 5 TB for Classic. Ensure that you have enough local disk space before downloading these projects.
+Warning: Downloading a whole HELM project requires a very large amount of disk space - a few hundred GB for most projects, and more than 5 TB for Classic. Ensure that you have enough local disk space before downloading these projects.
 
 1. (Optional) Use the `gcloud storage du` ([documentation](https://cloud.google.com/sdk/gcloud/reference/storage/du)) command to compute the size of the download and ensure you have enough space on your local disk:
 ```sh

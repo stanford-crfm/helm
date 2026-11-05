@@ -25,7 +25,7 @@ class CachingTokenizer(Tokenizer):
         """Returns a dictionary that uniquely identifies the tokenization request.
         This is used as the cache key for the tokenization request.
 
-        Most Tokenizer use this simple implementation but it can be overriden
+        Most Tokenizer use this simple implementation but it can be overridden
         to implement some custom logic or preserve an existing Cache.
         """
         return asdict(request)
@@ -34,7 +34,7 @@ class CachingTokenizer(Tokenizer):
         """Returns a dictionary that uniquely identifies the decode request.
         This is used as the cache key for the decode request.
 
-        Most Tokenizer use this simple implementation but it can be overriden
+        Most Tokenizer use this simple implementation but it can be overridden
         to implement some custom logic or preserve an existing Cache.
         """
         return asdict(request)
@@ -45,7 +45,7 @@ class CachingTokenizer(Tokenizer):
         """Returns the list of tokens from the raw response.
         This is used to extract the tokens from the raw response.
 
-        Most Tokenizer use this simple implementation but it can be overriden
+        Most Tokenizer use this simple implementation but it can be overridden
         to implement some custom logic or preserve an existing Cache.
         """
         return [TokenizationToken(token) for token in response["tokens"]]
@@ -54,7 +54,7 @@ class CachingTokenizer(Tokenizer):
         """Returns the text from the raw response.
         This is used to extract the text from the raw response.
 
-        Most Tokenizer use this simple implementation but it can be overriden
+        Most Tokenizer use this simple implementation but it can be overridden
         to implement some custom logic or preserve an existing Cache.
         """
         return response["text"]

@@ -5,7 +5,7 @@ In the tutorial, we have been using `--run-entries` to specify run entries for `
 This has a number of advantages:
 
 - This prevents the command line invocation of `helm-run` from getting too long when a large number of run entries are run.
-- The run entries configuration file can be shared with other users and commited to Git.
+- The run entries configuration file can be shared with other users and committed to Git.
 
 For example, instead of running:
 

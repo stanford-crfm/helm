@@ -57,7 +57,7 @@ class FinQAScenario(Scenario):
     Code: https://github.com/czyssrs/FinQA
 
     Presented with a financial report consisting of textual contents and a structured table, given a question,
-    the task is togenerate the reasoning program in the domain specific langauge (DSL) that will be executed
+    the task is to generate the reasoning program in the domain specific language (DSL) that will be executed
     to get the answer.
 
     We add the sub-headers "Pre-table text", "Table", "Post-table text" to the input. Example:

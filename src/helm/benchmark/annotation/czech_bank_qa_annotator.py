@@ -45,7 +45,7 @@ class CzechBankQAAnnotator(Annotator):
         #     df = pd.read_csv(file_path)
         #     table_name = file_name.removesuffix(".csv")
         #     df.to_sql(table_name, database, if_exists="append", index=False)
-        #     print("Commited to SQL")
+        #     print("Committed to SQL")
         # # df.to_sql(table_name, conn, if_exists='append', index=False)
 
         self.database = database
