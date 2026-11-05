@@ -289,6 +289,11 @@ def is_equiv_chain_of_thought(str1: str, str2: str) -> float:
     """Strips the solution first before calling `is_equiv`."""
     ans1 = get_answer(str1)
     ans2 = get_answer(str2)
+    if ans1 is None or ans2 is None:
+        # Neither side has an extractable answer (e.g. `\boxed 5` without braces),
+        # so there is nothing to compare. Scoring this as correct would reward a
+        # completion that contains no answer at all.
+        return 0.0
 
     return is_equiv(ans1, ans2)
 
