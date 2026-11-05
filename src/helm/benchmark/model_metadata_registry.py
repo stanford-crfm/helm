@@ -56,7 +56,7 @@ INSTRUCTION_FOLLOWING_MODEL_TAG: str = "INSTRUCTION_FOLLOWING_MODEL_TAG"
 # For text-to-image models
 TEXT_TO_IMAGE_MODEL_TAG: str = "TEXT_TO_IMAGE_MODEL_TAG"
 
-# For Vision-langauge models (VLMs)
+# For Vision-language models (VLMs)
 VISION_LANGUAGE_MODEL_TAG: str = "VISION_LANGUAGE_MODEL_TAG"
 # IDEFICS require a special prompt format (see `IDEFICSInstructRunExpander`)
 IDEFICS_INSTRUCT_MODEL_TAG: str = "IDEFICS_INSTRUCT_MODEL_TAG"
@@ -69,7 +69,7 @@ OPEN_FLAMINGO_MODEL_TAG: str = "OPEN_FLAMINGO_MODEL_TAG"
 LIMITED_FUNCTIONALITY_VLM_TAG: str = "LIMITED_FUNCTIONALITY_VLM_TAG"
 FULL_FUNCTIONALITY_VLM_TAG: str = "FULL_FUNCTIONALITY_VLM_TAG"
 
-# For Audio-langauge models (AudioLMs)
+# For Audio-language models (AudioLMs)
 AUDIO_LANGUAGE_MODEL_TAG: str = "AUDIO_LANGUAGE_MODEL_TAG"
 
 # Deprecated models that are no longer available.

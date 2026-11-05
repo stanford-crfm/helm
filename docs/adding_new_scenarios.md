@@ -20,7 +20,7 @@ If your task is not listed, you may still implement your task using custom adapt
 
 ## Custom `Scenario` subclass
 
-For this tutorial, we will create a `MyScenario` class in the the `my_scenario` module. Make a file called `./my_scenario.py` under the my_scenario directory. Create a new class called `MyScenario`. Find the appropriate example scenario and copy its implementation into `MyScenario`, making sure to also copy all the required imports.
+For this tutorial, we will create a `MyScenario` class in the `my_scenario` module. Make a file called `./my_scenario.py` under the my_scenario directory. Create a new class called `MyScenario`. Find the appropriate example scenario and copy its implementation into `MyScenario`, making sure to also copy all the required imports.
 
 Now we will create a test for the scenario to make sure that it is working correctly. Create a file called `./my_scenario_test.py` under the my_scenario directory. Create a `test_my_scenario()` function in this file. Find the appropriate example scenario test from `test_simple_scenarios.py` and copy its implementation into `test_my_scenario()`.
 

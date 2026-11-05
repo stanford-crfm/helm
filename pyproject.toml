@@ -242,7 +242,7 @@ ibm-enterprise-scenarios = [
 ]
 
 ibm = [
-    # incompatability issues with pandas library !
+    # incompatibility issues with pandas library !
     "ibm-watsonx-ai~=1.2",
 ]
 

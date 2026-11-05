@@ -2,7 +2,7 @@
 
 ## Check your system Python version
 
-Check your system verison of Python by running:
+Check your system version of Python by running:
 
 ```bash
 python --version

@@ -20,7 +20,7 @@ class OABExamsScenario(Scenario):
     on a specific legal area (e.g., Civil, Criminal, Labor Law), where candidates must draft a legal document
     and answer four essay questions.
 
-    This dataset is composed by the exams that occured between 2010 and 2018.
+    This dataset is composed by the exams that occurred between 2010 and 2018.
 
     The dataset can be found in this link: https://huggingface.co/datasets/eduagarcia/oab_exams
     """

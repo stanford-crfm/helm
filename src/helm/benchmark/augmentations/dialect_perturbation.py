@@ -90,7 +90,7 @@ class DialectPerturbation(TextPerturbation):
             self.mapping_file_path = self.retrieve_mapping_dict()
         self.mapping_dict: Dict[str, List[str]] = self.load_mapping_dict()
 
-        # Pattern capturing any occurence of the given words in the text, surrounded by characters other than
+        # Pattern capturing any occurrence of the given words in the text, surrounded by characters other than
         # alphanumeric characters and '-'. We use re.escape since the words in our dictionary may
         # contain special RegEx characters.
         words = [re.escape(w) for w in self.mapping_dict.keys()]

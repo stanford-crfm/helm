@@ -138,7 +138,7 @@ class ToRRRobustnessSummarizer(Summarizer):
         # whereas non-scenario tables link to the runs in the metrics cells.
         run_spec_names: Optional[List] = None
         if not is_scenario_table:
-            # Deduplicate run spec names becuase aggregated_run_specs may have duplicated
+            # Deduplicate run spec names because aggregated_run_specs may have duplicated
             # run specs if a run spec belongs to multiple groups.
             run_spec_names = []
             run_spec_names_set = set()
