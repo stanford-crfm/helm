@@ -35,17 +35,18 @@ class OODKnowledgeMetric(EvaluateInstancesMetric):
             correct_ref_texts = [normalize_text(ref.output.text) for ref in references if ref.output.text]
             parsed_prediction = None
 
-            respond_text = request_state.result.completions[0].text.lower()
+            respond_text = request_state.result.completions[0].text
             # split according to any whitespace, and discard empty strings from the result.
             respond_text = " ".join(respond_text.split())
             exclude = set(string.punctuation)
             respond_text = "".join(ch for ch in respond_text if ch not in exclude)
+            # The options are uppercase letters, so they must be matched against the original-case text.
             for option in MC_OPTIONS:
                 if re.search(r"\b" + option + r"\b", respond_text):
                     parsed_prediction = option
             if parsed_prediction is None:
                 # Texts that can indicate refuse to answer.
-                if any([keyword in respond_text for keyword in REFUSAL_KEYWORDS]):
+                if any([keyword in respond_text.lower() for keyword in REFUSAL_KEYWORDS]):
                     idk_answer += 1
                 continue
 
@@ -57,7 +58,8 @@ class OODKnowledgeMetric(EvaluateInstancesMetric):
         acc = correct_answer / len(request_states)
         rr = idk_answer / len(request_states)
 
-        macc = float(acc / (1 - rr))
+        # MACC is the accuracy over answered (non-refused) questions; it is 0 when every question was refused.
+        macc = float(acc / (1 - rr)) if rr < 1 else 0.0
 
         return [
             Stat(MetricName("ood_knowledge_acc")).add(acc),
