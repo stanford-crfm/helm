@@ -1049,6 +1049,28 @@ def get_med_mcqa_spec() -> RunSpec:
     )
 
 
+@run_spec_function("med_mcqa_verified_keys")
+def get_med_mcqa_verified_keys_spec() -> RunSpec:
+    scenario_spec = ScenarioSpec(
+        class_name="helm.benchmark.scenarios.med_mcqa_verified_keys_scenario.MedMCQAVerifiedKeysScenario", args={}
+    )
+
+    adapter_spec = get_multiple_choice_adapter_spec(
+        method=ADAPT_MULTIPLE_CHOICE_JOINT,
+        instructions="Give a letter answer among A, B, C or D.",
+        input_noun="Question",
+        output_noun="Answer",
+    )
+
+    return RunSpec(
+        name="med_mcqa_verified_keys",
+        scenario_spec=scenario_spec,
+        adapter_spec=adapter_spec,
+        metric_specs=get_exact_match_metric_specs(),
+        groups=["med_mcqa_verified_keys"],
+    )
+
+
 @run_spec_function("med_paragraph_simplification")
 def get_med_paragraph_simplification_spec() -> RunSpec:
     scenario_spec = ScenarioSpec(
