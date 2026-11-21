@@ -29,8 +29,12 @@ from typing import Dict, Optional, Sequence, Union
 
 from absl import logging
 import langdetect
+from langdetect import detector_factory
 
 import helm.benchmark.metrics.ifeval.instructions_util as instructions_util
+
+# langdetect loads its profiles lazily and not thread-safely; IFEvalMetric runs checks in a thread pool.
+detector_factory.init_factory()
 
 from helm.benchmark.metrics.ifeval.instructions_util import LANGUAGE_CODES
 
