@@ -61,11 +61,11 @@ class ImageCompilerAnnotator(Annotator, ABC):
             raw_response: Dict[str, Any]
 
             @retry
-            def compile() -> Dict[str, Any]:
+            def compile(_completion_text: str = completion_text) -> Dict[str, Any]:
                 def do_it() -> Dict[str, Any]:
                     try:
                         assert self._file_cache is not None
-                        image, infos = self.compile_completion_into_image(request_state, completion_text)
+                        image, infos = self.compile_completion_into_image(request_state, _completion_text)
                         infos = self.postprocess_infos(infos)
                         image_path: str = self._file_cache.store_image(lambda: image)
                         return {
@@ -76,7 +76,7 @@ class ImageCompilerAnnotator(Annotator, ABC):
                         return {"error": str(e)}
 
                 try:
-                    cache_key: Dict[str, str] = {"completion": completion_text}
+                    cache_key: Dict[str, str] = {"completion": _completion_text}
                     raw_response, _ = self._cache.get(cache_key, do_it)
                     return raw_response
                 except Exception as e:
